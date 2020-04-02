@@ -90,9 +90,7 @@ class LSTMAggregator(Aggregator):
         neighbours = neighbours[:, rand_order, :]
 
         (lstm_out, self.hidden) = self.lstm(neighbours.view(neighbours.size()[0],
-                                                            neighbours.size()[
-            1],
-            -1))
+                                                            neighbours.size()[1], -1))
         return lstm_out[:, -1, :]
 
     def forward(self, node):

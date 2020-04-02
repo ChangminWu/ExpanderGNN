@@ -14,7 +14,7 @@ def MAE(scores, targets):
 
 def accuracy(scores, targets):
     scores = scores.detach().argmax(dim=1)
-    acc = (scores==targets).float().sum().item()
+    acc = (scores == targets).float().sum().item()
     return acc
 
 

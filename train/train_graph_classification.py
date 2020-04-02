@@ -8,6 +8,7 @@ import math
 
 from train.metrics import accuracy
 
+
 def train_epoch(model, optimizer, device, data_loader, epoch):
     model.train()
     epoch_loss = 0
@@ -34,6 +35,7 @@ def train_epoch(model, optimizer, device, data_loader, epoch):
     
     return epoch_loss, epoch_train_acc, optimizer
 
+
 def evaluate_network(model, device, data_loader, epoch):
     model.eval()
     epoch_test_loss = 0
@@ -56,6 +58,7 @@ def evaluate_network(model, device, data_loader, epoch):
         epoch_test_acc /= nb_data
         
     return epoch_test_loss, epoch_test_acc
+
 
 def check_patience(all_losses, best_loss, best_epoch, curr_loss, curr_epoch, counter):
     if curr_loss < best_loss:

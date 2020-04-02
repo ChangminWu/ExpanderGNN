@@ -18,24 +18,27 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
+
 class DotDict(dict):
     def __init__(self, **kwds):
         self.update(kwds)
         self.__dict__ = self
-        
+
+
 from nets.load_net import gnn_model 
 from data.load_data import LoadData 
 from train.train_graph_classification import train_epoch, evaluate_network
+
 
 def view_model_param(MODEL_NAME, net_params):
     model = gnn_model(MODEL_NAME, net_params)
     total_param = 0
     print("MODEL DETAILS:\n")
     for param in model.parameters():
-#         print(param.data.size())
         total_param += np.prod(list(param.data.size()))
     print('MODEL/Total parameters:', MODEL_NAME, total_param)
     return total_param
+
 
 def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     avg_test_acc = []
