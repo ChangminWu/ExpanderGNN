@@ -17,6 +17,9 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
+from collections import OrderedDict
+from utils import expand_writer
+
 
 class DotDict(dict):
     def __init__(self, **kwds):
@@ -57,7 +60,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     
     trainset, valset, testset = dataset.train, dataset.val, dataset.test
     
-    root_log_dir, root_ckpt_dir, write_file_name, write_config_file = dirs
+    root_log_dir, root_ckpt_dir, write_file_name, write_config_file, write_expander_dir = dirs
     device = net_params['device']
     
     # Write the network and optimization hyper-parameters in folder config/
@@ -66,8 +69,10 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     
     # At any point you can hit Ctrl + C to break out of training early.
     try:
-        saved_expander = dict()
+        saved_expander = OrderedDict()
         for split_number in range(10):
+            saved_layers = list()
+
             t0_split = time.time()
             log_dir = os.path.join(root_log_dir, "RUN_" + str(split_number))
             writer = SummaryWriter(log_dir=log_dir)
@@ -88,13 +93,15 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
             model = gnn_model(MODEL_NAME, net_params)
             model = model.to(device)
-            saved_expander = init_expander(model, saved_expander, net_params["expander_size"])
+            saved_expander, _ = init_expander(model, saved_expander, saved_layers, net_params["expander_size"])
+            if split_number == 0:
+                expand_writer(saved_expander, curr_path=write_expander_dir)
+
             optimizer = optim.Adam(model.parameters(), lr=params['init_lr'], weight_decay=params['weight_decay'])
             scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
                                                              factor=params['lr_reduce_factor'],
                                                              patience=params['lr_schedule_patience'],
                                                              verbose=True)
-
 
             epoch_train_losses, epoch_val_losses = [], []
             epoch_train_accs, epoch_val_accs = [], [] 
@@ -252,6 +259,7 @@ def main():
     parser.add_argument('--cat', help="Please give a value for cat")
     parser.add_argument('--self_loop', help="Please give a value for self_loop")
     parser.add_argument('--max_time', help="Please give a value for max_time")
+    parser.add_argument('--expander_size', help="Please give a value for expander size")
     args = parser.parse_args()
     
     with open(args.config) as f:
@@ -360,6 +368,8 @@ def main():
         net_params['cat'] = True if args.cat=='True' else False
     if args.self_loop is not None:
         net_params['self_loop'] = True if args.self_loop=='True' else False
+    if args.expander_size is not None:
+        net_params["expander_size"] = int(args.expander_size)
         
     net_params['in_dim'] = dataset.all.graph_lists[0].ndata['feat'][0].shape[0]
     num_classes = len(np.unique(dataset.all.graph_labels))
@@ -372,11 +382,12 @@ def main():
         max_num_node = max(num_nodes)
         net_params['assign_dim'] = int(max_num_node * net_params['pool_ratio']) * net_params['batch_size']
     
-    root_log_dir = out_dir + 'logs/' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y')
-    root_ckpt_dir = out_dir + 'checkpoints/' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y')
-    write_file_name = out_dir + 'results/result_' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y')
-    write_config_file = out_dir + 'configs/config_' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y')
-    dirs = root_log_dir, root_ckpt_dir, write_file_name, write_config_file
+    root_log_dir = out_dir + 'logs/' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
+    root_ckpt_dir = out_dir + 'checkpoints/' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
+    write_file_name = out_dir + 'results/result_' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
+    write_config_file = out_dir + 'configs/config_' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
+    write_expander_dir = out_dir + 'expanders/' +  MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
+    dirs = root_log_dir, root_ckpt_dir, write_file_name, write_config_file, write_expander_dir
 
     if not os.path.exists(out_dir + 'results'):
         os.makedirs(out_dir + 'results')

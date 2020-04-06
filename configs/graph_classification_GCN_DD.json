@@ -32,6 +32,7 @@
         "dropout": 0.0,
         "graph_norm": true,
         "batch_norm": true,
-        "self_loop": false
+        "self_loop": false,
+        "expander_size": 16
     }
 }
