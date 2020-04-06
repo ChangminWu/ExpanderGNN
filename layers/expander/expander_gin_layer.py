@@ -8,7 +8,8 @@ import dgl.function as fn
     HOW POWERFUL ARE GRAPH NEURAL NETWORKS? (Keyulu Xu, Weihua Hu, Jure Leskovec and Stefanie Jegelka, ICLR 2019)
     https://arxiv.org/pdf/1810.00826.pdf
 """
-from layers.expander.expander_layer import ExpanderLinear
+from layers.expander.expander_layer import ExpanderLinearLayer
+
 
 class ExpanderGINLayer(nn.Module):
     """
@@ -36,7 +37,8 @@ class ExpanderGINLayer(nn.Module):
         If True, :math:`\epsilon` will be a learnable parameter.
     
     """
-    def __init__(self, apply_func, aggr_type, dropout, graph_norm, batch_norm, residual=False, init_eps=0, learn_eps=False):
+    def __init__(self, apply_func, aggr_type, dropout, graph_norm, batch_norm, residual=False, init_eps=0,
+                 learn_eps=False):
         super().__init__()
         self.apply_func = apply_func
         
@@ -69,7 +71,7 @@ class ExpanderGINLayer(nn.Module):
         self.bn_node_h = nn.BatchNorm1d(out_dim)
 
     def forward(self, g, h, snorm_n):
-        h_in = h # for residual connection
+        h_in = h  # for residual connection
         
         g = g.local_var()
         g.ndata['h'] = h
@@ -79,22 +81,22 @@ class ExpanderGINLayer(nn.Module):
             h = self.apply_func(h)
 
         if self.graph_norm:
-            h = h* snorm_n # normalize activation w.r.t. graph size
+            h = h * snorm_n  # normalize activation w.r.t. graph size
         
         if self.batch_norm:
-            h = self.bn_node_h(h) # batch normalization  
+            h = self.bn_node_h(h)  # batch normalization
         
-        h = F.relu(h) # non-linear activation
+        h = F.relu(h)  # non-linear activation
         
         if self.residual:
-            h = h_in + h # residual connection
+            h = h_in + h  # residual connection
         
         h = F.dropout(h, self.dropout, training=self.training)
         
         return h
     
     
-class ApplyNodeFunc(nn.Module):
+class ExpanderApplyNodeFunc(nn.Module):
     """
         This class is used in class GINNet
         Update the node feature hv with MLP
@@ -108,7 +110,7 @@ class ApplyNodeFunc(nn.Module):
         return h
 
 
-class ExpanderMLP(nn.Module):
+class ExpanderMLPLayer(nn.Module):
     """MLP with linear output"""
     def __init__(self, num_layers, input_dim, hidden_dim, output_dim):
 
@@ -122,17 +124,17 @@ class ExpanderMLP(nn.Module):
             raise ValueError("number of layers should be positive!")
         elif num_layers == 1:
             # Linear model
-            self.linear = ExpanderLinear(input_dim, output_dim, expandSize=12)
+            self.linear = ExpanderLinearLayer(input_dim, output_dim)
         else:
             # Multi-layer model
             self.linear_or_not = False
-            self.linears = torch.nn.ModuleList()
-            self.batch_norms = torch.nn.ModuleList()
+            self.linears = nn.ModuleList()
+            self.batch_norms = nn.ModuleList()
 
-            self.linears.append(ExpanderLinear(input_dim, hidden_dim, expandSize=6))
+            self.linears.append(ExpanderLinearLayer(input_dim, hidden_dim))
             for layer in range(num_layers - 2):
-                self.linears.append(ExpanderLinear(hidden_dim, hidden_dim, expandSize=6))
-            self.linears.append(ExpanderLinear(hidden_dim, output_dim, expandSize=12))
+                self.linears.append(ExpanderLinearLayer(hidden_dim, hidden_dim))
+            self.linears.append(ExpanderLinearLayer(hidden_dim, output_dim))
 
             for layer in range(num_layers - 1):
                 self.batch_norms.append(nn.BatchNorm1d((hidden_dim)))

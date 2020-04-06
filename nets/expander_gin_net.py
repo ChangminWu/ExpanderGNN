@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 import dgl
 from dgl.nn.pytorch.glob import SumPooling, AvgPooling, MaxPooling
@@ -11,12 +10,12 @@ from dgl.nn.pytorch.glob import SumPooling, AvgPooling, MaxPooling
     https://arxiv.org/pdf/1810.00826.pdf
 """
 
-from layers.expander.expander_gin_layer import ExpanderGINLayer, ApplyNodeFunc, ExpanderMLP
+from layers.expander.expander_gin_layer import ExpanderGINLayer, ExpanderApplyNodeFunc, ExpanderMLPLayer
 from layers.expander.expander_mlp_readout_layer import ExpanderMLPReadout
-from layers.expander.expander_layer import ExpanderLinear
+from layers.expander.expander_layer import ExpanderLinearLayer
+
 
 class ExpanderGINNet(nn.Module):
-    
     def __init__(self, net_params):
         super().__init__()
         in_dim = net_params['in_dim']
@@ -35,20 +34,18 @@ class ExpanderGINNet(nn.Module):
         # List of MLPs
         self.ginlayers = torch.nn.ModuleList()
         
-        self.embedding_h = ExpanderLinear(in_dim, hidden_dim, expandSize=12)
+        self.embedding_h = ExpanderLinearLayer(in_dim, hidden_dim)
         
         for layer in range(self.n_layers):
-            mlp = ExpanderMLP(n_mlp_layers, hidden_dim, hidden_dim, hidden_dim)
-            
-            self.ginlayers.append(ExpanderGINLayer(ApplyNodeFunc(mlp), neighbor_aggr_type,
-                                           dropout, graph_norm, batch_norm, residual, 0, learn_eps))
+            mlp = ExpanderMLPLayer(n_mlp_layers, hidden_dim, hidden_dim, hidden_dim)
+            self.ginlayers.append(ExpanderGINLayer(ExpanderApplyNodeFunc(mlp), neighbor_aggr_type, dropout, graph_norm,
+                                                   batch_norm, residual, 0, learn_eps))
 
         # Linear function for graph poolings (readout) of output of each layer
         # which maps the output of different layers into a prediction score
-        self.linears_prediction = torch.nn.ModuleList()
-
+        self.linears_prediction = nn.ModuleList()
         for layer in range(self.n_layers+1):
-            self.linears_prediction.append(ExpanderLinear(hidden_dim, n_classes, expandSize=12))
+            self.linears_prediction.append(ExpanderLinearLayer(hidden_dim, n_classes))
         
         if readout == 'sum':
             self.pool = SumPooling()
@@ -71,7 +68,6 @@ class ExpanderGINNet(nn.Module):
             hidden_rep.append(h)
 
         score_over_layer = 0
-
         # perform pooling over all nodes in each graph in every layer
         for i, h in enumerate(hidden_rep):
             pooled_h = self.pool(g, h)

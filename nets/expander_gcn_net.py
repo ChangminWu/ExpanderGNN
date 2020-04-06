@@ -11,7 +11,8 @@ import dgl
 """
 from layers.expander.expander_gcn_layer import ExpanderGCNLayer
 from layers.expander.expander_mlp_readout_layer import ExpanderMLPReadout
-from layers.expander.expander_layer import ExpanderLinear
+from layers.expander.expander_layer import ExpanderLinearLayer
+
 
 class ExpanderGCNNet(nn.Module):
     def __init__(self, net_params):
@@ -28,12 +29,13 @@ class ExpanderGCNNet(nn.Module):
         self.batch_norm = net_params['batch_norm']
         self.residual = net_params['residual']
         
-        self.embedding_h = ExpanderLinear(in_dim, hidden_dim, expandSize=16)
+        self.embedding_h = ExpanderLinearLayer(in_dim, hidden_dim)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
         
-        self.layers = nn.ModuleList([ExpanderGCNLayer(hidden_dim, hidden_dim, F.relu, dropout,
-                                              self.graph_norm, self.batch_norm, self.residual) for _ in range(n_layers-1)])
-        self.layers.append(ExpanderGCNLayer(hidden_dim, out_dim, F.relu, dropout, self.graph_norm, self.batch_norm, self.residual))
+        self.layers = nn.ModuleList([ExpanderGCNLayer(hidden_dim, hidden_dim, F.relu, dropout, self.graph_norm,
+                                                      self.batch_norm, self.residual) for _ in range(n_layers-1)])
+        self.layers.append(ExpanderGCNLayer(hidden_dim, out_dim, F.relu, dropout, self.graph_norm,
+                                            self.batch_norm, self.residual))
         self.MLP_layer = ExpanderMLPReadout(out_dim, n_classes)        
 
     def forward(self, g, h, e, snorm_n, snorm_e):

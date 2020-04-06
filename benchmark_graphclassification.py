@@ -1,12 +1,11 @@
-import dgl
-
 import numpy as np
 import os
 import socket
 import time
 import random
 import glob
-import argparse, json
+import argparse
+import json
 
 import torch
 import torch.nn as nn
@@ -28,6 +27,8 @@ class DotDict(dict):
 from nets.load_net import gnn_model 
 from data.load_data import LoadData 
 from train.train_graph_classification import train_epoch, evaluate_network
+
+from nets.load_net import init_expander
 
 
 def view_model_param(MODEL_NAME, net_params):
@@ -65,6 +66,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     
     # At any point you can hit Ctrl + C to break out of training early.
     try:
+        saved_expander = dict()
         for split_number in range(10):
             t0_split = time.time()
             log_dir = os.path.join(root_log_dir, "RUN_" + str(split_number))
@@ -86,11 +88,13 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
             model = gnn_model(MODEL_NAME, net_params)
             model = model.to(device)
+            saved_expander = init_expander(model, saved_expander, net_params["expander_size"])
             optimizer = optim.Adam(model.parameters(), lr=params['init_lr'], weight_decay=params['weight_decay'])
             scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
                                                              factor=params['lr_reduce_factor'],
                                                              patience=params['lr_schedule_patience'],
                                                              verbose=True)
+
 
             epoch_train_losses, epoch_val_losses = [], []
             epoch_train_accs, epoch_val_accs = [], [] 

@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import dgl.function as fn
 
 """
@@ -8,25 +7,28 @@ import dgl.function as fn
     Thomas N. Kipf, Max Welling, Semi-Supervised Classification with Graph Convolutional Networks (ICLR 2017)
     http://arxiv.org/abs/1609.02907
 """
-from layers.expander.expander_layer import ExpanderLinear
+from layers.expander.expander_layer import ExpanderLinearLayer
     
 # Sends a message of node feature h
 # Equivalent to => return {'m': edges.src['h']}
 msg = fn.copy_src(src='h', out='m')
 
+
 def reduce(nodes):
     accum = torch.mean(nodes.mailbox['m'], 1)
     return {'h': accum}
 
-class NodeApplyModule(nn.Module):
+
+class ExpanderNodeApplyModule(nn.Module):
     # Update node feature h_v with (Wh_v+b)
     def __init__(self, in_dim, out_dim):
         super().__init__()
-        self.linear = ExpanderLinear(in_dim, out_dim, expandSize=8)
-        
+        self.linear = ExpanderLinearLayer(in_dim, out_dim)
+
     def forward(self, node):
         h = self.linear(node.data['h'])
         return {'h': h}
+
 
 class ExpanderGCNLayer(nn.Module):
     """
@@ -43,33 +45,31 @@ class ExpanderGCNLayer(nn.Module):
         if in_dim != out_dim:
             self.residual = False
         
-        self.apply_mod = NodeApplyModule(in_dim, out_dim)
+        self.apply_mod = ExpanderNodeApplyModule(in_dim, out_dim)
         self.batchnorm_h = nn.BatchNorm1d(out_dim)
         self.activation = activation
         self.dropout = nn.Dropout(dropout)
         
     def forward(self, g, feature, snorm_n):
-
         h_in = feature   # to be used for residual connection
         g.ndata['h'] = feature
         g.update_all(msg, reduce)
         g.apply_nodes(func=self.apply_mod)
-        h = g.ndata['h'] # result of graph convolution
+        h = g.ndata['h']  # result of graph convolution
         
         if self.graph_norm:
-            h = h * snorm_n # normalize activation w.r.t. graph size
+            h = h * snorm_n  # normalize activation w.r.t. graph size
         if self.batch_norm:
-            h = self.batchnorm_h(h) # batch normalization  
+            h = self.batchnorm_h(h)  # batch normalization
         
         h = self.activation(h)
         
         if self.residual:
-            h = h_in + h # residual connection
+            h = h_in + h  # residual connection
             
         h = self.dropout(h)
         return h
     
     def __repr__(self):
-        return '{}(in_channels={}, out_channels={}, residual={})'.format(self.__class__.__name__,
-                                             self.in_channels,
-                                             self.out_channels, self.residual)
+        return '{}(in_channels={}, out_channels={}, residual={})'.format(self.__class__.__name__, self.in_channels,
+                                                                         self.out_channels, self.residual)
