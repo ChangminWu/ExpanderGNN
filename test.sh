@@ -30,7 +30,7 @@ do
 	  echo "wrong method"
 	  exit
       fi
-      python $code --dataset ${i} --experiment "test" --model ${k} --expander_size ${j} --config ${config_file}
+      python $code --dataset ${i} --experiment "test" --model ${k} --sparsity ${j} --config ${config_file}
       sleep 15
      done
    done
