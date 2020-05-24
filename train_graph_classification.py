@@ -31,7 +31,7 @@ def train_epoch(model, optimizer, device, data_loader, epoch, writer=None):
         nb_data += batch_labels.size(0)
 
         if writer is not None:
-            writer = register_weight(model, writer, iter)
+            writer, _ = register_weight(model, writer, iter)
 
     epoch_loss /= (iter + 1)
     epoch_train_acc /= nb_data
