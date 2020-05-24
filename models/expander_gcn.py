@@ -14,9 +14,9 @@ class NodeApplyModule(nn.Module):
         super().__init__()
         self.mlp = mlp
 
-    def forward(self, h):
-        h = self.mlp(h)
-        return h
+    def forward(self, node):
+        h = self.mlp(node.data['h'])
+        return {'h': h}
 
 
 class ExpanderGCNLayer(nn.Module):
