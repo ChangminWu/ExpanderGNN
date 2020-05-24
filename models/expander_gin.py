@@ -125,6 +125,7 @@ class ExpanderGINNet(nn.Module):
         else:
             raise NotImplementedError
 
+        self.linears_prediction = nn.ModuleList()
         for layer in range(self.n_layers+1):
             if sparse_readout:
                 if mlp_readout:

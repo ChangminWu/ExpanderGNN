@@ -64,7 +64,7 @@ class ExpanderSimpleGCN(nn.Module):
                 self.readout.reset_parameters()
 
 
-    def forward(self, g, feat):
+    def forward(self, g, feat, e, snorm_n, snorm_e):
         with g.local_scope():
             h = self.embedding_h(feat)
             h = self.in_feat_dropout(h)

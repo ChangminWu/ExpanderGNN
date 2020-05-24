@@ -61,7 +61,7 @@ class SimpleGCN(nn.Module):
         if self.linear.bias is not None:
             nn.init.zeros_(self.linear.bias)
 
-    def forward(self, g, feat):
+    def forward(self, g, feat, e, snorm_n, snorm_e):
         with g.local_scope():
             h = self.embedding_h(feat)
             h = self.in_feat_dropout(h)
