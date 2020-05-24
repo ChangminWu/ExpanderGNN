@@ -157,7 +157,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
             avg_train_acc.append(train_acc)
 
             _ = weighted_expand_writer(model, saved_expander, saved_layers={},
-                                       curr_path=write_weight_dir+"/{}".format(split_number))
+                                       curr_path=write_weight_dir+"/split{}/".format(split_number))
 
             print("Test Accuracy [LAST EPOCH]: {:.4f}".format(test_acc))
             print("Train Accuracy [LAST EPOCH]: {:.4f}".format(train_acc))
