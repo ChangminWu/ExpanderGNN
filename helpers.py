@@ -103,7 +103,7 @@ def register_weight(net, writer, step, saved_layers=None):
 
     elif num_children > 0:
         for child in net.children():
-            log = register_weight(child, writer, step, saved_layers)
+            log, saved_layers = register_weight(child, writer, step, saved_layers)
             if log is not None:
                 return log, saved_layers
 
