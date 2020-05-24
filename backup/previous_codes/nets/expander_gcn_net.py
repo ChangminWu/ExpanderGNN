@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -9,10 +8,12 @@ import dgl
     Thomas N. Kipf, Max Welling, Semi-Supervised Classification with Graph Convolutional Networks (ICLR 2017)
     http://arxiv.org/abs/1609.02907
 """
-from layers.graphnet.gcn_layer import GCNLayer
-from layers.graphnet.mlp_readout_layer import MLPReadout
+from backup.previous_codes.layers.expander.expander_gcn_layer import ExpanderGCNLayer
+from backup.previous_codes.layers.expander.expander_layer import ExpanderLinearLayer
+from backup.previous_codes.layers.graphnet.mlp_readout_layer import MLPReadout
 
-class GCNNet(nn.Module):
+
+class ExpanderGCNNet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         in_dim = net_params['in_dim']
@@ -27,13 +28,14 @@ class GCNNet(nn.Module):
         self.batch_norm = net_params['batch_norm']
         self.residual = net_params['residual']
         
-        self.embedding_h = nn.Linear(in_dim, hidden_dim)
+        self.embedding_h = ExpanderLinearLayer(in_dim, hidden_dim)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
         
-        self.layers = nn.ModuleList([GCNLayer(hidden_dim, hidden_dim, F.relu, dropout,
-                                              self.graph_norm, self.batch_norm, self.residual) for _ in range(n_layers-1)])
-        self.layers.append(GCNLayer(hidden_dim, out_dim, F.relu, dropout, self.graph_norm, self.batch_norm, self.residual))
-        self.MLP_layer = MLPReadout(out_dim, n_classes)        
+        self.layers = nn.ModuleList([ExpanderGCNLayer(hidden_dim, hidden_dim, F.relu, dropout, self.graph_norm,
+                                                      self.batch_norm, self.residual) for _ in range(n_layers-1)])
+        self.layers.append(ExpanderGCNLayer(hidden_dim, out_dim, F.relu, dropout, self.graph_norm,
+                                            self.batch_norm, self.residual))
+        self.MLP_layer = MLPReadout(out_dim, n_classes)   # ExpanderMLPReadout(out_dim, n_classes)
 
     def forward(self, g, h, e, snorm_n, snorm_e):
         h = self.embedding_h(h)

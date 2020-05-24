@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 import dgl
 
@@ -12,8 +11,8 @@ import numpy as np
     https://arxiv.org/pdf/1611.08402.pdf
 """
 
-from layers.graphnet.gmm_layer import GMMLayer
-from layers.graphnet.mlp_readout_layer import MLPReadout
+from backup.previous_codes.layers.graphnet.gmm_layer import GMMLayer
+from backup.previous_codes.layers.graphnet.mlp_readout_layer import MLPReadout
 
 class MoNet(nn.Module):
     def __init__(self, net_params):

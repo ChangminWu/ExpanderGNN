@@ -1,6 +1,5 @@
 import numpy as np
 import os
-import socket
 import time
 import random
 import glob
@@ -8,8 +7,6 @@ import argparse
 import json
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -18,30 +15,11 @@ from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
 from collections import OrderedDict
-from utils import expand_writer
+from helpers import expand_writer, convert_to_float, init_expander, get_model_param
 
-
-class DotDict(dict):
-    def __init__(self, **kwds):
-        self.update(kwds)
-        self.__dict__ = self
-
-
-from nets.load_net import gnn_model 
-from data.load_data import LoadData 
-from train.train_graph_classification import train_epoch, evaluate_network
-
-from nets.load_net import init_expander
-
-
-def view_model_param(MODEL_NAME, net_params):
-    model = gnn_model(MODEL_NAME, net_params)
-    total_param = 0
-    print("MODEL DETAILS:\n")
-    for param in model.parameters():
-        total_param += np.prod(list(param.data.size()))
-    print('MODEL/Total parameters:', MODEL_NAME, total_param)
-    return total_param
+from data.load_data import LoadData
+from train_graph_classification import train_epoch, evaluate_network
+from load_model import gnn_model
 
 
 def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
@@ -70,8 +48,8 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     # At any point you can hit Ctrl + C to break out of training early.
     try:
         saved_expander = OrderedDict()
-        for split_number in range(10):
-            saved_layers = list()
+        for split_number in range(1):
+            saved_layers = dict()
 
             t0_split = time.time()
             log_dir = os.path.join(root_log_dir, "RUN_" + str(split_number))
@@ -85,17 +63,22 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                 torch.cuda.manual_seed(params['seed'])
 
             print("RUN NUMBER: ", split_number)
-            trainset, valset, testset = dataset.train[split_number], dataset.val[split_number], dataset.test[split_number]
+            trainset, valset, testset = dataset.train[split_number], dataset.val[split_number], \
+                                        dataset.test[split_number]
+
             print("Training Graphs: ", len(trainset))
             print("Validation Graphs: ", len(valset))
             print("Test Graphs: ", len(testset))
             print("Number of Classes: ", net_params['n_classes'])
 
             model = gnn_model(MODEL_NAME, net_params)
+
+            saved_expander, _ = init_expander(model, saved_expander, saved_layers)
             model = model.to(device)
-            saved_expander, _ = init_expander(model, saved_expander, saved_layers, net_params["expander_size"])
             if split_number == 0:
                 expand_writer(saved_expander, curr_path=write_expander_dir)
+                net_params['total_param'] = get_model_param(model, num = 0)
+                print('MODEL/Total parameters:', MODEL_NAME, net_params['total_param'])
 
             optimizer = optim.Adam(model.parameters(), lr=params['init_lr'], weight_decay=params['weight_decay'])
             scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
@@ -113,14 +96,13 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
             val_loader = DataLoader(valset, batch_size=params['batch_size'], shuffle=False, drop_last=drop_last, collate_fn=dataset.collate)
             test_loader = DataLoader(testset, batch_size=params['batch_size'], shuffle=False, drop_last=drop_last, collate_fn=dataset.collate)
 
-
             with tqdm(range(params['epochs'])) as t:
                 for epoch in t:
-
                     t.set_description('Epoch %d' % epoch)    
 
                     start = time.time()
-                    epoch_train_loss, epoch_train_acc, optimizer = train_epoch(model, optimizer, device, train_loader, epoch)
+                    epoch_train_loss, epoch_train_acc, optimizer, writer = train_epoch(model, optimizer, device, train_loader, epoch, writer)
+
                     epoch_val_loss, epoch_val_acc = evaluate_network(model, device, val_loader, epoch)
 
                     epoch_train_losses.append(epoch_train_loss)
@@ -276,7 +258,7 @@ def main():
         config['gpu']['id'] = None
         config['gpu']['use'] = False
     
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu") # 
     
     # model, dataset, out_dir
     if args.model is not None:
@@ -369,8 +351,8 @@ def main():
     if args.self_loop is not None:
         net_params['self_loop'] = True if args.self_loop=='True' else False
     if args.expander_size is not None:
-        net_params["expander_size"] = int(args.expander_size)
-        
+        net_params["expander_size"] = convert_to_float(args.expander_size)
+
     net_params['in_dim'] = dataset.all.graph_lists[0].ndata['feat'][0].shape[0]
     num_classes = len(np.unique(dataset.all.graph_labels))
     net_params['n_classes'] = num_classes
@@ -395,8 +377,9 @@ def main():
     if not os.path.exists(out_dir + 'configs'):
         os.makedirs(out_dir + 'configs')
 
-    net_params['total_param'] = view_model_param(MODEL_NAME, net_params)
+
     train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs)
+
 
 if __name__ == '__main__':
     main()    

@@ -8,7 +8,7 @@ import dgl.function as fn
     HOW POWERFUL ARE GRAPH NEURAL NETWORKS? (Keyulu Xu, Weihua Hu, Jure Leskovec and Stefanie Jegelka, ICLR 2019)
     https://arxiv.org/pdf/1810.00826.pdf
 """
-from layers.expander.expander_layer import ExpanderLinearLayer
+from backup.previous_codes.layers.expander.expander_layer import ExpanderLinearLayer
 
 
 class ExpanderGINLayer(nn.Module):

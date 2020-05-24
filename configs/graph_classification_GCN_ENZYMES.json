@@ -33,6 +33,6 @@
         "graph_norm": true,
         "batch_norm": true,
         "self_loop": false,
-        "expander_size": 16
+        "expander_size": 2
     }
 }

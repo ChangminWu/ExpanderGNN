@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-import dgl
 from dgl.nn.pytorch.glob import SumPooling, AvgPooling, MaxPooling
 
 """
@@ -11,7 +9,7 @@ from dgl.nn.pytorch.glob import SumPooling, AvgPooling, MaxPooling
     https://arxiv.org/pdf/1810.00826.pdf
 """
 
-from layers.graphnet.gin_layer import GINLayer, ApplyNodeFunc, MLP
+from backup.previous_codes.layers.graphnet.gin_layer import GINLayer, ApplyNodeFunc, MLP
 
 class GINNet(nn.Module):
     

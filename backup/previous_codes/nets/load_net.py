@@ -81,23 +81,28 @@ def init_expander(net, saved_mask=None, saved_layers=None, expand_size=2):
     if num_children == 0:
         label = layer_name + "_" + str(len(saved_layers))
         if label in saved_mask:
-            net.mask = saved_mask[label]
+            # print(label)
+            net._init_mask(saved_mask[label])
+            # net.mask = saved_mask[label]
             saved_layers.append(label)
         elif "ExpanderLinear" in label:
-            output_features, input_features = list(net.parameters())[0].size()
-            mask = torch.zeros(output_features, input_features)
-            if output_features < input_features:
-                for i in range(output_features):
-                    x = torch.randperm(input_features)
-                    for j in range(expand_size):
-                        mask[i][x[j]] = 1
-            else:
-                for i in range(input_features):
-                    x = torch.randperm(output_features)
-                    for j in range(expand_size):
-                        mask[x[j]][i] = 1
-            net.mask = mask
-            saved_mask[label] = mask
+            net.expand_size = expand_size
+            # print("net expander size", expand_size)
+            net._init_mask()
+            # output_features, input_features = net.output_features, net.input_features  # list(net.parameters())[0].size()
+            # mask = torch.zeros(output_features, input_features)
+            # if output_features < input_features:
+            #     for i in range(output_features):
+            #         x = torch.randperm(input_features)
+            #         for j in range(expand_size):
+            #             mask[i][x[j]] = 1
+            # else:
+            #     for i in range(input_features):
+            #         x = torch.randperm(output_features)
+            #         for j in range(expand_size):
+            #             mask[x[j]][i] = 1
+            # net.mask = mask.cuda()
+            saved_mask[label] = net.mask  # ._indices().cpu().detach().numpy()
             saved_layers.append(label)
     else:
         if layer_name not in saved_mask:
@@ -105,7 +110,7 @@ def init_expander(net, saved_mask=None, saved_layers=None, expand_size=2):
         for child in net.children():
             # label_child = str(child)[:str(child).find('(')]
             # if "Expander" in label_child:
-            saved_mask[layer_name], saved_layers = init_expander(child, saved_mask[layer_name], saved_layers)
+            saved_mask[layer_name], saved_layers = init_expander(child, saved_mask[layer_name], saved_layers, expand_size)
     return saved_mask, saved_layers
 
 

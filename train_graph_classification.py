@@ -3,13 +3,11 @@
     and evaluating one epoch
 """
 import torch
-import torch.nn as nn
-import math
 
-from train.metrics import accuracy
+from helpers import accuracy, register_weight
 
 
-def train_epoch(model, optimizer, device, data_loader, epoch):
+def train_epoch(model, optimizer, device, data_loader, epoch, writer=None):
     model.train()
     epoch_loss = 0
     epoch_train_acc = 0
@@ -27,13 +25,18 @@ def train_epoch(model, optimizer, device, data_loader, epoch):
         loss = model.loss(batch_scores, batch_labels) 
         loss.backward()
         optimizer.step()
+
         epoch_loss += loss.detach().item()
         epoch_train_acc += accuracy(batch_scores, batch_labels)
         nb_data += batch_labels.size(0)
+
+        if writer is not None:
+            writer = register_weight(model, writer, iter)
+
     epoch_loss /= (iter + 1)
     epoch_train_acc /= nb_data
     
-    return epoch_loss, epoch_train_acc, optimizer
+    return epoch_loss, epoch_train_acc, optimizer, writer
 
 
 def evaluate_network(model, device, data_loader, epoch):

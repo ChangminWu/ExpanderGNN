@@ -3,10 +3,6 @@ import torch.nn as nn
 from torch.nn import init
 import torch.nn.functional as F
 
-import time
-import numpy as np
-from scipy.linalg import block_diag
-
 import dgl
 
 """
@@ -20,12 +16,12 @@ import dgl
     ! code started from dgl diffpool examples dir
 """
 
-from layers.graphnet.graphsage_layer import GraphSageLayer   # this is GraphSageLayer, DiffPoolBatchedGraphLayer
-from layers.graphnet.diffpool_layer import DiffPoolLayer   # this is GraphSageLayer, DiffPoolBatchedGraphLayer
+from backup.previous_codes.layers.graphnet.graphsage_layer import GraphSageLayer   # this is GraphSageLayer, DiffPoolBatchedGraphLayer
+from backup.previous_codes.layers.graphnet.diffpool_layer import DiffPoolLayer   # this is GraphSageLayer, DiffPoolBatchedGraphLayer
 # from .graphsage_net import GraphSageNet   # this is GraphSage
 # replace BatchedDiffPool with DenseDiffPool and BatchedGraphSAGE with DenseGraphSage
-from layers.graphnet.tensorized.dense_graphsage_layer import DenseGraphSage
-from layers.graphnet.tensorized.dense_diffpool_layer import DenseDiffPool
+from backup.previous_codes.layers.graphnet.tensorized.dense_graphsage_layer import DenseGraphSage
+from backup.previous_codes.layers.graphnet.tensorized.dense_diffpool_layer import DenseDiffPool
 
 
 class DiffPoolNet(nn.Module):

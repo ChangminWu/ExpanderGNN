@@ -34,6 +34,6 @@
         "dropout": 0.0,
         "graph_norm": true,
         "batch_norm": true,
-        "expander_size": 12
+        "expander_size": 2
     }
 }
