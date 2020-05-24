@@ -61,8 +61,9 @@ def weighted_expand_writer(net, saved_expander, saved_layers=None, curr_path="./
             mask = weight.copy()
             mask[mask!=0] = 1
             assert (mask == saved_expander[label].cpu().detach().numpy()).all()
-            with open(curr_path + label + ".pickle") as f:
-                pickle.dump(weight, f)
+            # with open(curr_path + label + ".pickle") as f:
+            #     pickle.dump(weight, f)
+            np.save(curr_path + label + ".npy", weight)
 
     else:
         pathlib.Path(curr_path + label).mkdir(parents=True, exist_ok=True)
