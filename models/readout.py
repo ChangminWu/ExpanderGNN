@@ -21,8 +21,9 @@ class MLPReadout(nn.Module):
                 nn.init.zeros_(layer.bias)
 
     def forward(self, input_):
+        out = input_
         for l in range(self.n_layers):
-            out = self.FC_layers[l](input_)
+            out = self.FC_layers[l](out)
             out = F.relu(out)
         out = self.FC_layers[self.n_layers](out)
         return out
@@ -38,9 +39,9 @@ class ExpanderMLPReadout(nn.Module):
         self.n_layers = n_layers
 
     def forward(self, input_):
+        out = input_
         for l in range(self.n_layers):
-            print(l)
-            out = self.FC_layers[l](input_)
+            out = self.FC_layers[l](out)
             out = F.relu(out)
         out = self.FC_layers[self.n_layers](out)
         return out
@@ -57,8 +58,9 @@ class ExpanderDoubleMLPReadout(nn.Module):
         self.n_layers = n_layers
 
     def forward(self, input_):
+        out = input_
         for l in range(self.n_layers):
-            out = self.FC_layers[l](input_)
+            out = self.FC_layers[l](out)
             out = F.relu(out)
         out = self.FC_layers[self.n_layers](out)
         return out
