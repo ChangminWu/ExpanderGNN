@@ -99,3 +99,8 @@ class SimpleGCN(nn.Module):
                 hg = dgl.mean_nodes(g, 'h')
 
             return self.readout(hg)
+
+    def loss(self, pred, label):
+        criterion = nn.CrossEntropyLoss()
+        loss = criterion(pred, label)
+        return loss

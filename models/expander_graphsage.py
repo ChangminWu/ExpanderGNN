@@ -78,7 +78,7 @@ class NodeApplyModule(nn.Module):
         super().__init__()
         self.dropout = nn.Dropout(p=dropout)
         self.activation = activation
-        self.linear = ExpanderMultiLinearLayer(n_mlp_layers, in_feats, hidden_feats, out_feats, sparsity,
+        self.linear = ExpanderMultiLinearLayer(n_mlp_layers, 2*in_feats, hidden_feats, out_feats, sparsity,
                                                self.activation, batchnorm)
 
 

@@ -59,7 +59,7 @@ def weighted_expand_writer(net, saved_expander, saved_layers=None, curr_path="./
             weight = net.weight.cpu().detach().numpy()
 
             mask = weight.copy()
-            mask[mask>0] = 1
+            mask[mask!=0] = 1
             assert (mask == saved_expander[label].cpu().detach().numpy()).all()
             with open(curr_path + label + ".pickle") as f:
                 pickle.dump(weight, f)

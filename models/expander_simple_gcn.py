@@ -63,7 +63,6 @@ class ExpanderSimpleGCN(nn.Module):
                 self.linears_prediction.append(nn.Linear(out_dim, n_classes))
                 self.readout.reset_parameters()
 
-
     def forward(self, g, feat, e, snorm_n, snorm_e):
         with g.local_scope():
             h = self.embedding_h(feat)
@@ -102,3 +101,8 @@ class ExpanderSimpleGCN(nn.Module):
                 hg = dgl.mean_nodes(g, 'h')
 
             return self.readout(hg)
+
+    def loss(self, pred, label):
+        criterion = nn.CrossEntropyLoss()
+        loss = criterion(pred, label)
+        return loss
