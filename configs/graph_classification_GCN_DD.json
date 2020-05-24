@@ -7,7 +7,7 @@
     "model": "GCN",
     "dataset": "DD",
     
-    "out_dir": "out/TUs_graph_classification/",
+    "out_dir": "out/graph_classification/",
 
     "params": {
         "seed": 41,
@@ -33,6 +33,11 @@
         "graph_norm": true,
         "batch_norm": true,
         "self_loop": false,
-        "expander_size": 2
+        "sparsity": 0.1,
+        "sparse_readout": true,
+        "mlp_readout": true,
+        "activation": "relu",
+        "neighbor_aggr_GCN": "sum",
+        "n_mlp": 2
     }
 }

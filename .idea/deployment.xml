@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData">
+    <serverData>
+      <paths name="changmin@localhost:6000">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/storage/Projects/Dascim/projects/expander-gnn" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/out" />
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/results-2604-mask" />
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/results-2704-weight" />
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/results-2704-weight-no-backpropa" />
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/results-2804-may-contains-wrong" />
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/results-2904-corrected" />
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/results-3004-assignment-bool" />
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/results-3004-assignment-bool-tuple" />
+            <excludedPath path="/storage/Projects/Dascim/projects/expander-gnn/results-3004-assignment-tuple" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

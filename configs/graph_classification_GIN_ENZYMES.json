@@ -7,7 +7,7 @@
     "model": "GIN",
     "dataset": "ENZYMES",
     
-    "out_dir": "out/TUs_graph_classification/",
+    "out_dir": "out/graph_classification/",
 
     "params": {
         "seed": 41,
@@ -34,6 +34,10 @@
         "dropout": 0.0,
         "graph_norm": true,
         "batch_norm": true,
-        "expander_size": 2
+        "sparsity": 0.1,
+        "sparse_readout": true,
+        "mlp_readout": true,
+        "activation": "relu",
+        "n_mlp": 2
     }
 }

@@ -1,4 +1,4 @@
-code=benchmark_graphclassification.py
+code=main.py
 datasets=("ENZYMES")
 methods=("ExpanderMLP")
 sizes=( 2 6 8 10 14 )

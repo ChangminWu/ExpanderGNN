@@ -15,7 +15,7 @@ from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
 from collections import OrderedDict
-from helpers import expand_writer, convert_to_float, init_expander, get_model_param
+from helpers import expand_writer, init_expander, get_model_param, weighted_expand_writer
 
 from data.load_data import LoadData
 from train_graph_classification import train_epoch, evaluate_network
@@ -38,7 +38,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     
     trainset, valset, testset = dataset.train, dataset.val, dataset.test
     
-    root_log_dir, root_ckpt_dir, write_file_name, write_config_file, write_expander_dir = dirs
+    root_log_dir, root_ckpt_dir, write_file_name, write_config_file, write_expander_dir, write_weight_dir = dirs
     device = net_params['device']
     
     # Write the network and optimization hyper-parameters in folder config/
@@ -154,6 +154,9 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
             avg_test_acc.append(test_acc)   
             avg_train_acc.append(train_acc)
 
+            _ = weighted_expand_writer(model, saved_expander, saved_layers={},
+                                       curr_path=write_weight_dir+"/{}".format(split_number))
+
             print("Test Accuracy [LAST EPOCH]: {:.4f}".format(test_acc))
             print("Train Accuracy [LAST EPOCH]: {:.4f}".format(train_acc))
     
@@ -206,6 +209,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help="Please give a config.json file with training/model/data/param details")
     parser.add_argument('--gpu_id', help="Please give a value for gpu id")
+    parser.add_argument('--experiment', help="Please give a value for experiment name")
     parser.add_argument('--model', help="Please give a value for model name")
     parser.add_argument('--dataset', help="Please give a value for dataset name")
     parser.add_argument('--out_dir', help="Please give a value for out_dir")
@@ -241,7 +245,14 @@ def main():
     parser.add_argument('--cat', help="Please give a value for cat")
     parser.add_argument('--self_loop', help="Please give a value for self_loop")
     parser.add_argument('--max_time', help="Please give a value for max_time")
-    parser.add_argument('--expander_size', help="Please give a value for expander size")
+    parser.add_argument('--sparsity', help="Please give a value for sparsity rate")
+    parser.add_argument('--sparse_readout', help="Please give a value for sparsity readout")
+    parser.add_argument('--mlp_readout', help="Please give a value for mlp readout")
+    parser.add_argument('--activation', help="Please give a value for activation function")
+    parser.add_argument('--neighbor_aggr_GCN', help="Please give a value for neighbor aggregation type")
+    parser.add_argument('--neighbor_aggr_SGCN', help="Please give a value for neighbor aggregation type of SGCN")
+    parser.add_argument('--n_mlp', help="Please give a value for number of layers in MLP")
+
     args = parser.parse_args()
     
     with open(args.config) as f:
@@ -265,6 +276,11 @@ def main():
         MODEL_NAME = args.model
     else:
         MODEL_NAME = config['model']
+
+    if args.experiment is not None:
+        EXP_NAME = args.experiment
+    else:
+        EXP_NAME = config["experiment"]
     
     if args.dataset is not None:
         DATASET_NAME = args.dataset
@@ -350,8 +366,20 @@ def main():
         net_params['cat'] = True if args.cat=='True' else False
     if args.self_loop is not None:
         net_params['self_loop'] = True if args.self_loop=='True' else False
-    if args.expander_size is not None:
-        net_params["expander_size"] = convert_to_float(args.expander_size)
+    if args.sparsity is not None:
+        net_params['sparsity'] = float(args.sparsity)
+    if args.sparse_readout is not None:
+        net_params['sparse_readout'] = True if args.sparse_readout == "True" else False
+    if args.mlp_readout is not None:
+        net_params['mlp_readout'] = True if args.mlp_readout == "True" else False
+    if args.activation is not None:
+        net_params['activation'] = "relu" if args.activation == "relu" else None
+    if args.neighbor_aggr_GCN is not None:
+        net_params['neighbor_aggr_GCN'] = args.neighbor_aggr_GCN
+    if args.neighbor_aggr_SGCN is not None:
+        net_params['neighbor_aggr_SGCN'] = args.neighbor_aggr_SGCN
+    if args.n_mlp is not None:
+        net_params['n_mlp'] = int(args.n_mlp)
 
     net_params['in_dim'] = dataset.all.graph_lists[0].ndata['feat'][0].shape[0]
     num_classes = len(np.unique(dataset.all.graph_labels))
@@ -364,19 +392,19 @@ def main():
         max_num_node = max(num_nodes)
         net_params['assign_dim'] = int(max_num_node * net_params['pool_ratio']) * net_params['batch_size']
     
-    root_log_dir = out_dir + 'logs/' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
-    root_ckpt_dir = out_dir + 'checkpoints/' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
-    write_file_name = out_dir + 'results/result_' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
-    write_config_file = out_dir + 'configs/config_' + MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
-    write_expander_dir = out_dir + 'expanders/' +  MODEL_NAME + "_" + DATASET_NAME + "_GPU" + str(config['gpu']['id']) + "_" + time.strftime('%Hh%Mm%Ss_on_%b_%d_%Y') + "_expander_size_" + str(net_params["expander_size"])
-    dirs = root_log_dir, root_ckpt_dir, write_file_name, write_config_file, write_expander_dir
+    root_log_dir = out_dir + 'logs/' + EXP_NAME + "_" + MODEL_NAME + "_" + DATASET_NAME  + "_sparsity_" + str(net_params["sparsity"])
+    root_ckpt_dir = out_dir + 'checkpoints/' + EXP_NAME + "_" + MODEL_NAME + "_" + DATASET_NAME + "_sparsity_" + str(net_params["sparsity"])
+    write_file_name = out_dir + 'results/result_' + EXP_NAME + "_" + MODEL_NAME + "_" + DATASET_NAME + "_sparsity_" + str(net_params["sparsity"])
+    write_config_file = out_dir + 'configs/config_' + EXP_NAME + "_" + MODEL_NAME + "_" + DATASET_NAME + "_sparsity_" + str(net_params["sparsity"])
+    write_expander_dir = out_dir + 'expanders/' +  EXP_NAME + "_" + MODEL_NAME + "_" + DATASET_NAME + "_sparsity_" + str(net_params["sparsity"])
+    write_weight_dir = out_dir + 'weighted_expanders/' +  EXP_NAME + "_" + MODEL_NAME + "_" + DATASET_NAME + "_sparsity_" + str(net_params["sparsity"])
+    dirs = root_log_dir, root_ckpt_dir, write_file_name, write_config_file, write_expander_dir, write_weight_dir
 
     if not os.path.exists(out_dir + 'results'):
         os.makedirs(out_dir + 'results')
         
     if not os.path.exists(out_dir + 'configs'):
         os.makedirs(out_dir + 'configs')
-
 
     train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs)
 
