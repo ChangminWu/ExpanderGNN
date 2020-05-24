@@ -123,7 +123,6 @@ def init_expander(net, saved_mask=None, saved_layers=None):
         if label in saved_mask:
             net.generate_mask(saved_mask[label])
             # net.mask = saved_mask[label]
-            saved_layers.append(label)
         elif "ExpanderLinear" in label:
             net.generate_mask()
             # output_features, input_features = net.output_features, net.input_features  # list(net.parameters())[0].size()
@@ -140,7 +139,6 @@ def init_expander(net, saved_mask=None, saved_layers=None):
             #             mask[x[j]][i] = 1
             # net.mask = mask.cuda()
             saved_mask[label] = net.mask  # ._indices().cpu().detach().numpy()
-            saved_layers.append(label)
     else:
         if label not in saved_mask:
             saved_mask[label] = OrderedDict()
