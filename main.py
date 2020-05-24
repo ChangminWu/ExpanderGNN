@@ -41,10 +41,6 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     root_log_dir, root_ckpt_dir, write_file_name, write_config_file, write_expander_dir, write_weight_dir = dirs
     device = net_params['device']
     
-    # Write the network and optimization hyper-parameters in folder config/
-    with open(write_config_file + '.txt', 'w') as f:
-        f.write("""Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\nTotal Parameters: {}\n\n""".format(DATASET_NAME, MODEL_NAME, params, net_params, net_params['total_param']))
-    
     # At any point you can hit Ctrl + C to break out of training early.
     try:
         saved_expander = OrderedDict()
@@ -79,6 +75,12 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                 expand_writer(saved_expander, curr_path=write_expander_dir)
                 net_params['total_param'] = get_model_param(model, num = 0)
                 print('MODEL/Total parameters:', MODEL_NAME, net_params['total_param'])
+
+                # Write the network and optimization hyper-parameters in folder config/
+                with open(write_config_file + '.txt', 'w') as f:
+                    f.write(
+                        """Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\nTotal Parameters: {}\n\n""".format(
+                            DATASET_NAME, MODEL_NAME, params, net_params, net_params['total_param']))
 
             optimizer = optim.Adam(model.parameters(), lr=params['init_lr'], weight_decay=params['weight_decay'])
             scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',
