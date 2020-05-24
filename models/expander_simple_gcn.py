@@ -19,7 +19,7 @@ class ExpanderSimpleGCN(nn.Module):
         neighbor_aggr_type = net_params['neighbor_aggr_SGCN']
         self.n_layers = net_params['L']
         n_mlp_layers = net_params["n_mlp"]
-        batchnorm = net_params["batch_norm"]
+        self.batch_norm = net_params["batch_norm"]
 
         self.readout = net_params['readout']
         self.sparsity = net_params['sparsity']
@@ -47,7 +47,7 @@ class ExpanderSimpleGCN(nn.Module):
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.linear = ExpanderMultiLinearLayer(n_mlp_layers, hidden_dim, hidden_dim, out_dim,
-                                               self.sparsity, self.activation, batchnorm)
+                                               self.sparsity, self.activation, self.batch_norm)
 
         self.batchnorm_h = nn.BatchNorm1d(out_dim)
 
