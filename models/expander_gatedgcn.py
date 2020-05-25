@@ -90,10 +90,10 @@ class ExpanderGatedGCNLayer(nn.Module):
 
         return h, e
 
-    def __repr__(self):
-        return '{}(in_channels={}, out_channels={})'.format(self.__class__.__name__,
-                                                            self.in_channels,
-                                                            self.out_channels)
+    # def __repr__(self):
+    #     return '{}(in_channels={}, out_channels={})'.format(self.__class__.__name__,
+    #                                                         self.in_channels,
+    #                                                         self.out_channels)
 
 
 class ExpanderGatedGCNNet(nn.Module):

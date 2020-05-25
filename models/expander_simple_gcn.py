@@ -55,12 +55,12 @@ class ExpanderSimpleGCN(nn.Module):
             if mlp_readout:
                 self.readout = ExpanderMLPReadout(out_dim, n_classes, self.sparsity)
             else:
-                self.linears_prediction.append(ExpanderLinearLayer(out_dim, n_classes, self.sparsity))
+                self.readout = ExpanderLinearLayer(out_dim, n_classes, self.sparsity)
         else:
             if mlp_readout:
-                self.linears_prediction.append(MLPReadout(out_dim, n_classes))
+                self.readout = MLPReadout(out_dim, n_classes)
             else:
-                self.linears_prediction.append(nn.Linear(out_dim, n_classes))
+                self.readout = nn.Linear(out_dim, n_classes)
                 self.readout.reset_parameters()
 
     def forward(self, g, feat, e, snorm_n, snorm_e):

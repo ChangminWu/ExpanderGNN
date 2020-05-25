@@ -44,7 +44,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     # At any point you can hit Ctrl + C to break out of training early.
     try:
         saved_expander = OrderedDict()
-        for split_number in range(1):
+        for split_number in range(10):
             saved_layers = dict()
 
             t0_split = time.time()

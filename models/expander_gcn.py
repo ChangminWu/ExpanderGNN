@@ -72,9 +72,9 @@ class ExpanderGCNLayer(nn.Module):
         h = F.dropout(h, self.dropout, training=self.training)
         return h
 
-    def __repr__(self):
-        return '{}(input_features={}, output_features={}, residual={})'.format(self.__class__.__name__, self.indim,
-                                                                         self.outdim, self.residual)
+    # def __repr__(self):
+    #     return '{}(input_features={}, output_features={}, residual={})'.format(self.__class__.__name__, self.indim,
+    #                                                                      self.outdim, self.residual)
 
 
 class ExpanderGCNNet(nn.Module):
