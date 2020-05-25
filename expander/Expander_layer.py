@@ -79,7 +79,8 @@ class ExpanderLinearLayer(nn.Module):
                     for j in range(int(self.outdim*self.sparsity)):
                         self.mask[x[j]][i] = 1
         else:
-            assert self.sparsity == int(torch.sum(init) / (self.indim * self.outdim)), "sparsity does not match"
+            #print(torch.sum(init), self.indim*self.outdim)
+            assert int(self.sparsity * max(self.indim, self.outdim))*min(self.indim, self.outdim) == torch.sum(init), "sparsity does not match"
             self.mask = init
 
 

@@ -34,7 +34,8 @@ class ExpanderMLPReadout(nn.Module):
         super().__init__()
         list_FC_layers = [ExpanderLinearLayer(input_features // 2**l, input_features // 2**(l+1), sparsity)
                           for l in range(n_layers)]
-        list_FC_layers.append(ExpanderLinearLayer(input_features // 2**n_layers, output_features, sparsity))
+        #list_FC_layers.append(ExpanderLinearLayer(input_features // 2**n_layers, output_features, sparsity))
+        list_FC_layers.append(nn.Linear(input_features // 2**n_layers, output_features, bias=True))
         self.FC_layers = nn.ModuleList(list_FC_layers)
         self.n_layers = n_layers
 
