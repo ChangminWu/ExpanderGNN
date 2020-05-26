@@ -1,7 +1,7 @@
 script=main.py
-datasets=("ENZYMES" "DD" "PROTEINS_full")
+datasets=("ENZYMES" )
 models=('ExpanderGCN' 'ExpanderMLP' 'ExpanderGIN' 'ExpanderGraphSage' 'ExpanderGatedGCN' 'ExpanderSimpleGCN' )
-sparsities=( 0.0 0.05 0.1 0.3 0.5 0.7 0.9 1.0 )
+sparsities=( 1.0 )
 
 for i in "${datasets[@]}"
 do

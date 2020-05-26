@@ -88,11 +88,14 @@ def register_weight(net, writer, step, saved_layers=None):
         if "ExpanderLinear" in layer_name:
             try:
                 index = tuple((net.mask == 0).nonzero()[0])
+                writer.add_scalar("train/_weight_{}".format(label), net.weight.data[index].cpu().detach().numpy(), step)
             except:
-                raise ValueError("Stored mask is not in the right format for layer {}".format(layer_name))
+                if not (net,mask == 1).all():
+                    raise ValueError("Stored mask is not in the right format for layer {}".format(layer_name))
+                else:
+                    pass
 
             # index_mask = tuple(net.mask.nonzero()[0])
-            writer.add_scalar('train/_weight_{}'.format(label), net.weight.data[index].cpu().detach().numpy(), step)
             if step % 30 == 0:
                 writer.add_image('train/_gradient_{}'.format(label), net.weight.grad.data.unsqueeze(0).cpu().numpy(), int(step/30))
                 writer.add_image('train/_mask_{}'.format(label), net.mask.data.unsqueeze(0).cpu().numpy(), int(step/30))
