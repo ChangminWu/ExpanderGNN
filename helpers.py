@@ -90,7 +90,7 @@ def register_weight(net, writer, step, saved_layers=None):
                 index = tuple((net.mask == 0).nonzero()[0])
                 writer.add_scalar("train/_weight_{}".format(label), net.weight.data[index].cpu().detach().numpy(), step)
             except:
-                if not (net,mask == 1).all():
+                if not (net.mask == 1).all():
                     raise ValueError("Stored mask is not in the right format for layer {}".format(layer_name))
                 else:
                     pass
