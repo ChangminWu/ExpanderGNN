@@ -79,11 +79,7 @@ class NodeApplyModule(nn.Module):
         return bundle
 
     def forward(self, node):
-        try:
-            print("test")
-            b = node.data['b']
-        except:
-            b = node.data['h']
+        b = node.data['b']
         c = node.data['c']
         bundle = self.concat(b, c)
         bundle = F.normalize(bundle, p=2, dim=1)
@@ -110,9 +106,11 @@ class SimpleGraphSageLayer(nn.Module):
         else:
             self.aggregator = MeanAggregator()
 
-    def forward(self, g, h, norm):
+    def forward(self, g, h, b, norm):
         h_in = h
         h = self.dropout(h)
+
+        g.ndata['b'] = b
 
         h = h * norm
         g.ndata['h'] = h
@@ -124,7 +122,7 @@ class SimpleGraphSageLayer(nn.Module):
         if self.residual:
             h = h_in + h
 
-        return b, h
+        return h, b
 
     # def __repr__(self):
     #     return '{}(in_channels={}, out_channels={}, aggregator={}, residual={})'.format(self.__class__.__name__,
@@ -184,6 +182,7 @@ class SimpleGraphSageNet(nn.Module):
 
     def forward(self, g, h, e, snorm_n, snorm_e):
         h = self.embedding_h(h)
+        b = h
         h = self.in_feat_dropout(h)
 
         degs = g.in_degrees().float().clamp(min=1)
@@ -191,8 +190,7 @@ class SimpleGraphSageNet(nn.Module):
         norm = norm.to(h.device).unsqueeze(1)
 
         for sconv in self.layers:
-            b, h = sconv(g, h, norm)
-        print(b.size)
+            h, b = sconv(g, h, b, norm)
         if self.batch_norm:
             b = self.batchnorm_h(b)
 
