@@ -80,6 +80,7 @@ class NodeApplyModule(nn.Module):
 
     def forward(self, node):
         try:
+            print("test")
             b = node.data['b']
         except:
             b = node.data['h']
@@ -191,7 +192,7 @@ class SimpleGraphSageNet(nn.Module):
 
         for sconv in self.layers:
             b, h = sconv(g, h, norm)
-
+        print(b.size)
         if self.batch_norm:
             b = self.batchnorm_h(b)
 
