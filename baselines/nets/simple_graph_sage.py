@@ -79,9 +79,12 @@ class NodeApplyModule(nn.Module):
         return bundle
 
     def forward(self, node):
-        h = node.data['h']
+        try:
+            b = node.data['b']
+        except:
+            b = node.data['h']
         c = node.data['c']
-        bundle = self.concat(h, c)
+        bundle = self.concat(b, c)
         bundle = F.normalize(bundle, p=2, dim=1)
         return {"b": bundle, "h": c}
 

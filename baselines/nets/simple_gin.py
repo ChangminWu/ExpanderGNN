@@ -100,7 +100,6 @@ class SimpleGIN(nn.Module):
             else:
                 self.linears_readout.append(nn.Linear(out_dim, n_classes))
 
-
         if not mlp_readout:
             for layer in self.linears_readout:
                 layer.reset_parameters()

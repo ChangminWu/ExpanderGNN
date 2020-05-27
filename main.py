@@ -28,9 +28,9 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
     dataset = LoadData(DATASET_NAME)
     
-    if MODEL_NAME in ['GCN', 'GAT']:
+    if MODEL_NAME in ['SimpleGCN', 'ExpanderSimpleGCN']:
         if net_params['self_loop']:
-            print("[!] Adding graph self-loops for GCN/GAT models (central node trick).")
+            print("[!] Adding graph self-loops for Simple GCN models (central node trick).")
             dataset._add_self_loops()
     
     trainset, valset, testset = dataset.train, dataset.val, dataset.test
