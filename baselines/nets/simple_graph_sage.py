@@ -4,9 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from expander.Expander_layer import ExpanderLinearLayer, ExpanderMultiLinearLayer
-from .readout import MLPReadout, ExpanderMLPReadout
-
+from baselines.layers.mlp_readout_layer import MLPReadout
 
 class Aggregator(nn.Module):
     def __init__(self):
