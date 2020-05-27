@@ -1,9 +1,7 @@
+import dgl
+import numpy as np
 import torch
 import torch.nn as nn
-
-import dgl
-
-import numpy as np
 
 """
     GMM: Gaussian Mixture Model Convolution layer

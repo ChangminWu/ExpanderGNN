@@ -34,7 +34,7 @@
         "batch_norm": true,
         "self_loop": false,
         "sparsity": 0.1,
-        "sparse_readout": true,
+        "sparse_readout": false,
         "mlp_readout": true,
         "activation": "relu",
         "neighbor_aggr_GCN": "sum",

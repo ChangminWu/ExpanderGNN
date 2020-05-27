@@ -3,10 +3,10 @@
         "use": true,
         "id": 0
     },
-    
+
     "model": "GIN",
-    "dataset": "PROTEINS_full",
-    
+    "dataset": "ENZYMES",
+
     "out_dir": "out/graph_classification/",
 
     "params": {
@@ -21,7 +21,7 @@
         "print_epoch_interval": 5,
         "max_time": 48
     },
-    
+
     "net_params": {
         "L": 4,
         "hidden_dim": 96,
@@ -29,7 +29,7 @@
         "readout": "sum",
         "n_mlp_GIN": 2,
         "learn_eps_GIN": true,
-        "neighbor_aggr_GIN": "sum",
+        "neighbor_aggr_SGIN": "sum",
         "in_feat_dropout": 0.0,
         "dropout": 0.0,
         "graph_norm": true,

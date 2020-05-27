@@ -1,10 +1,9 @@
+import dgl
 import torch
 import torch.nn as nn
 
-import dgl
-
-from backup.previous_codes.layers.expander.expander_mlp_readout_layer import ExpanderMLPReadout
 from backup.previous_codes.layers.expander.expander_layer import ExpanderLinearLayer
+from backup.previous_codes.layers.expander.expander_mlp_readout_layer import ExpanderMLPReadout
 
 
 class ExpanderMLPNet(nn.Module):

@@ -1,10 +1,7 @@
+import numpy as np
 import torch
 import torch.nn as nn
-
-import numpy as np
 from scipy.linalg import block_diag
-
-from torch.autograd import Function
 
 """
     DIFFPOOL:

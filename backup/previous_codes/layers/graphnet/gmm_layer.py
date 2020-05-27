@@ -1,8 +1,8 @@
+import dgl.function as fn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import init
-import dgl.function as fn
 
 """
     GMM: Gaussian Mixture Model Convolution layer

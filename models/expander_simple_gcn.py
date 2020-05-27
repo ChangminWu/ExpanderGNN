@@ -1,12 +1,11 @@
-import torch
-from torch import nn
-import torch.nn.functional as F
-
 import dgl
 import dgl.function as fn
+import torch
+from torch import nn
 
 from expander.Expander_layer import ExpanderLinearLayer, ExpanderMultiLinearLayer
 from .readout import MLPReadout, ExpanderMLPReadout
+
 
 class ExpanderSimpleGCN(nn.Module):
     def __init__(self, net_params):
@@ -24,12 +23,12 @@ class ExpanderSimpleGCN(nn.Module):
         self.readout = net_params['readout']
         self.sparsity = net_params['sparsity']
 
-        if net_params['activation'] == "relu":
-            self.activation = nn.ReLU()
-        elif net_params['activation'] is None:
-            self.activation = None
-        else:
-            raise ValueError("Invalid activation type.")
+        # if net_params['activation'] == "relu":
+        #     self.activation = nn.ReLU()
+        # elif net_params['activation'] is None:
+        #     self.activation = None
+        # else:
+        #     raise ValueError("Invalid activation type.")
 
         if neighbor_aggr_type == 'sum':
             self._reducer = fn.sum
@@ -47,7 +46,7 @@ class ExpanderSimpleGCN(nn.Module):
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.linear = ExpanderMultiLinearLayer(n_mlp_layers, hidden_dim, hidden_dim, out_dim,
-                                               self.sparsity, self.activation, self.batch_norm)
+                                               self.sparsity, activation=None, batchnorm=self.batch_norm)
 
         self.batchnorm_h = nn.BatchNorm1d(out_dim)
 
@@ -81,13 +80,10 @@ class ExpanderSimpleGCN(nn.Module):
                 h = g.ndata.pop('h')
                 h = h * norm
 
-            h = self.linear(h)
-
             if self.batch_norm:
                 h = self.batchnorm_h(h)
 
-            if self.activation is not None:
-                h = self.activation(h)
+            h = self.linear(h)
 
             g.ndata['h'] = h
 

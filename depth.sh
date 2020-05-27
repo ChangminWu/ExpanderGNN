@@ -32,7 +32,7 @@ do
           echo "wrong model name"
           exit
       fi
-      python $script --dataset ${i} --experiment "varing-depth-normal" --model ${k} --sparsity 0.1 --config ${config_file} --L ${j}
+      python $script --dataset ${i} --experiment "varing-depth-normal-${j}" --model ${k} --sparsity 0.1 --config ${config_file} --L ${j}
       sleep 15
     done
   done

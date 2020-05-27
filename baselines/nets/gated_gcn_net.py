@@ -1,6 +1,5 @@
-import torch.nn as nn
-
 import dgl
+import torch.nn as nn
 
 """
     ResGatedGCN: Residual Gated Graph ConvNets

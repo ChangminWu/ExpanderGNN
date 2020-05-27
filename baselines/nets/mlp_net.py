@@ -1,9 +1,9 @@
+import dgl
 import torch
 import torch.nn as nn
 
-import dgl
-
 from baselines.layers.mlp_readout_layer import MLPReadout
+
 
 class MLPNet(nn.Module):
     def __init__(self, net_params):

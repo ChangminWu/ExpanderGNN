@@ -2,19 +2,18 @@
     Utility file to select GraphNN model as
     selected by the user
 """
-import torch
+from collections import OrderedDict
+
+from nets.diffpool_net import DiffPoolNet
+from nets.expander_gcn_net import ExpanderGCNNet
+from nets.expander_gin_net import ExpanderGINNet
+from nets.expander_mlp_net import ExpanderMLPNet
 from nets.gated_gcn_net import GatedGCNNet
 from nets.gcn_net import GCNNet
-from nets.graphsage_net import GraphSageNet
 from nets.gin_net import GINNet
-from nets.mo_net import MoNet as MoNet_
-from nets.diffpool_net import DiffPoolNet
+from nets.graphsage_net import GraphSageNet
 from nets.mlp_net import MLPNet
-from nets.expander_gin_net import ExpanderGINNet
-from nets.expander_gcn_net import ExpanderGCNNet
-from nets.expander_mlp_net import ExpanderMLPNet
-
-from collections import OrderedDict
+from nets.mo_net import MoNet as MoNet_
 
 
 def GatedGCN(net_params):

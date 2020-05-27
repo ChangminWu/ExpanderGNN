@@ -35,7 +35,7 @@
         "graph_norm": true,
         "batch_norm": true,
         "sparsity": 0.1,
-        "sparse_readout": true,
+        "sparse_readout": false,
         "mlp_readout": true,
         "activation": "relu",
         "n_mlp": 2

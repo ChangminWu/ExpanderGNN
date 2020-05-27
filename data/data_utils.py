@@ -1,18 +1,13 @@
-import torch
-import pickle
-import torch.utils.data
-import time
 import os
-import numpy as np
-
-import csv
+import random
+import time
 
 import dgl
-from dgl.data import TUDataset
+import numpy as np
+import torch
+import torch.utils.data
 from dgl.data import LegacyTUDataset
 
-
-import random
 random.seed(42)
 
 from sklearn.model_selection import StratifiedKFold, train_test_split

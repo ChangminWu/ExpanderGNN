@@ -1,6 +1,6 @@
+import dgl.function as fn
 import torch
 import torch.nn as nn
-import dgl.function as fn
 
 """
     GCN: Graph Convolutional Networks

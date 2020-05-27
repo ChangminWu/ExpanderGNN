@@ -1,9 +1,8 @@
+import dgl
 import torch
 import torch.nn as nn
-from torch.nn import init
 import torch.nn.functional as F
-
-import dgl
+from torch.nn import init
 
 """
     <Diffpool Fuse with GNN layers and pooling layers>

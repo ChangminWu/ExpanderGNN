@@ -1,9 +1,7 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
 import dgl
 import dgl.function as fn
+import torch.nn as nn
+import torch.nn.functional as F
 
 from expander.Expander_layer import ExpanderLinearLayer, ExpanderMultiLinearLayer
 from .readout import MLPReadout, ExpanderMLPReadout

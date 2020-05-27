@@ -7,10 +7,9 @@ Created on Mon Apr 20 16:00:38 2020
 """
 
 
-import numpy as np
-import networkx as nx
 import matplotlib.pyplot as plt
-
+import networkx as nx
+import numpy as np
 
 #
 #   LOAD the network

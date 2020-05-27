@@ -1,11 +1,11 @@
-import torch
-from torch import nn
-import torch.nn.functional as F
-
 import dgl
 import dgl.function as fn
+import torch
+import torch.nn.functional as F
+from torch import nn
 
 from baselines.layers.mlp_readout_layer import MLPReadout
+
 
 class SimpleGCN(nn.Module):
     def __init__(self, net_params):
@@ -19,12 +19,12 @@ class SimpleGCN(nn.Module):
         self.n_layers = net_params['L']
         self.batch_norm = net_params['batch_norm']
         self.readout = net_params['readout']
-        if net_params['activation'] == "relu":
-            self.activation = F.relu
-        elif net_params['activation'] is None:
-            self.activation = None
-        else:
-            raise ValueError("Invalid activation type.")
+        # if net_params['activation'] == "relu":
+        #     self.activation = F.relu
+        # elif net_params['activation'] is None:
+        #     self.activation = None
+        # else:
+        #     raise ValueError("Invalid activation type.")
 
         if neighbor_aggr_type == 'sum':
             self._reducer = fn.sum
@@ -83,9 +83,6 @@ class SimpleGCN(nn.Module):
 
             if self.batch_norm:
                 h = self.batchnorm_h(h)
-
-            if self.activation is not None:
-                h = self.activation(h)
 
             g.ndata['h'] = h
 

@@ -1,16 +1,11 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+import pathlib
+from collections import OrderedDict
 
 import networkx as nx
-import pickle
-import pathlib
-
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import f1_score
 import numpy as np
-
-from collections import OrderedDict
+import torch
+import torch.nn.functional as F
+from sklearn.metrics import f1_score
 
 
 ########## IO ###########

@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import math
-
 
 class ExpanderLinear(torch.autograd.Function):
     @staticmethod
@@ -45,6 +43,7 @@ class ExpanderLinearLayer(nn.Module):
         self.weight = nn.Parameter(data=torch.Tensor(self.outdim, self.indim))
         if bias:
             self.bias = nn.Parameter(data=torch.Tensor(self.outdim))
+            self.n_params += self.outdim
         else:
             self.register_parameter("bias", None)
 

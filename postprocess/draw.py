@@ -1,8 +1,6 @@
-import json
 import numpy as np
-import sys
-from operator import itemgetter
-import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from pathlib import Path

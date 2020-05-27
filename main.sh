@@ -1,7 +1,7 @@
 script=main.py
 datasets=("ENZYMES" )
 models=('ExpanderGCN' 'ExpanderMLP' 'ExpanderGIN' 'ExpanderGraphSage' 'ExpanderGatedGCN' 'ExpanderSimpleGCN' )
-sparsities=( 1.0 )
+sparsities=( 0.0 0.05 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 )
 
 for i in "${datasets[@]}"
 do
@@ -37,7 +37,7 @@ do
             echo "wrong model name"
             exit
         fi
-        python $script --dataset ${i} --experiment "varing-sparsity-sparse-readout" --model ${k} --sparsity ${j} --config ${config_file} --n_mlp 1 --sparse_readout True
+        python $script --dataset ${i} --experiment "varing-sparsity-dense-readout" --model ${k} --sparsity ${j} --config ${config_file} --n_mlp 1 --sparse_readout False
         sleep 15
       done
     fi

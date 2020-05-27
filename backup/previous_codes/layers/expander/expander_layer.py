@@ -1,11 +1,11 @@
 ## code adapted from https://github.com/drimpossible/Deep-Expander-Networks
 
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Function
 import torch.nn.functional as F
 import torch.sparse as sparse
-import numpy as np
+from torch.autograd import Function
 
 
 class ExpanderLinear(Function):
