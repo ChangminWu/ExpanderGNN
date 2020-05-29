@@ -1,0 +1,38 @@
+Dataset: ENZYMES,
+Model: GCN
+
+params={'seed': 41, 'epochs': 1000, 'batch_size': 20, 'init_lr': 0.0007, 'lr_reduce_factor': 0.5, 'lr_schedule_patience': 25, 'min_lr': 1e-06, 'weight_decay': 0.0, 'print_epoch_interval': 5, 'max_time': 48}
+
+net_params={'L': 4, 'hidden_dim': 128, 'out_dim': 128, 'residual': True, 'readout': 'mean', 'in_feat_dropout': 0.0, 'dropout': 0.0, 'graph_norm': True, 'batch_norm': True, 'self_loop': False, 'sparsity': 0.1, 'sparse_readout': False, 'mlp_readout': True, 'activation': 'relu', 'neighbor_aggr_GCN': 'sum', 'n_mlp': 2, 'device': device(type='cuda'), 'gpu_id': 1, 'batch_size': 20, 'in_dim': 18, 'n_classes': 6, 'total_param': 79014}
+
+GCNNet(
+  (embedding_h): Linear(in_features=18, out_features=128, bias=True)
+  (in_feat_dropout): Dropout(p=0.0, inplace=False)
+  (layers): ModuleList(
+    (0): GCNLayer(in_channels=128, out_channels=128, residual=True)
+    (1): GCNLayer(in_channels=128, out_channels=128, residual=True)
+    (2): GCNLayer(in_channels=128, out_channels=128, residual=True)
+    (3): GCNLayer(in_channels=128, out_channels=128, residual=True)
+  )
+  (MLP_layer): MLPReadout(
+    (FC_layers): ModuleList(
+      (0): Linear(in_features=128, out_features=64, bias=True)
+      (1): Linear(in_features=64, out_features=32, bias=True)
+      (2): Linear(in_features=32, out_features=6, bias=True)
+    )
+  )
+)
+
+Total Parameters: 79014
+
+
+    FINAL RESULTS
+TEST ACCURACY averaged: nan with s.d. nan
+TRAIN ACCURACY averaged: nan with s.d. nan
+
+
+    Total Time Taken: 0.0049 hrs
+Average Time Per Epoch: 0.7234 s
+
+
+All Splits Test Accuracies: []
