@@ -63,8 +63,8 @@ class ExpanderLinearLayer(nn.Module):
             self.mask = init
 
         assert self.mask.size(1) == self.n_weight_params, "sparsity does not match"
-        self.ind_in = self.mask[0,:]
-        self.ind_out = self.mask[1,:]
+        self.ind_in = self.mask[0,:].long()
+        self.ind_out = self.mask[1,:].long()
 
 
 class ExpanderDoubleLinearLayer(nn.Module):

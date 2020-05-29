@@ -11,11 +11,11 @@ from sklearn.metrics import f1_score
 ########## IO ###########
 def expand_writer(saved_expander, curr_path="./"):
     for key in saved_expander:
-        if type(saved_expander[key]) is torch.Tensor:
-            bipart_matrix = saved_expander[key].cpu().detach().numpy()
-            num_output_nodes, num_input_nodes = bipart_matrix.shape
+        if type(saved_expander[key]) is tuple:
+            ind_matrix = saved_expander[key][0].cpu().detach().numpy()
+            num_input_nodes, num_output_nodes = saved_expander[key][1].cpu().detach().numpy(), saved_expander[key][2].cpu().detach().numpy()
             adj = np.zeros((num_input_nodes+num_output_nodes, num_input_nodes+num_output_nodes))
-            adj[:num_input_nodes, num_input_nodes:] = bipart_matrix.T
+            adj[:num_input_nodes, num_input_nodes:][tuple(ind_matrix)] = 1
             graph = nx.from_numpy_matrix(adj, create_using=nx.DiGraph())
             labels = dict()
             for i in range(num_input_nodes+num_output_nodes):
@@ -52,13 +52,19 @@ def weighted_expand_writer(net, saved_expander, saved_layers=None, curr_path="./
     if num_children == 0:
         if "ExpanderLinear" in label:
             weight = net.weight.cpu().detach().numpy()
-
-            mask = weight.copy()
-            mask[mask!=0] = 1
-            assert (mask == saved_expander[label].cpu().detach().numpy()).all()
-            # with open(curr_path + label + ".pickle") as f:
-            #     pickle.dump(weight, f)
-            np.save(curr_path + label + ".npy", weight)
+            mask = net.mask.cpu().detach().numpy()
+            indim, outdim = net.indim, net.outdim
+            adj = np.zeros((indim+outdim, indim+outdim))
+            adj[:indim, indim:][tuple(mask)] = weight
+            graph = nx.from_numpy_matrix(adj, create_using=nx.DiGraph)
+            labels = dict()
+            for i in range(indim+outdim):
+                if i < indim:
+                    labels[i] = 0
+                else:
+                    labels[i] = 1
+            nx.set_node_attributes(graph, labels, "bipartite")
+            np.save(curr_path + label + ".npy", adj)
 
     else:
         pathlib.Path(curr_path + label).mkdir(parents=True, exist_ok=True)
@@ -81,19 +87,11 @@ def register_weight(net, writer, step, saved_layers=None):
 
     if num_children == 0:
         if "ExpanderLinear" in layer_name:
-            try:
-                index = tuple((net.mask == 0).nonzero()[0])
-                writer.add_scalar("train/_weight_{}".format(label), net.weight.data[index].cpu().detach().numpy(), step)
-            except:
-                if not (net.mask == 1).all():
-                    raise ValueError("Stored mask is not in the right format for layer {}".format(layer_name))
-                else:
-                    pass
-
             # index_mask = tuple(net.mask.nonzero()[0])
             if step % 30 == 0:
-                writer.add_image('train/_gradient_{}'.format(label), net.weight.grad.data.unsqueeze(0).cpu().numpy(), int(step/30))
-                writer.add_image('train/_mask_{}'.format(label), net.mask.data.unsqueeze(0).cpu().numpy(), int(step/30))
+                writer.add_image('train/_weight_gradient_{}'.format(label), net.weight.grad.data.unsqueeze(0).cpu().numpy(), int(step/30))
+                if net.bias is not None:
+                    writer.add_image('train/_bias_gradient_{}'.format(label), net.bias.data.unsqueeze(0).cpu().numpy(), int(step/30))
             # writer.add_scalar('train/_mask', net.mask.data[index_mask].cpu().detach().numpy(), step)
             return writer, saved_layers
 
@@ -120,7 +118,7 @@ def init_expander(net, saved_mask=None, saved_layers=None):
 
     if num_children == 0:
         if label in saved_mask:
-            net.generate_mask(saved_mask[label])
+            net.generate_mask(saved_mask[label][0])
             # net.mask = saved_mask[label]
         elif "ExpanderLinear" in label:
             net.generate_mask()
@@ -137,7 +135,7 @@ def init_expander(net, saved_mask=None, saved_layers=None):
             #         for j in range(expand_size):
             #             mask[x[j]][i] = 1
             # net.mask = mask.cuda()
-            saved_mask[label] = net.mask  # ._indices().cpu().detach().numpy()
+            saved_mask[label] = (net.mask, net.indim, net.outdim)  # ._indices().cpu().detach().numpy()
     else:
         if label not in saved_mask:
             saved_mask[label] = OrderedDict()
