@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torch_scatter import scatter_add
+from torch_sparse import spmm
+
 
 class ExpanderLinear(torch.autograd.Function):
     @staticmethod
@@ -36,22 +39,27 @@ class ExpanderLinearLayer(nn.Module):
         self.indim, self.outdim = input_feat, output_feat
         self.sparsity = sparsity
         if self.sparsity is not None:
-            self.n_params = min(self.indim, self.outdim) * int(max(self.indim, self.outdim) * self.sparsity)
+            self.n_weight_params = min(self.indim, self.outdim) * int(max(self.indim, self.outdim) * self.sparsity)
         else:
-            self.n_params = self.indim*self.outdim
+            self.n_weight_params = self.indim*self.outdim
 
-        self.weight = nn.Parameter(data=torch.Tensor(self.outdim, self.indim))
+        self.weight = nn.Parameter(data=torch.Tensor(self.n_weight_params))
         if bias:
             self.bias = nn.Parameter(data=torch.Tensor(self.outdim))
-            self.n_params += self.outdim
+            self.n_params = self.n_weight_params+ self.outdim
         else:
             self.register_parameter("bias", None)
+            self.n_params = self.n_weight_params
 
         self.register_buffer("mask", None)
 
         self.reset_parameters()
 
     def forward(self, input_):
+        x = input_[:, self.i]
+
+
+
         return ExpanderLinear.apply(input_, self.weight, self.mask, self.bias)
 
     def reset_parameters(self):
@@ -66,7 +74,11 @@ class ExpanderLinearLayer(nn.Module):
 
     def generate_mask(self, init=None):
         if init is None:
-            self.mask = torch.zeros(self.outdim, self.indim)
+            self.mask = torch.zeros(2, self.n_weight_params)
+            if self.outdim < self.indim:
+                for i in range(self.outdim):
+                    x = torch.randperm(self.indim)
+
             if self.outdim < self.indim:
                 for i in range(self.outdim):
                     x = torch.randperm(self.indim)
