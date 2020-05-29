@@ -1,36 +1,11 @@
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from torch_scatter import scatter_add
 from torch_sparse import spmm
-
-
-class ExpanderLinear(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, input_, weight, mask, bias=None):
-        ctx.save_for_backward(input_, weight, bias)
-        weight.mul_(mask)
-        ctx.mask = mask
-        output = input_.mm(weight.t())
-        if bias is not None:
-            output += bias.unsqueeze(0).expand_as(output)
-        return output
-
-    @staticmethod
-    def backward(ctx, grad_output):
-        input_, weight, bias = ctx.saved_tensors
-        grad_input = grad_weight = grad_bias = None
-
-        weight.mul_(ctx.mask)
-        if ctx.needs_input_grad[0]:
-            grad_input = grad_output.mm(weight)
-        if ctx.needs_input_grad[1]:
-            grad_weight = grad_output.t().mm(input_)
-            grad_weight.mul_(ctx.mask)
-        if bias is not None and ctx.needs_input_grad[2]:
-            grad_bias = grad_output.sum(0)
-        return grad_input, grad_weight, grad_bias, None
 
 
 class ExpanderLinearLayer(nn.Module):
@@ -56,43 +31,40 @@ class ExpanderLinearLayer(nn.Module):
         self.reset_parameters()
 
     def forward(self, input_):
-        x = input_[:, self.i]
-
-
-
-        return ExpanderLinear.apply(input_, self.weight, self.mask, self.bias)
+        x = input_[:, self.ind_in]
+        x = x * self.weight
+        x = scatter_add(x, self.ind_out)
+        if self.bias is not None:
+            x += self.bias
+        return x
 
     def reset_parameters(self):
-        # nn.init.kaiming_normal_(self.weight, mode='fan_in')
-        nn.init.xavier_uniform_(self.weight)
+        stdv = math.sqrt(2./self.indim)
+        self.weight.data = torch.randn(self.n_params) * stdv
         if self.bias is not None:
-            # fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.weight)
-            # bound = 1 / math.sqrt(fan_in)
-            # nn.init.uniform_(self.bias, -bound, bound)
-            # nn.init.constant_(self.bias, 0.)
-            nn.init.zeros_(self.bias)
+            self.bias.data = torch.randn(self.outdim) * stdv
 
     def generate_mask(self, init=None):
         if init is None:
-            self.mask = torch.zeros(2, self.n_weight_params)
+            locs = []
             if self.outdim < self.indim:
                 for i in range(self.outdim):
                     x = torch.randperm(self.indim)
-
-            if self.outdim < self.indim:
-                for i in range(self.outdim):
-                    x = torch.randperm(self.indim)
-                    for j in range(int(self.indim*self.sparsity)):
-                        self.mask[i][x[j]] = 1
+                    locs.extend([torch.tensor([x[j], i]).int().reshape(-1, 1)
+                                 for j in range(int(self.indim*self.sparsity))])
             else:
                 for i in range(self.indim):
                     x = torch.randperm(self.outdim)
-                    for j in range(int(self.outdim*self.sparsity)):
-                        self.mask[x[j]][i] = 1
+                    locs.extend([torch.tensor([i, x[j]]).int().reshape(-1, 1)
+                                 for j in range(int(self.outdim * self.sparsity))])
+
+            self.mask = torch.cat(locs, dim=1)
         else:
-            #print(torch.sum(init), self.indim*self.outdim)
-            assert int(self.sparsity * max(self.indim, self.outdim))*min(self.indim, self.outdim) == torch.sum(init), "sparsity does not match"
             self.mask = init
+
+        assert self.mask.size(1) == self.n_weight_params, "sparsity does not match"
+        self.ind_in = self.mask[0,:]
+        self.ind_out = self.mask[1,:]
 
 
 class ExpanderDoubleLinearLayer(nn.Module):
