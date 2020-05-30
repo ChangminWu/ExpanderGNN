@@ -30,37 +30,37 @@ do
         echo "wrong model name"
         exit
     fi
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-2-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 2 --n_mlp 1
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-2-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 2 --n_mlp 1 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-4-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 4 --n_mlp 1
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-4-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 4 --n_mlp 1 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-2-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 2 --n_mlp 2
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-2-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 2 --n_mlp 2 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-6-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 6 --n_mlp 1
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-6-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 6 --n_mlp 1 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-3-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 3 --n_mlp 2
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-3-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 3 --n_mlp 2 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-2-mlp-3" --model ${k} --sparsity 0.1 --config ${config_file} --L 2 --n_mlp 3
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-2-mlp-3" --model ${k} --sparsity 0.1 --config ${config_file} --L 2 --n_mlp 3 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-8-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 8 --n_mlp 1
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-8-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 8 --n_mlp 1 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-4-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 4 --n_mlp 2
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-4-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 4 --n_mlp 2 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-2-mlp-4" --model ${k} --sparsity 0.1 --config ${config_file} --L 2 --n_mlp 4
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-2-mlp-4" --model ${k} --sparsity 0.1 --config ${config_file} --L 2 --n_mlp 4 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-12-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 12 --n_mlp 1
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-12-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 12 --n_mlp 1 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-6-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 6 --n_mlp 2
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-6-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 6 --n_mlp 2 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-4-mlp-3" --model ${k} --sparsity 0.1 --config ${config_file} --L 4 --n_mlp 3
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-4-mlp-3" --model ${k} --sparsity 0.1 --config ${config_file} --L 4 --n_mlp 3 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-3-mlp-4" --model ${k} --sparsity 0.1 --config ${config_file} --L 3 --n_mlp 4
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-3-mlp-4" --model ${k} --sparsity 0.1 --config ${config_file} --L 3 --n_mlp 4 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-16-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 16 --n_mlp 1
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-16-mlp-1" --model ${k} --sparsity 0.1 --config ${config_file} --L 16 --n_mlp 1 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-8-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 8 --n_mlp 2
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-8-mlp-2" --model ${k} --sparsity 0.1 --config ${config_file} --L 8 --n_mlp 2 --sparse_readout False
     sleep 10
-    python $script --dataset ${i} --experiment "varing-depth-expander-l-4-mlp-4" --model ${k} --sparsity 0.1 --config ${config_file} --L 4 --n_mlp 4
+    python $script --dataset ${i} --experiment "varing-depth-expander-l-4-mlp-4" --model ${k} --sparsity 0.1 --config ${config_file} --L 4 --n_mlp 4 --sparse_readout False
     sleep 10
   done
 done
@@ -93,7 +93,7 @@ do
           echo "wrong model name"
           exit
       fi
-      python $script --dataset ${i} --experiment "varing-depth-normal-${j}" --model ${k} --sparsity 0.1 --config ${config_file} --L ${j}
+      python $script --dataset ${i} --experiment "varing-depth-normal-${j}" --model ${k} --sparsity 0.1 --config ${config_file} --L ${j} --sparse_readout False
       sleep 15
     done
   done
