@@ -13,7 +13,7 @@ def expand_writer(saved_expander, curr_path="./"):
     for key in saved_expander:
         if type(saved_expander[key]) is tuple:
             ind_matrix = saved_expander[key][0].cpu().detach().numpy()
-            num_input_nodes, num_output_nodes = saved_expander[key][1].cpu().detach().numpy(), saved_expander[key][2].cpu().detach().numpy()
+            num_input_nodes, num_output_nodes = saved_expander[key][1], saved_expander[key][2]
             adj = np.zeros((num_input_nodes+num_output_nodes, num_input_nodes+num_output_nodes))
             adj[:num_input_nodes, num_input_nodes:][tuple(ind_matrix)] = 1
             graph = nx.from_numpy_matrix(adj, create_using=nx.DiGraph())
@@ -89,9 +89,9 @@ def register_weight(net, writer, step, saved_layers=None):
         if "ExpanderLinear" in layer_name:
             # index_mask = tuple(net.mask.nonzero()[0])
             if step % 30 == 0:
-                writer.add_image('train/_weight_gradient_{}'.format(label), net.weight.grad.data.unsqueeze(0).cpu().numpy(), int(step/30))
+                writer.add_image('train/_weight_gradient_{}'.format(label), net.weight.grad.data.reshape(1,1,-1).cpu().numpy(), int(step/30))
                 if net.bias is not None:
-                    writer.add_image('train/_bias_gradient_{}'.format(label), net.bias.data.unsqueeze(0).cpu().numpy(), int(step/30))
+                    writer.add_image('train/_bias_gradient_{}'.format(label), net.bias.data.reshape(1,1,-1).cpu().numpy(), int(step/30))
             # writer.add_scalar('train/_mask', net.mask.data[index_mask].cpu().detach().numpy(), step)
             return writer, saved_layers
 

@@ -34,13 +34,15 @@ class ExpanderLinearLayer(nn.Module):
         x = input_[:, self.ind_in]
         x = x * self.weight
         x = scatter_add(x, self.ind_out)
+        # x = spmm(self.mask, self.weight, self.outdim, self.indim, input_.t()).t()        
+
         if self.bias is not None:
             x += self.bias
         return x
 
     def reset_parameters(self):
         stdv = math.sqrt(2./self.indim)
-        self.weight.data = torch.randn(self.n_params) * stdv
+        self.weight.data = torch.randn(self.n_weight_params) * stdv
         if self.bias is not None:
             self.bias.data = torch.randn(self.outdim) * stdv
 
@@ -56,15 +58,15 @@ class ExpanderLinearLayer(nn.Module):
                 for i in range(self.indim):
                     x = torch.randperm(self.outdim)
                     locs.extend([torch.tensor([i, x[j]]).int().reshape(-1, 1)
-                                 for j in range(int(self.outdim * self.sparsity))])
+                                 for j in range(int(self.outdim*self.sparsity))])
 
             self.mask = torch.cat(locs, dim=1)
         else:
             self.mask = init
-
+        # self.mask = self.mask.to(self.weight.device)
         assert self.mask.size(1) == self.n_weight_params, "sparsity does not match"
         self.ind_in = self.mask[0,:].long()
-        self.ind_out = self.mask[1,:].long()
+        self.ind_out = self.mask[1,:].long().to(self.weight.device)
 
 
 class ExpanderDoubleLinearLayer(nn.Module):
