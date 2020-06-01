@@ -36,7 +36,7 @@
         "batch_norm": true,
         "sparsity": 0.1,
         "sparse_readout": false,
-        "mlp_readout": true,
+        "mlp_readout": false,
         "activation": "relu",
         "n_mlp": 2
     }
