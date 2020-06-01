@@ -1,6 +1,4 @@
 import numpy as np
-import numpy as np
-
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -12,7 +10,6 @@ BARWIDTH = 0.3
 def draw_errorplot(dataset, exp_name="varing-sparsity-sparse-readout", path="d:\\results\\results\\", add_head=True, add_tail=True):
     fig, ax = plt.subplots()
 
-    
     res = {}
     for method in METHODS:
         res[method] = {}

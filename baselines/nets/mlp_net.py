@@ -20,11 +20,13 @@ class MLPNet(nn.Module):
         
         feat_mlp_modules = [
             nn.Linear(in_dim, hidden_dim, bias=True),
+            nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
         ]
         for _ in range(n_layers-1):
             feat_mlp_modules.append(nn.Linear(hidden_dim, hidden_dim, bias=True))
+            feat_mlp_modules.append(nn.BatchNorm1d(hidden_dim))
             feat_mlp_modules.append(nn.ReLU())
             feat_mlp_modules.append(nn.Dropout(dropout))
         self.feat_mlp = nn.Sequential(*feat_mlp_modules)
