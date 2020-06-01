@@ -25,9 +25,9 @@ class ExpanderLinear(torch.autograd.Function):
         if ctx.needs_input_grad[1]:
             grad_weight = grad_output.t().mm(input_)
             grad_weight.mul_(ctx.mask)
-        if bias is not None and ctx.needs_input_grad[2]:
+        if bias is not None and ctx.needs_input_grad[3]:
             grad_bias = grad_output.sum(0)
-        return grad_input, grad_weight, grad_bias, None
+        return grad_input, grad_weight, None, grad_bias
 
 
 class ExpanderLinearLayer(nn.Module):
