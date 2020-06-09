@@ -108,6 +108,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
                     start = time.time()
                     epoch_train_loss, epoch_train_acc, optimizer, writer = train_epoch(model, optimizer, device, train_loader, epoch, writer)
+                    per_epoch_memory.append(torch.cuda.max_memory_cached(device=device))
 
                     epoch_val_loss, epoch_val_acc = evaluate_network(model, device, val_loader, epoch)
 
@@ -130,7 +131,6 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                                   test_acc=epoch_test_acc)  
 
                     per_epoch_time.append(time.time()-start)
-                    per_epoch_memory.append(torch.cuda.max_memory_cached(device=device))
                     print(torch.cuda.memory_stats(device=device), total_memory)
 
                     # Saving checkpoint

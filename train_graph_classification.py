@@ -35,6 +35,7 @@ def train_epoch(model, optimizer, device, data_loader, epoch, writer=None):
 
     epoch_loss /= (iter + 1)
     epoch_train_acc /= nb_data
+    print(torch.cuda.max_memory_cached(device))
     
     return epoch_loss, epoch_train_acc, optimizer, writer
 
