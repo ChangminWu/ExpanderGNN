@@ -131,6 +131,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
                     per_epoch_time.append(time.time()-start)
                     per_epoch_memory.append(torch.cuda.max_memory_cached(device=device))
+                    print(torch.cuda.max_memory_cached(device=device), total_memory)
 
                     # Saving checkpoint
                     torch.save(model.state_dict(), '{}.pkl'.format(ckpt_dir + "/epoch_" + str(epoch)))
@@ -176,7 +177,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
     print("TOTAL TIME TAKEN: {:.4f}hrs".format((time.time()-t0)/3600))
     print("AVG TIME PER EPOCH: {:.4f}s".format(np.mean(per_epoch_time)))
-    print("AVG MEMORY PER EPOCH: {:.4%}".format(np.mean(per_epoch_time))/total_memory)
+    print("AVG MEMORY PER EPOCH: {:.4%}".format(np.mean(per_epoch_memory)/total_memory))
 
     # Final test accuracy value averaged over 10-fold
     print("""\n\n\nFINAL RESULTS\n\nTEST ACCURACY averaged: {:.4f} with s.d. {:.4f}"""          .format(np.mean(np.array(avg_test_acc))*100, np.std(avg_test_acc)*100))
