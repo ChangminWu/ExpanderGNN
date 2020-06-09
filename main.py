@@ -25,6 +25,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
     t0 = time.time()
     per_epoch_time = []
+    per_epoch_memory = []
 
     dataset = LoadData(DATASET_NAME)
     
@@ -37,6 +38,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     
     root_log_dir, root_ckpt_dir, write_file_name, write_config_file, write_expander_dir, write_weight_dir = dirs
     device = net_params['device']
+    total_memory = torch.cuda.get_device_properties(device).total_memory
     
     # At any point you can hit Ctrl + C to break out of training early.
     try:
@@ -117,11 +119,13 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
                     _, epoch_test_acc = evaluate_network(model, device, test_loader, epoch)
                     t.set_postfix(time=time.time()-start, lr=optimizer.param_groups[0]['lr'],
+                                  memory="{:.2%}".format(torch.cuda.max_memory_allocated(device=device)/total_memory),
                                   train_loss=epoch_train_loss, val_loss=epoch_val_loss,
                                   train_acc=epoch_train_acc, val_acc=epoch_val_acc,
                                   test_acc=epoch_test_acc)  
 
                     per_epoch_time.append(time.time()-start)
+                    per_epoch_memory.append(torch.cuda.max_memory_allocated(device=device))
 
                     # Saving checkpoint
                     ckpt_dir = os.path.join(root_ckpt_dir, "RUN_" + str(split_number))
@@ -158,12 +162,13 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
             print("Test Accuracy [LAST EPOCH]: {:.4f}".format(test_acc))
             print("Train Accuracy [LAST EPOCH]: {:.4f}".format(train_acc))
+            torch.cuda.reset_peak_memory_stats(device)
     
     except KeyboardInterrupt:
         print('-' * 89)
         print('Exiting from training early because of KeyboardInterrupt')
-        
-    
+
+
     print("TOTAL TIME TAKEN: {:.4f}hrs".format((time.time()-t0)/3600))
     print("AVG TIME PER EPOCH: {:.4f}s".format(np.mean(per_epoch_time)))
 
@@ -181,11 +186,11 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     with open(write_file_name + '.txt', 'w') as f:
         f.write("""Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n{}\n\nTotal Parameters: {}\n\n
     FINAL RESULTS\nTEST ACCURACY averaged: {:.4f} with s.d. {:.4f}\nTRAIN ACCURACY averaged: {:.4f} with s.d. {:.4f}\n\n
-    Total Time Taken: {:.4f} hrs\nAverage Time Per Epoch: {:.4f} s\n\n\nAll Splits Test Accuracies: {}"""\
+    Total Time Taken: {:.4f} hrs\n Percentage of Average Memory taken per Epoch: {:.2%} \nAverage Time Per Epoch: {:.4f} s\n\n\nAll Splits Test Accuracies: {}"""
           .format(DATASET_NAME, MODEL_NAME, params, net_params, model, net_params['total_param'],
                   np.mean(np.array(avg_test_acc))*100, np.std(avg_test_acc)*100,
                   np.mean(np.array(avg_train_acc))*100, np.std(avg_train_acc)*100,
-               (time.time()-t0)/3600, np.mean(per_epoch_time), avg_test_acc))
+               (time.time()-t0)/3600, np.mean(per_epoch_memory)/total_memory, np.mean(per_epoch_time), avg_test_acc))
         
 
 #     # send results to gmail

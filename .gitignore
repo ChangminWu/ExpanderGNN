@@ -11,4 +11,7 @@ baselines/nets/__pycache__/
 expander/__pycache__/
 models/__pycache__/
 
+postprocess/results
+postprocess/*.png
+
 .idea/
