@@ -131,7 +131,6 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                                   test_acc=epoch_test_acc)  
 
                     per_epoch_time.append(time.time()-start)
-                    print(torch.cuda.memory_stats(device=device), total_memory)
 
                     # Saving checkpoint
                     torch.save(model.state_dict(), '{}.pkl'.format(ckpt_dir + "/epoch_" + str(epoch)))
