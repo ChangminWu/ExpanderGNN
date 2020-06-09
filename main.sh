@@ -3,20 +3,21 @@ datasets=("ENZYMES" "DD" "PROTEINS_full")
 expandmodels=('ExpanderGCN' 'ExpanderMLP' 'ExpanderGIN' 'ExpanderGraphSage' 'ExpanderGatedGCN' 'ExpanderSimpleGCN' 'ExpanderSimpleGIN' 'ExpanderSimpleMLP' 'ExpanderSimpleGraphSage')
 models=("SimpleGCN" "GCN" "SimpleGIN" "GIN" "SimpleMLP" "MLP" "SimpleGraphSage" "GraphSage" "GatedGCN")
 sparsities=( 0.05 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 )
+savename="results/10-06/"
 
 for i in "${datasets[@]}"
 do
   config_file=configs/graph_classification_SimpleGCN_${i}.json
-  python $script --dataset ${i} --experiment "zero-sparsity-sgcn" --model "SimpleGCN" --sparsity 0.0 --config ${config_file} --n_mlp 1
+  python $script --dataset ${i} --out_dir ${savename} --experiment "zero-sparsity-sgcn" --model "SimpleGCN" --sparsity 0.0 --config ${config_file} --n_mlp 1
   sleep 10
   config_file=configs/graph_classification_SimpleGIN_${i}.json
-  python $script --dataset ${i} --experiment "zero-sparsity-sgin" --model "SimpleGIN" --sparsity 0.0 --config ${config_file} --n_mlp 1
+  python $script --dataset ${i} --out_dir ${savename} --experiment "zero-sparsity-sgin" --model "SimpleGIN" --sparsity 0.0 --config ${config_file} --n_mlp 1
   sleep 10
   config_file=configs/graph_classification_SimpleMLP_${i}.json
-  python $script --dataset ${i} --experiment "zero-sparsity-smlp" --model "SimpleMLP" --sparsity 0.0 --config ${config_file} --n_mlp 1
+  python $script --dataset ${i} --out_dir ${savename} --experiment "zero-sparsity-smlp" --model "SimpleMLP" --sparsity 0.0 --config ${config_file} --n_mlp 1
   sleep 10
   config_file=configs/graph_classification_SimpleGraphSage_${i}.json
-  python $script --dataset ${i} --experiment "zero-sparsity-sgraphsage" --model "SimpleGraphSage" --sparsity 0.0 --config ${config_file} --n_mlp 1
+  python $script --dataset ${i} --out_dir ${savename} --experiment "zero-sparsity-sgraphsage" --model "SimpleGraphSage" --sparsity 0.0 --config ${config_file} --n_mlp 1
   sleep 10
 
   for j in "${sparsities[@]}"
@@ -54,7 +55,7 @@ do
           echo "wrong model name"
           exit
       fi
-      python $script --dataset ${i} --experiment "varing-sparsity-dense-readout" --model ${k} --sparsity ${j} --config ${config_file} --n_mlp 1 --sparse_readout False
+      python $script --dataset ${i} --out_dir ${savename} --experiment "varing-sparsity-dense-readout" --model ${k} --sparsity ${j} --config ${config_file} --n_mlp 1 --sparse_readout False
       sleep 10
     done
   done
@@ -96,7 +97,7 @@ do
           echo "wrong model name"
           exit
       fi
-      python $script --dataset ${i} --experiment "varing-sparsity-normal-models" --model ${k} --sparsity ${j} --config ${config_file} --n_mlp 1 --sparse_readout False
+      python $script --dataset ${i} --out_dir ${savename} --experiment "varing-sparsity-normal-models" --model ${k} --sparsity ${j} --config ${config_file} --n_mlp 1 --sparse_readout False
       sleep 15
     done
   done
