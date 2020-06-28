@@ -141,22 +141,23 @@ class ExpanderGINNet(nn.Module):
                 layer.reset_parameters()
 
     def forward(self, g, h, e, snorm_n, snorm_e):
-        h = self.embedding_h(h)
+        with g.local_scope():
+            h = self.embedding_h(h)
 
-        # list of hidden representation at each layer (including input)
-        hidden_rep = [h]
+            # list of hidden representation at each layer (including input)
+            hidden_rep = [h]
 
-        for i in range(self.n_layers):
-            h = self.ginlayers[i](g, h, snorm_n)
-            hidden_rep.append(h)
+            for i in range(self.n_layers):
+                h = self.ginlayers[i](g, h, snorm_n)
+                hidden_rep.append(h)
 
-        score_over_layer = 0
-        # perform pooling over all nodes in each graph in every layer
-        for i, h in enumerate(hidden_rep):
-            pooled_h = self.pool(g, h)
-            score_over_layer += self.linears_prediction[i](pooled_h)
+            score_over_layer = 0
+            # perform pooling over all nodes in each graph in every layer
+            for i, h in enumerate(hidden_rep):
+                pooled_h = self.pool(g, h)
+                score_over_layer += self.linears_prediction[i](pooled_h)
 
-        return score_over_layer
+            return score_over_layer
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()

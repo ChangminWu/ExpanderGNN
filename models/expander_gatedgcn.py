@@ -145,23 +145,24 @@ class ExpanderGatedGCNNet(nn.Module):
                 self.readout.reset_parameters()
 
     def forward(self, g, h, e, snorm_n, snorm_e):
-        h = self.embedding_h(h)
-        e = self.embedding_e(e)
+        with g.local_scope():
+            h = self.embedding_h(h)
+            e = self.embedding_e(e)
 
-        for conv in self.layers:
-            h, e = conv(g, h, e, snorm_n, snorm_e)
-        g.ndata['h'] = h
+            for conv in self.layers:
+                h, e = conv(g, h, e, snorm_n, snorm_e)
+            g.ndata['h'] = h
 
-        if self.readout == "sum":
-            hg = dgl.sum_nodes(g, 'h')
-        elif self.readout == "max":
-            hg = dgl.max_nodes(g, 'h')
-        elif self.readout == "mean":
-            hg = dgl.mean_nodes(g, 'h')
-        else:
-            hg = dgl.mean_nodes(g, 'h')  # default readout is mean nodes
+            if self.readout == "sum":
+                hg = dgl.sum_nodes(g, 'h')
+            elif self.readout == "max":
+                hg = dgl.max_nodes(g, 'h')
+            elif self.readout == "mean":
+                hg = dgl.mean_nodes(g, 'h')
+            else:
+                hg = dgl.mean_nodes(g, 'h')  # default readout is mean nodes
 
-        return self.readout(hg)
+            return self.readout(hg)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()

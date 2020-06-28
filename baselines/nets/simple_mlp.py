@@ -59,27 +59,28 @@ class SimpleMLPNet(nn.Module):
                     nn.init.zeros_(layer.bias)
 
     def forward(self, g, h, e, snorm_n, snorm_e):
-        h = self.in_feat_dropout(h)
-        if self.batchnorm:
-            h = self.batchnorm_h(h)
-        h = self.feat_mlp(h)
-        if self.gated:
-            h = torch.sigmoid(self.gates(h)) * h
-            g.ndata['h'] = h
-            hg = dgl.sum_nodes(g, 'h')
-            # hg = torch.cat(
-            #     (
-            #         dgl.sum_nodes(g, 'h'),
-            #         dgl.max_nodes(g, 'h')
-            #     ),
-            #     dim=1
-            # )
+        with g.local_scope():
+            h = self.in_feat_dropout(h)
+            if self.batchnorm:
+                h = self.batchnorm_h(h)
+            h = self.feat_mlp(h)
+            if self.gated:
+                h = torch.sigmoid(self.gates(h)) * h
+                g.ndata['h'] = h
+                hg = dgl.sum_nodes(g, 'h')
+                # hg = torch.cat(
+                #     (
+                #         dgl.sum_nodes(g, 'h'),
+                #         dgl.max_nodes(g, 'h')
+                #     ),
+                #     dim=1
+                # )
 
-        else:
-            g.ndata['h'] = h
-            hg = dgl.mean_nodes(g, 'h')
+            else:
+                g.ndata['h'] = h
+                hg = dgl.mean_nodes(g, 'h')
 
-        return self.readout(hg)
+            return self.readout(hg)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()

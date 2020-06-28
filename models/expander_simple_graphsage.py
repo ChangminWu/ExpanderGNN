@@ -183,34 +183,35 @@ class ExpanderSimpleGraphSageNet(nn.Module):
                 self.readout.reset_parameters()
 
     def forward(self, g, h, e, snorm_n, snorm_e):
-        h = self.embedding_h(h)
-        b = h
-        h = self.in_feat_dropout(h)
+        with g.local_scope():
+            h = self.embedding_h(h)
+            b = h
+            h = self.in_feat_dropout(h)
 
-        degs = g.in_degrees().float().clamp(min=1)
-        norm = torch.pow(degs, -0.5)
-        norm = norm.to(h.device).unsqueeze(1)
+            degs = g.in_degrees().float().clamp(min=1)
+            norm = torch.pow(degs, -0.5)
+            norm = norm.to(h.device).unsqueeze(1)
 
-        for sconv in self.layers:
-            h, b = sconv(g, h, b, norm)
+            for sconv in self.layers:
+                h, b = sconv(g, h, b, norm)
 
-        if self.batch_norm:
-            b = self.batchnorm_h(b)
+            if self.batch_norm:
+                b = self.batchnorm_h(b)
 
-        b = self.linear(b)
+            b = self.linear(b)
 
-        g.ndata['h'] = b
+            g.ndata['h'] = b
 
-        if self.readout == "sum":
-            hg = dgl.sum_nodes(g, 'h')
-        elif self.readout == "max":
-            hg = dgl.max_nodes(g, 'h')
-        elif self.readout == "mean":
-            hg = dgl.mean_nodes(g, 'h')
-        else:
-            hg = dgl.mean_nodes(g, 'h')  # default readout is mean nodes
+            if self.readout == "sum":
+                hg = dgl.sum_nodes(g, 'h')
+            elif self.readout == "max":
+                hg = dgl.max_nodes(g, 'h')
+            elif self.readout == "mean":
+                hg = dgl.mean_nodes(g, 'h')
+            else:
+                hg = dgl.mean_nodes(g, 'h')  # default readout is mean nodes
 
-        return self.readout(hg)
+            return self.readout(hg)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()
