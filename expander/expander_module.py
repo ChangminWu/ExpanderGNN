@@ -1,7 +1,35 @@
 import torch 
 import torch.nn as nn
-from .expander_layer import ExpanderLinearFunction
 from .samplers import sampler
+
+
+class ExpanderLinearFunction(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, _input, weight, mask, bias=None):
+        ctx.save_for_backward(_input, weight, bias)
+        ctx.mask = mask
+        weight.mul_(mask)
+        output = _input.mm(weight.t())
+
+        if bias is not None:
+            output += bias.unsqueeze(0).expand_as(output)
+
+        return output
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        _input, weight, bias = ctx.saved_tensors
+        grad_input = grad_weight = grad_bias = None
+        weight.mul_(ctx.mask)
+
+        if ctx.needs_input_grad[0]:
+            grad_input = grad_output.mm(weight)
+        if ctx.needs_input_grad[1]:
+            grad_weight = grad_output.t().mm(_input)
+        if bias is not None and ctx.needs_input_grad[3]:
+            grad_bias = grad_output.sum(0)
+
+        return grad_input, grad_weight, None, grad_bias
 
 
 class ExpanderLinear(nn.Module):
@@ -13,7 +41,6 @@ class ExpanderLinear(nn.Module):
         
         if bias:
             self.bias = nn.Parameter(data=torch.Tensor(self.outdim))
-            self.n_params += self.outdim
         else:
             self.register_parameter("bias", None)
         
@@ -35,6 +62,6 @@ class ExpanderLinear(nn.Module):
         else:
             self.n_params == torch.sum(init)
             self.mask = init
-        
-    
-        
+
+        if self.bias is not None:
+            self.n_params += self.outdim

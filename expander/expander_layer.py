@@ -1,30 +1,27 @@
 import torch
+import torch.nn as nn
+
+from .expander_module import ExpanderLinear
+from .expander_scatter_module import ExpanderScatterLinear
 
 
-class ExpanderLinearFunction(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, _input, weight, mask, bias=None):
-        ctx.save_for_backward(_input, weight, bias)
-        ctx.mask = mask
-        weight.mul_(mask)
-        output = _input.mm(weight.t())
+class LinearLayer(nn.Module):
+    def __init__(self, indim, outdim, bias=True, expander=False, scatter=False, **kwargs):
+        super(LinearLayer, self).__init__()
+        self.expander, self.scatter = expander, scatter
+        self.indim, self.outdim = indim, outdim
+        
+        if self.expander and self.scatter:
+            self.layer = ExpanderScatterLinear(indim, outdim, bias=bias, **kwargs)
+        
+        elif self.expander:
+            self.layer = ExpanderLinear(indim, outdim, bias=bias, **kwargs)
+        
+        else:
+            self.layer = nn.Linear(indim, outdim, bias=bias)
 
-        if bias is not None:
-            output += bias.unsqueeze(0).expand_as(output)
+    def forward(self, _input):
+        return self.layer(_input)
 
-        return output
 
-    @staticmethod
-    def backward(ctx, grad_output):
-        _input, weight, bias = ctx.saved_tensors
-        grad_input = grad_weight = grad_bias = None
-        weight.mul_(ctx.mask)
 
-        if ctx.needs_input_grad[0]:
-            grad_input = grad_output.mm(weight)
-        if ctx.needs_input_grad[1]:
-            grad_weight = grad_output.t().mm(_input)
-        if bias is not None and ctx.needs_input_grad[3]:
-            grad_bias = grad_output.sum(0)
-
-        return grad_input, grad_weight, None, grad_bias
