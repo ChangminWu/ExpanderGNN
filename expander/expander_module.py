@@ -1,6 +1,6 @@
-import torch 
+import torch
 import torch.nn as nn
-from .samplers import sampler
+from samplers import sampler
 
 
 class ExpanderLinearFunction(torch.autograd.Function):
@@ -33,17 +33,21 @@ class ExpanderLinearFunction(torch.autograd.Function):
 
 
 class ExpanderLinear(nn.Module):
-    def __init__(self, indim, outdim, density=None, bias=True, sampler="regular"):
+    def __init__(self, indim, outdim, density=None, bias=True,
+                 sampler="regular"):
         super(ExpanderLinear, self).__init__()
-        self.indim, self.outdim, self.density, self.sampler = indim, outdim, density, sampler
+        self.indim, self.outdim, self.density, self.sampler = (indim,
+                                                               outdim,
+                                                               density,
+                                                               sampler)
 
         self.weight = nn.Parameter(data=torch.Tensor(self.outdim, self.indim))
-        
+
         if bias:
             self.bias = nn.Parameter(data=torch.Tensor(self.outdim))
         else:
             self.register_parameter("bias", None)
-        
+
         self.register_buffer("mask", None)
         self.reset_parameters()
 
@@ -54,11 +58,15 @@ class ExpanderLinear(nn.Module):
             nn.init.zeros_(self.bias)
 
     def forward(self, _input):
-        return ExpanderLinearFunction.apply(_input, self.weight, self.mask, self.bias)
+        return ExpanderLinearFunction.apply(_input, self.weight,
+                                            self.mask, self.bias)
 
     def generate_mask(self, init=None):
         if init is None:
-            self.mask, self.n_params = sampler(self.outdim, self.indim, self.density, method=self.sampler)
+            self.mask, self.n_params = sampler(self.outdim,
+                                               self.indim,
+                                               self.density,
+                                               method=self.sampler)
         else:
             self.n_params == torch.sum(init)
             self.mask = init

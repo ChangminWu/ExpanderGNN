@@ -1,8 +1,9 @@
 import torch
 
+
 def sampler(outdim, indim, density, method):
     mask = torch.zeros(outdim, indim)
-    if method is "regular":
+    if method == "regular":
         if outdim < indim:
             for i in range(outdim):
                 x = torch.randperm(indim)
@@ -13,8 +14,7 @@ def sampler(outdim, indim, density, method):
                 x = torch.randperm(outdim)
                 for j in range(int(outdim*density)):
                     mask[x[j]][i] = 1
-    
+
         n_params = int(density * max(outdim, indim)) * min(outdim, indim)
 
     return mask, n_params
-

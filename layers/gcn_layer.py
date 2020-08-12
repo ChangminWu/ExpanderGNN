@@ -1,11 +1,7 @@
-import torch
 import torch.nn as nn
 
-import dgl
 import dgl.function as fn
 from dgl.nn.pytorch import GraphConv
-
-from expander.expander_layer import LinearLayer
 
 
 class UpdateModule(nn.Module):
@@ -17,8 +13,11 @@ class UpdateModule(nn.Module):
         h = self.apply_func(node.data["h"])
         return {"h", h}
 
+
 class GCNLayer(nn.Module):
-    def __init__(self, indim, outdim, apply_func, aggr_type, activation, dropout, batch_norm, residual=False, dgl_builtin=False):
+    def __init__(self, indim, outdim, apply_func,
+                 aggr_type, activation, dropout,
+                 batch_norm, residual=False, dgl_builtin=False):
         super().__init__()
         self.apply_func = apply_func
 
@@ -29,14 +28,15 @@ class GCNLayer(nn.Module):
         elif aggr_type == "mean":
             self._reducer = fn.mean
         else:
-            raise KeyError("Aggregator type {} not recognized.".format(aggr_type))
-        
+            raise KeyError("Aggregator type {} not recognized."
+                           .format(aggr_type))
+
         self.batch_norm, self.residual = batch_norm, residual
         self.dgl_builtin = dgl_builtin
 
         if indim != outdim:
             self.residual = False
-        
+
         self.activation = activation
         self.batchnorm_h = nn.BatchNorm1d(outdim)
         self.dropout = nn.Dropout(dropout)
@@ -53,28 +53,19 @@ class GCNLayer(nn.Module):
             h = self.conv(g, features)
         else:
             g.ndata["h"] = features
-            g.update_all(fn.copy_src(src="h", out="m"), self._reducer("m", "h"))
+            g.update_all(fn.copy_src(src="h", out="m"),
+                         self._reducer("m", "h"))
             g.apply_nodes(func=self.apply_mod)
             h = g.ndata["h"]
 
         if self.batch_norm:
             h = self.batchnorm_h(h)
-        
+
         if self.activation is not None:
             h = self.activation(h)
 
         if self.residual:
             h = h_in + h
-        
+
         h = self.dropout(h)
         return h
-
-        
-
-
-
-            
-        
-
-
-
