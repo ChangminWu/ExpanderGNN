@@ -68,5 +68,4 @@ class GCNLayer(nn.Module):
         if self.residual:
             h = h_in + h
 
-        h = self.dropout(h)
-        return h
+        return self.dropout(h)
