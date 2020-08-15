@@ -15,7 +15,7 @@ class UpdateModule(nn.Module):
 
 
 class GCNLayer(nn.Module):
-    def __init__(self, indim, outdim, apply_func,
+    def __init__(self, apply_func,
                  aggr_type, activation, dropout,
                  batch_norm, residual=False, dgl_builtin=False):
         super().__init__()
@@ -34,15 +34,16 @@ class GCNLayer(nn.Module):
         self.batch_norm, self.residual = batch_norm, residual
         self.dgl_builtin = dgl_builtin
 
-        if indim != outdim:
+        if self.apply_func.indim != self.applyfunc.outdim:
             self.residual = False
 
         self.activation = activation
-        self.batchnorm_h = nn.BatchNorm1d(outdim)
+        self.batchnorm_h = nn.BatchNorm1d(self.apply_func.outdim)
         self.dropout = nn.Dropout(dropout)
 
         if self.dgl_builtin:
-            self.conv = GraphConv(indim, outdim)
+            self.conv = GraphConv(self.apply_func.indim,
+                                  self.apply_func.outdim)
         else:
             self.apply_mod = UpdateModule(self.apply_func)
 
