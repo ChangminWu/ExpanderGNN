@@ -20,6 +20,13 @@ class LinearLayer(nn.Module):
             self.layer = nn.Linear(indim, outdim, bias=bias)
         else:
             raise ValueError("Invalid linear transform type.")
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        nn.init.xavier_uniform_(self.layer.weight)
+        # nn.init.kaiming_normal_(self.layer.weight, mode="fan_ins")
+        if self.layer.bias is not None:
+            nn.init.zeros_(self.layer.bias)
 
     def forward(self, _input):
         return self.layer(_input)
