@@ -10,14 +10,16 @@ class LinearLayer(nn.Module):
         super(LinearLayer, self).__init__()
         self.linear_type = linear_type
         self.indim, self.outdim = indim, outdim
+        self.bias = bias
 
         if self.linear_type == "scatter":
             self.layer = ExpanderScatterLinear(indim, outdim,
-                                               bias=bias, **kwargs)
+                                               bias=self.bias, **kwargs)
         elif self.linear_type == "expander":
-            self.layer = ExpanderLinear(indim, outdim, bias=bias, **kwargs)
+            self.layer = ExpanderLinear(indim, outdim, bias=self.bias,
+                                        **kwargs)
         elif self.linear_type == "regular":
-            self.layer = nn.Linear(indim, outdim, bias=bias)
+            self.layer = nn.Linear(indim, outdim, bias=self.bias)
         else:
             raise ValueError("Invalid linear transform type.")
         self.reset_parameters()
@@ -43,6 +45,7 @@ class MultiLinearLayer(nn.Module):
                                                                  hiddim,
                                                                  num_layers)
         self.activation, self.batch_norm = activation, batch_norm
+        self.bias = bias
 
         layers = []
         sizes = [self.indim]
@@ -50,14 +53,14 @@ class MultiLinearLayer(nn.Module):
         sizes.append(self.outdim)
         for i in range(len(sizes)-1):
             if i == 0:
-                layers.append(LinearLayer(sizes[0], sizes[1], bias=bias,
+                layers.append(LinearLayer(sizes[0], sizes[1], bias=self.bias,
                               linear_type=self.linear_type, **kwargs))
             else:
                 if self.batch_norm:
                     layers.append(nn.BatchNorm1d(sizes[i]))
                 if self.activation is not None:
                     layers.append(self.activation)
-                layers.append(LinearLayer(sizes[i], sizes[i+1], bias=bias,
+                layers.append(LinearLayer(sizes[i], sizes[i+1], bias=self.bias,
                               linear_type=self.linear_type, **kwargs))
 
         self.layers = nn.Sequential(*layers)
