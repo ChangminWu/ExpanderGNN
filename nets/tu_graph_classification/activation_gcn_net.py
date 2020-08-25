@@ -4,15 +4,15 @@ import torch.nn as nn
 import dgl
 import dgl.function as fn
 
-from expander.expander_layer import LinearLayer, MultiLinearLayer
+from expander.expander_layer import LinearLayer
+from utils import activations
 
 
-class SimpleGCNNet(nn.Module):
+class ActivGCNNet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         indim = net_params["in_dim"]
         hiddim = net_params["hidden_dim"]
-        outdim = net_params["out_dim"]
 
         n_classes = net_params["n_classes"]
         in_feat_dropout = net_params["in_feat_dropout"]
@@ -22,12 +22,13 @@ class SimpleGCNNet(nn.Module):
         self.neighbor_pool = net_params["neighbor_pool"]
 
         self.batch_norm = net_params["batch_norm"]
-        self.n_mlp_layer = net_params["mlp_layers"]
+        self.activation = activations(net_params["activation"], param=hiddim)
 
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
         self.bias = net_params["bias"]
+        linear_params = {"density": self.density, "sampler": self.sampler}
 
         if self.neighbor_pool == "sum":
             self._reducer = fn.sum
@@ -39,33 +40,22 @@ class SimpleGCNNet(nn.Module):
             raise KeyError("Aggregator type {} not recognized."
                            .format(self.neighbor_pool))
 
-        linear_params = {"density": self.density, "sampler": self.sampler}
-
         self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
-        self.batchnorm_h = nn.BatchNorm1d(outdim)
+        self.batchnorm_h = nn.BatchNorm1d(hiddim)
 
-        self.linear = MultiLinearLayer(hiddim, outdim,
-                                       activation=None,
-                                       batch_norm=self.batch_norm,
-                                       num_layers=self.n_mlp_layer,
-                                       hiddim=hiddim,
-                                       bias=self.bias,
-                                       linear_type=self.linear_type,
-                                       **linear_params)
-
-        self.readout = nn.Sequential([LinearLayer(outdim, outdim//2,
+        self.readout = nn.Sequential([LinearLayer(hiddim, hiddim//2,
                                                   bias=True,
                                                   linear_type="regular"),
                                       nn.ReLU(),
-                                      LinearLayer(outdim//2, outdim//4,
+                                      LinearLayer(hiddim//2, hiddim//4,
                                                   bias=True,
                                                   linear_type="regular"),
                                       nn.ReLU(),
-                                      LinearLayer(outdim//4, n_classes,
+                                      LinearLayer(hiddim//4, n_classes,
                                                   bias=True,
                                                   linear_type="regular")])
 
@@ -87,10 +77,10 @@ class SimpleGCNNet(nn.Module):
                 h = g.ndata.pop('h')
                 h = h * norm
 
+                h = self.activation(h)
+
             if self.batch_norm:
                 h = self.batchnorm_h(h)
-
-            h = self.linear(h)
 
             g.ndata['h'] = h
 

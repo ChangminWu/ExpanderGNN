@@ -1,71 +1,65 @@
 import torch
-import torch.nn as nn
+import torch.nn as nn 
 
 import dgl
-import dgl.function as fn
 
-from expander.expander_layer import LinearLayer, MultiLinearLayer
+from layers.activation_graphsage_layer import ActivationGraphSageLayer
+from expander.expander_layer import LinearLayer
+from utils import activations
 
 
-class SimpleGCNNet(nn.Module):
+class ActivationGraphSageNet(nn.Module):
     def __init__(self, net_params):
-        super().__init__()
+        super(ActivationGraphSageNet, self).__init__()
         indim = net_params["in_dim"]
         hiddim = net_params["hidden_dim"]
-        outdim = net_params["out_dim"]
 
         n_classes = net_params["n_classes"]
         in_feat_dropout = net_params["in_feat_dropout"]
-        self.n_layers = net_params["L"]
+        dropout = net_params["dropout"]
+        n_layers = net_params["L"]
 
         self.graph_pool = net_params["graph_pool"]
         self.neighbor_pool = net_params["neighbor_pool"]
 
         self.batch_norm = net_params["batch_norm"]
-        self.n_mlp_layer = net_params["mlp_layers"]
 
+        self.activation = activations(net_params["activation"], param=hiddim)
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
         self.bias = net_params["bias"]
-
-        if self.neighbor_pool == "sum":
-            self._reducer = fn.sum
-        elif self.neighbor_pool == "max":
-            self._reducer = fn.max
-        elif self.neighbor_pool == "mean":
-            self._reducer = fn.mean
-        else:
-            raise KeyError("Aggregator type {} not recognized."
-                           .format(self.neighbor_pool))
 
         linear_params = {"density": self.density, "sampler": self.sampler}
 
         self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
+
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
+        self.batchnorm_h = nn.BatchNorm1d((n_layers+1)*hiddim)
 
-        self.batchnorm_h = nn.BatchNorm1d(outdim)
+        self.layers = nn.ModuleList()
+        for i in range(n_layers):
+            self.layers.append(
+                ActivationGraphSageLayer(hiddim, hiddim,
+                                         aggr_type=self.neighbor_pool,
+                                         activation=self.activation,
+                                         dropout=dropout,
+                                         batch_norm=self.batch_norm))
 
-        self.linear = MultiLinearLayer(hiddim, outdim,
-                                       activation=None,
-                                       batch_norm=self.batch_norm,
-                                       num_layers=self.n_mlp_layer,
-                                       hiddim=hiddim,
-                                       bias=self.bias,
-                                       linear_type=self.linear_type,
-                                       **linear_params)
-
-        self.readout = nn.Sequential([LinearLayer(outdim, outdim//2,
+        self.readout = nn.Sequential([LinearLayer((n_layers+1)*hiddim,
+                                                  (n_layers+1)*hiddim//2,
                                                   bias=True,
                                                   linear_type="regular"),
                                       nn.ReLU(),
-                                      LinearLayer(outdim//2, outdim//4,
+                                      LinearLayer((n_layers+1)*hiddim//2,
+                                                  (n_layers+1)*hiddim//4,
                                                   bias=True,
                                                   linear_type="regular"),
                                       nn.ReLU(),
-                                      LinearLayer(outdim//4, n_classes,
+                                      LinearLayer((n_layers+1)*hiddim//4,
+                                                  n_classes,
                                                   bias=True,
                                                   linear_type="regular")])
 
@@ -78,30 +72,25 @@ class SimpleGCNNet(nn.Module):
             norm = torch.pow(degs, -0.5)
             norm = norm.to(h.device).unsqueeze(1)
 
-            # compute (D^-1 A^k D)^k X
-            for _ in range(self.n_layers):
-                h = h * norm
-                g.ndata['h'] = h
-                g.update_all(fn.copy_u('h', 'm'), self._reducer('m', 'h'))
-
-                h = g.ndata.pop('h')
-                h = h * norm
+            for conv in self.layers:
+                h, b = conv(g, h, norm)
 
             if self.batch_norm:
-                h = self.batchnorm_h(h)
+                b = self.batchnorm_h(b)
 
-            h = self.linear(h)
+            if self.activation is not None:
+                b = self.activation(b)
 
-            g.ndata['h'] = h
+            g.ndata["h"] = b
 
             if self.graph_pool == "sum":
                 hg = dgl.sum_nodes(g, "h")
-            elif self.graph_pool == "mean":
-                hg = dgl.mean_nodes(g, "h")
-            elif self.graph_pool == "max":
+            elif self.readout == "max":
                 hg = dgl.max_nodes(g, "h")
-            else:
+            elif self.readout == "mean":
                 hg = dgl.mean_nodes(g, "h")
+            else:
+                hg = dgl.mean_nodes(g, "h")  # default readout is mean nodes
 
             return self.readout(hg)
 

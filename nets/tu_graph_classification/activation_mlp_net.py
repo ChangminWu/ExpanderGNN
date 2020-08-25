@@ -3,7 +3,7 @@ import torch.nn as nn
 
 import dgl 
 
-from expander.expander_layer import LinearLayer, MultiLinearLayer
+from expander.expander_layer import LinearLayer
 from utils import activations
 
 
@@ -12,7 +12,6 @@ class MLPNet(nn.Module):
         super(MLPNet, self).__init__()
         indim = net_params["in_dim"]
         hiddim = net_params["hidden_dim"]
-        outdim = net_params["out_dim"]
 
         n_classes = net_params["n_classes"]
         in_feat_dropout = net_params["in_feat_dropout"]
@@ -23,7 +22,7 @@ class MLPNet(nn.Module):
         self.batch_norm = net_params["batch_norm"]
         self.n_mlp_layer = net_params["mlp_layers"]
 
-        self.activation = activations(net_params["activation"])
+        self.activation = activations(net_params["activation"], param=hiddim)
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
@@ -31,26 +30,15 @@ class MLPNet(nn.Module):
 
         linear_params = {"density": self.density, "sampler": self.sampler}
 
+        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+                                        linear_type=self.linear_type,
+                                        **linear_params)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
-        sizes = [indim]
-        sizes.extend([hiddim]*(n_layers-1))
-        sizes.append(outdim)
-
-        for i in range(len(sizes)-1):
-            self.layers.append(MultiLinearLayer(indim=sizes[i],
-                                                outdim=sizes[i+1],
-                                                activation=self.activation,
-                                                batch_norm=self.batch_norm,
-                                                num_layers=self.n_mlp_layer,
-                                                hiddim=hiddim,
-                                                bias=self.bias,
-                                                linear_type=self.linear_type,
-                                                **linear_params))
-
+        for _ in n_layers:
             if self.batch_norm is not None:
-                self.layers.append(nn.BatchNorm1d(sizes[i+1]))
+                self.layers.append(nn.BatchNorm1d(hiddim))
 
             if self.activation is not None:
                 self.layers.append(self.activation)
@@ -58,27 +46,28 @@ class MLPNet(nn.Module):
             self.layers.append(nn.Dropout(dropout))
 
         if self.gated:
-            self.gates = LinearLayer(outdim, outdim, bias=self.bias,
+            self.gates = LinearLayer(hiddim, hiddim, bias=self.bias,
                                      linear_type=self.linear_type,
                                      **linear_params)
 
-        self.readout = nn.Sequential([LinearLayer(outdim, outdim//2,
+        self.readout = nn.Sequential([LinearLayer(hiddim, hiddim//2,
                                                   bias=True,
                                                   linear_type="regular"),
                                       nn.ReLU(),
-                                      LinearLayer(outdim//2, outdim//4,
+                                      LinearLayer(hiddim//2, hiddim//4,
                                                   bias=True,
                                                   linear_type="regular"),
                                       nn.ReLU(),
-                                      LinearLayer(outdim//4, n_classes,
+                                      LinearLayer(hiddim//4, n_classes,
                                                   bias=True,
                                                   linear_type="regular")])
 
     def forward(self, g, h, e):
         with g.local_scope():
+            h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
-            for conv in self.layers:
-                h = conv(h)
+            for layer in self.layers:
+                h = layer(h)
             if self.gated:
                 h = torch.sigmoid(self.gates(h))*h
                 g.ndata["h"] = h

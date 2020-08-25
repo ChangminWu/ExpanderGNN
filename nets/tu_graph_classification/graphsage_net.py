@@ -45,7 +45,7 @@ class GraphSageNet(nn.Module):
         self.layers = nn.ModuleList()
         for i in range(n_layers):
             if i == n_layers-1:
-                apply_func = MultiLinearLayer(hiddim, outdim,
+                apply_func = MultiLinearLayer(2*hiddim, outdim,
                                               activation=self.activation,
                                               batch_norm=self.batch_norm,
                                               num_layers=self.n_mlp_layer,
@@ -54,7 +54,7 @@ class GraphSageNet(nn.Module):
                                               linear_type=self.linear_type,
                                               **linear_params)
             else:
-                apply_func = MultiLinearLayer(hiddim, hiddim,
+                apply_func = MultiLinearLayer(2*hiddim, hiddim,
                                               activation=self.activation,
                                               batch_norm=self.batch_norm,
                                               num_layers=self.n_mlp_layer,

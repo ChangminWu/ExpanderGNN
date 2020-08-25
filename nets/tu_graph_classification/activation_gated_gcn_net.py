@@ -1,8 +1,9 @@
+import torch
 import torch.nn as nn
 
 import dgl
 
-from layers.gated_gcn_layer import GatedGCNLayer
+from layers.activation_gated_gcn_layer import ActivationGatedGCNLayer
 from expander.expander_layer import LinearLayer
 from utils import activations
 
@@ -12,7 +13,6 @@ class GatedGCNNet(nn.Module):
         super(GatedGCNNet, self).__init__()
         indim = net_params["in_dim"]
         hiddim = net_params["hidden_dim"]
-        outdim = net_params["out_dim"]
 
         n_classes = net_params["n_classes"]
         dropout = net_params["dropout"]
@@ -24,7 +24,7 @@ class GatedGCNNet(nn.Module):
         self.batch_norm = net_params["batch_norm"]
         self.n_mlp_layer = net_params["mlp_layers"]
 
-        self.activation = activations(net_params["activation"])
+        self.activation = activations(net_params["activation"], param=hiddim)
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
@@ -42,36 +42,21 @@ class GatedGCNNet(nn.Module):
 
         self.layers = nn.ModuleList()
         for i in range(n_layers):
-            if i == n_layers-1:
-                self.layers.append(GatedGCNLayer(self.n_mlp_layer, hiddim,
-                                                 outdim, hiddim,
-                                                 activation=self.activation,
-                                                 dropout=dropout,
-                                                 batch_norm=self.batch_norm,
-                                                 bias=self.bias,
-                                                 residual=self.residual,
-                                                 linear_type=self.linear_type,
-                                                 **linear_params))
-            else:
-                self.layers.append(GatedGCNLayer(self.n_mlp_layer, hiddim,
-                                                 hiddim, hiddim,
-                                                 activation=self.activation,
-                                                 dropout=dropout,
-                                                 batch_norm=self.batch_norm,
-                                                 bias=self.bias,
-                                                 residual=self.residual,
-                                                 linear_type=self.linear_type,
-                                                 **linear_params))
+            self.layers.append(
+                ActivationGatedGCNLayer(hiddim, hiddim, hiddim,
+                                        activation=self.activation,
+                                        dropout=dropout,
+                                        batch_norm=self.batch_norm))
 
-        self.readout = nn.Sequential([LinearLayer(outdim, outdim//2,
+        self.readout = nn.Sequential([LinearLayer(hiddim, hiddim//2,
                                                   bias=True,
                                                   linear_type="regular"),
                                       nn.ReLU(),
-                                      LinearLayer(outdim//2, outdim//4,
+                                      LinearLayer(hiddim//2, hiddim//4,
                                                   bias=True,
                                                   linear_type="regular"),
                                       nn.ReLU(),
-                                      LinearLayer(outdim//4, n_classes,
+                                      LinearLayer(hiddim//4, n_classes,
                                                   bias=True,
                                                   linear_type="regular")])
 
@@ -80,8 +65,13 @@ class GatedGCNNet(nn.Module):
             h = self.node_encoder(h)
             e = self.edge_encoder(e)
 
+            degs = g.in_degrees().float().clamp(min=1)
+            norm = torch.pow(degs, -0.5)
+            norm = norm.to(h.device).unsqueeze(1)
+
             for conv in self.layers:
-                h, e = conv(g, h, e)
+                h, e = conv(g, h, e, norm)
+
             g.ndata["h"] = h
 
             if self.graph_pool == "sum":

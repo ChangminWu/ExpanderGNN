@@ -4,13 +4,12 @@ import torch.nn as nn
 from expander.expander_layer import MultiLinearLayer
 
 
-class GatedGCNLayer(nn.Module):
+class SimpleGatedGCNLayer(nn.Module):
     def __init__(self, n_mlp_layer, indim, outdim, hiddim,
-                 activation, dropout, batch_norm,
+                 dropout, batch_norm,
                  bias=True, residual=False, linear_type="expander", **kwargs):
-        super(GatedGCNLayer, self).__init__()
+        super(SimpleGatedGCNLayer, self).__init__()
 
-        self.activation = activation
         self.batch_norm, self.residual, self.bias = batch_norm, residual, bias
         if indim != outdim:
             self.residual = False
@@ -20,7 +19,7 @@ class GatedGCNLayer(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         self.A = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -28,7 +27,7 @@ class GatedGCNLayer(nn.Module):
                                   linear_type=linear_type,
                                   **kwargs)
         self.B = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -36,7 +35,7 @@ class GatedGCNLayer(nn.Module):
                                   linear_type=linear_type,
                                   **kwargs)
         self.C = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -44,7 +43,7 @@ class GatedGCNLayer(nn.Module):
                                   linear_type=linear_type,
                                   **kwargs)
         self.D = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -52,7 +51,7 @@ class GatedGCNLayer(nn.Module):
                                   linear_type=linear_type,
                                   **kwargs)
         self.E = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -75,10 +74,11 @@ class GatedGCNLayer(nn.Module):
                                                                 dim=1) + 1e-6)
         return {"h": h}
 
-    def forward(self, g, h, e):
+    def forward(self, g, h, e, norm):
         h_in = h
         e_in = e
 
+        h = h*norm
         g.ndata["h"] = h
         g.ndata["Ah"] = self.A(h)
         g.ndata["Bh"] = self.B(h)
@@ -89,14 +89,11 @@ class GatedGCNLayer(nn.Module):
         g.update_all(self.message_func, self.reduce_func)
         h = g.ndata["h"]
         e = g.edata["e"]
+        h = h*norm
 
         if self.batch_norm:
             h = self.bn_node_h(h)
             e = self.bn_node_e(e)
-
-        if self.activation is not None:
-            h = self.activation(h)
-            e = self.activation(e)
 
         if self.residual:
             h = h_in+h
@@ -107,13 +104,12 @@ class GatedGCNLayer(nn.Module):
         return h, e
 
 
-class GatedGCNEdgesLayer(nn.Module):
+class SimpleGatedGCNEdgesLayer(nn.Module):
     def __init__(self, n_mlp_layer, indim, outdim, hiddim,
-                 activation, dropout, batch_norm,
+                 dropout, batch_norm,
                  bias=True, residual=False, linear_type="expander", **kwargs):
-        super(GatedGCNEdgesLayer, self).__init__()
+        super(SimpleGatedGCNEdgesLayer, self).__init__()
 
-        self.activation = activation
         self.batch_norm, self.residual, self.bias = batch_norm, residual, bias
         if indim != outdim:
             self.residual = False
@@ -122,7 +118,7 @@ class GatedGCNEdgesLayer(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         self.A = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -130,7 +126,7 @@ class GatedGCNEdgesLayer(nn.Module):
                                   linear_type=linear_type,
                                   **kwargs)
         self.B = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -138,7 +134,7 @@ class GatedGCNEdgesLayer(nn.Module):
                                   linear_type=linear_type,
                                   **kwargs)
         self.D = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -146,7 +142,7 @@ class GatedGCNEdgesLayer(nn.Module):
                                   linear_type=linear_type,
                                   **kwargs)
         self.E = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -169,9 +165,10 @@ class GatedGCNEdgesLayer(nn.Module):
                                                                 dim=1) + 1e-6)
         return {"h": h}
 
-    def forward(self, g, h, e):
+    def forward(self, g, h, e, norm):
         h_in = h
 
+        h = h*norm
         g.ndata["h"] = h
         g.ndata["Ah"] = self.A(h)
         g.ndata["Bh"] = self.B(h)
@@ -179,12 +176,10 @@ class GatedGCNEdgesLayer(nn.Module):
         g.ndata["Eh"] = self.E(h)
         g.update_all(self.message_func, self.reduce_func)
         h = g.ndata["h"]
+        h = h*norm
 
         if self.batch_norm:
             h = self.bn_node_h(h)
-
-        if self.activation is not None:
-            h = self.activation(h)
 
         if self.residual:
             h = h_in+h
@@ -193,13 +188,11 @@ class GatedGCNEdgesLayer(nn.Module):
         return h, e
 
 
-class GatedGCNIsotrophicLayer(nn.Module):
+class SimpleGatedGCNIsotrophicLayer(nn.Module):
     def __init__(self, n_mlp_layer, indim, outdim, hiddim,
-                 activation, dropout, batch_norm,
+                 dropout, batch_norm,
                  bias=True, residual=False, linear_type="expander", **kwargs):
-        super(GatedGCNIsotrophicLayer, self).__init__()
-
-        self.activation = activation
+        super(SimpleGatedGCNIsotrophicLayer, self).__init__()
         self.batch_norm, self.residual, self.bias = batch_norm, residual, bias
         if indim != outdim:
             self.residual = False
@@ -208,7 +201,7 @@ class GatedGCNIsotrophicLayer(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         self.A = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -216,7 +209,7 @@ class GatedGCNIsotrophicLayer(nn.Module):
                                   linear_type=linear_type,
                                   **kwargs)
         self.B = MultiLinearLayer(indim, outdim,
-                                  activation=self.activation,
+                                  activation=None,
                                   batch_norm=self.batch_norm,
                                   num_layers=n_mlp_layer,
                                   hiddim=hiddim,
@@ -234,20 +227,19 @@ class GatedGCNIsotrophicLayer(nn.Module):
         h = Ah_i + torch.sum(Bh_j, dim=1)
         return {"h": h}
 
-    def forward(self, g, h, e):
+    def forward(self, g, h, e, norm):
         h_in = h
 
+        h = h*norm
         g.ndata["h"] = h
         g.ndata["Ah"] = self.A(h)
         g.ndata["Bh"] = self.B(h)
         g.update_all(self.message_func, self.reduce_func)
         h = g.ndata["h"]
+        h = h*norm
 
         if self.batch_norm:
             h = self.bn_node_h(h)
-
-        if self.activation is not None:
-            h = self.activation(h)
 
         if self.residual:
             h = h_in+h
