@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch_scatter import scatter_add
 # from torch_sparse import spmm
 
-from samplers import sampler
+from expander.samplers import sampler
 
 
 class ExpanderScatterLinear(nn.Module):

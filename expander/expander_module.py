@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from samplers import sampler
+from expander.samplers import sampler
 
 
 class ExpanderLinearFunction(torch.autograd.Function):

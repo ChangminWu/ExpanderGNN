@@ -1,7 +1,7 @@
 import torch.nn as nn
 
-from expander_module import ExpanderLinear
-from expander_scatter_module import ExpanderScatterLinear
+from expander.expander_module import ExpanderLinear
+from expander.expander_scatter_module import ExpanderScatterLinear
 
 
 class LinearLayer(nn.Module):

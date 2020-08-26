@@ -61,7 +61,7 @@ class GraphSageNet(nn.Module):
                                               hiddim=hiddim,
                                               bias=self.bias,
                                               linear_type=self.linear_type,
-                                              **linear_params)                
+                                              **linear_params)
 
             self.layers.append(GraphSageLayer(apply_func,
                                               aggr_type=self.neighbor_pool,
