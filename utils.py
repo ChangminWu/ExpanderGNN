@@ -5,7 +5,6 @@ import networkx as nx
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from layers.activation_layer import LinearActiveLayer, BiasedRELULayer,\
                                     ConvActivLayer
@@ -92,7 +91,7 @@ def expander_weights_writer(net, saved_expander, saved_layers=None,
     if saved_layers is None:
         saved_layers = dict()
 
-    layer_name = str(net.__class__).split(".")[-1].split("'")[0] 
+    layer_name = str(net.__class__).split(".")[-1].split("'")[0]
     # str(net)[:str(net).find('(')]
     if layer_name in saved_layers:
         label = layer_name + "_" + str(len(saved_layers[layer_name]))
@@ -126,7 +125,7 @@ def check_tensorboard(net, writer, step, step_size=30, saved_layers=None):
     num_children = len(list(net.children()))
     if saved_layers is None:
         saved_layers = dict()
-    layer_name = str(net.__class__).split(".")[-1].split("'")[0]  
+    layer_name = str(net.__class__).split(".")[-1].split("'")[0]
     # str(net)[:str(net).find('(')]
     if layer_name in saved_layers:
         label = layer_name + "_" + str(len(saved_layers[layer_name]))
@@ -166,7 +165,7 @@ def check_tensorboard(net, writer, step, step_size=30, saved_layers=None):
                 return log_tuple
 
 
-def init_expander(net, saved_mask=None, saved_layers=None):
+def init_expander(net, saved_expander=None, saved_layers=None):
     num_children = len(list(net.children()))
     layer_name = str(net.__class__).split(".")[-1].split("'")[0]
     # str(net)[:str(net).find('(')]
@@ -178,29 +177,33 @@ def init_expander(net, saved_mask=None, saved_layers=None):
         saved_layers[layer_name] = [label]
 
     if num_children == 0:
-        if label in saved_mask:
-            net.generate_mask(saved_mask[label])
+        if label in saved_expander:
+            net.generate_mask(saved_expander[label])
         elif "Expander" in label and "Linear" in label:
             net.generate_mask()
-            saved_mask[label] = net.mask
+            saved_expander[label] = net.mask
         elif "Linear" in label:
-            saved_mask[label] = 
+            saved_expander[label] = torch.ones(net.weight.size())
     else:
-        if label not in saved_mask:
-            saved_mask[label] = OrderedDict()
+        if label not in saved_expander:
+            saved_expander[label] = OrderedDict()
         for child in net.children():
-            saved_mask[label], saved_layers = init_expander(child, saved_mask[label], saved_layers)
-    return saved_mask, saved_layers
+            saved_expander[label], saved_layers =\
+                init_expander(child,
+                              saved_expander[label],
+                              saved_layers)
+    return saved_expander, saved_layers
 
 
 def get_model_param(net, num):
     curr_total_num = num
     num_children = len(list(net.children()))
-    layer_name = str(net.__class__).split(".")[-1].split("'")[0]  # str(net)[:str(net).find('(')]
+    layer_name = str(net.__class__).split(".")[-1].split("'")[0]
+    # str(net)[:str(net).find('(')]
     if num_children == 0:
-        if "ExpanderLinear" in layer_name:
+        if "Expander" in layer_name and "Linear" in layer_name:
             curr_total_num += net.n_params
-        elif "Linear" in layer_name and "Expander" not in layer_name:
+        elif "Linear" in layer_name:
             curr_num = 0
             for param in net.parameters():
                 curr_num += np.prod(list(param.data.size()))
@@ -211,11 +214,11 @@ def get_model_param(net, num):
     return curr_total_num
 
 
-########## Others ###########
 class DotDict(dict):
     def __init__(self, **kwds):
         self.update(kwds)
         self.__dict__ = self
+
 
 def convert_to_float(frac_str):
     try:

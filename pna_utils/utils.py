@@ -14,7 +14,7 @@ def get_activation(activation):
     activation = [x for x in SUPPORTED_ACTIVATION_MAP
                   if activation.lower() == x.lower()]
     assert len(activation) == 1 and isinstance(activation[0], str),\
-           "Unhandled activation function"
+        "Unhandled activation function"
     activation = activation[0]
     if activation.lower() == 'none':
         return None
