@@ -177,7 +177,7 @@ def init_expander(net, saved_expander=None, saved_layers=None):
         saved_layers[layer_name] = [label]
 
     if num_children == 0:
-        if label in saved_expander:
+        if label in saved_expander and "Expander" in label:
             net.generate_mask(saved_expander[label])
         elif "Expander" in label and "Linear" in label:
             net.generate_mask()
