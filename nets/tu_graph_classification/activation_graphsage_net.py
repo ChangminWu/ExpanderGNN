@@ -85,9 +85,9 @@ class ActivationGraphSageNet(nn.Module):
 
             if self.graph_pool == "sum":
                 hg = dgl.sum_nodes(g, "h")
-            elif self.readout == "max":
+            elif self.graph_pool == "max":
                 hg = dgl.max_nodes(g, "h")
-            elif self.readout == "mean":
+            elif self.graph_pool == "mean":
                 hg = dgl.mean_nodes(g, "h")
             else:
                 hg = dgl.mean_nodes(g, "h")  # default readout is mean nodes
