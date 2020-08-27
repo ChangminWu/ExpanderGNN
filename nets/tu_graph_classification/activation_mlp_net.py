@@ -50,17 +50,17 @@ class ActivationMLPNet(nn.Module):
                                      linear_type=self.linear_type,
                                      **linear_params)
 
-        self.readout = nn.Sequential([LinearLayer(hiddim, hiddim//2,
-                                                  bias=True,
-                                                  linear_type="regular"),
-                                      nn.ReLU(),
-                                      LinearLayer(hiddim//2, hiddim//4,
-                                                  bias=True,
-                                                  linear_type="regular"),
-                                      nn.ReLU(),
-                                      LinearLayer(hiddim//4, n_classes,
-                                                  bias=True,
-                                                  linear_type="regular")])
+        self.readout = nn.Sequential(LinearLayer(hiddim, hiddim//2,
+                                                 bias=True,
+                                                 linear_type="regular"),
+                                     nn.ReLU(),
+                                     LinearLayer(hiddim//2, hiddim//4,
+                                                 bias=True,
+                                                 linear_type="regular"),
+                                     nn.ReLU(),
+                                     LinearLayer(hiddim//4, n_classes,
+                                                 bias=True,
+                                                 linear_type="regular"))
 
     def forward(self, g, h, e):
         with g.local_scope():

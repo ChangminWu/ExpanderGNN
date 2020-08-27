@@ -119,17 +119,17 @@ class SimplePNANet(nn.Module):
                                     **linear_params)
             self.layers.append(new_layer)
 
-        self.readout = nn.Sequential([LinearLayer(outdim, outdim//2,
-                                                  bias=True,
-                                                  linear_type="regular"),
-                                      nn.ReLU(),
-                                      LinearLayer(outdim//2, outdim//4,
-                                                  bias=True,
-                                                  linear_type="regular"),
-                                      nn.ReLU(),
-                                      LinearLayer(outdim//4, n_classes,
-                                                  bias=True,
-                                                  linear_type="regular")])
+        self.readout = nn.Sequential(LinearLayer(outdim, outdim//2,
+                                                 bias=True,
+                                                 linear_type="regular"),
+                                     nn.ReLU(),
+                                     LinearLayer(outdim//2, outdim//4,
+                                                 bias=True,
+                                                 linear_type="regular"),
+                                     nn.ReLU(),
+                                     LinearLayer(outdim//4, n_classes,
+                                                 bias=True,
+                                                 linear_type="regular"))
 
     def forward(self, g, h, e):
         with g.local_scope():
