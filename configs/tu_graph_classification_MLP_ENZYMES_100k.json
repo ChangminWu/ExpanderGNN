@@ -34,6 +34,7 @@
         "batch_norm": true,
         "density": 0.1,
         "activation": "relu",
+        "mlp_layers": 2,
         "sampler": "regular",
         "linear_type": "regular",
         "bias": true,

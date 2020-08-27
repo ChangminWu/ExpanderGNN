@@ -34,7 +34,7 @@ class GCNLayer(nn.Module):
         self.batch_norm, self.residual = batch_norm, residual
         self.dgl_builtin = dgl_builtin
 
-        if self.apply_func.indim != self.applyfunc.outdim:
+        if self.apply_func.indim != self.apply_func.outdim:
             self.residual = False
 
         self.activation = activation

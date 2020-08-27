@@ -22,7 +22,7 @@ class GINLayer(nn.Module):
                            .format(aggr_type))
 
         self.batch_norm, self.residual = batch_norm, residual
-        if self.apply_func.indim != self.applyfunc.outdim:
+        if self.apply_func.indim != self.apply_func.outdim:
             self.residual = False
 
         self.activation = activation
