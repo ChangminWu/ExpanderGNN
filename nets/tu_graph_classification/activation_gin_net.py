@@ -38,7 +38,7 @@ class ActivationGINNet(nn.Module):
         self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
-        self.in_feat_dropout - nn.Dropout(in_feat_dropout)
+        self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
         self.linears = nn.ModuleList()
