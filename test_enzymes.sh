@@ -1,7 +1,7 @@
 script=main_tu_graph_classification.py
 datasets=("ENZYMES")
 actives=('relu' 'prelu' 'linear' 'brelu' 'brelu-intercept' 'conv' 'rrelu' 'elu' 'sigmoid' 'tanh' 'lelu' 'softplus')
-models=('GCN', 'GIN', 'MLP', 'GraphSage', 'GatedGCN', 'GAT', 'PNA')
+models=('GCN' 'GIN' 'MLP' 'GraphSage' 'GatedGCN' 'GAT' 'PNA')
 densities=( 0.1 0.5 0.9 )
 savedir="results/test/"
 

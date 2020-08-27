@@ -7,7 +7,7 @@ from expander.expander_layer import LinearLayer
 from utils import activations
 
 
-class MLPNet(nn.Module):
+class ActivationMLPNet(nn.Module):
     def __init__(self, net_params):
         super(MLPNet, self).__init__()
         indim = net_params["in_dim"]

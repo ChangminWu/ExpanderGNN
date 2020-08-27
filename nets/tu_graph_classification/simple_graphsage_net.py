@@ -7,7 +7,7 @@ from layers.simple_graphsage_layer import SimpleGraphSageLayer
 from expander.expander_layer import LinearLayer, MultiLinearLayer
 
 
-class GraphSageNet(nn.Module):
+class SimpleGraphSageNet(nn.Module):
     def __init__(self, net_params):
         super(GraphSageNet, self).__init__()
         indim = net_params["in_dim"]

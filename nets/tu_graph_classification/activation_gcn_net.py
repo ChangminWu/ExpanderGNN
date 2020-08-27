@@ -8,7 +8,7 @@ from expander.expander_layer import LinearLayer
 from utils import activations
 
 
-class ActivGCNNet(nn.Module):
+class ActivationGCNNet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         indim = net_params["in_dim"]

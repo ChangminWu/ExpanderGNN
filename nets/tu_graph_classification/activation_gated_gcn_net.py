@@ -8,7 +8,7 @@ from expander.expander_layer import LinearLayer
 from utils import activations
 
 
-class GatedGCNNet(nn.Module):
+class ActivationGatedGCNNet(nn.Module):
     def __init__(self, net_params):
         super(GatedGCNNet, self).__init__()
         indim = net_params["in_dim"]

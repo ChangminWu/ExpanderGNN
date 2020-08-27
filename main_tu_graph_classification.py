@@ -548,10 +548,10 @@ def main():
         net_params['gru'] = args.gru if args.gru == 'True' else False
     if args.edge_dim is not None:
         net_params['edge_dim'] = int(args.edge_dim)
-    if args.pretrans_layers is not None:
-        net_params['num_pretrans_layer'] = int(args.pretrans_layers)
-    if args.posttrans_layers is not None:
-        net_params['num_posttrans_layer'] = int(args.posttrans_layers)
+    if args.num_pretrans_layer is not None:
+        net_params['num_pretrans_layer'] = int(args.num_pretrans_layer)
+    if args.num_posttrans_layer is not None:
+        net_params['num_posttrans_layer'] = int(args.num_posttrans_layer)
     if args.use_simplified_version is not None:
         net_params['use_simplified_version'] = args.use_simplified_version\
             if args.use_simplified_version == 'True' else False
