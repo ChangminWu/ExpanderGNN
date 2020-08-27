@@ -68,7 +68,7 @@ class ExpanderLinear(nn.Module):
                                                self.density,
                                                method=self.sampler)
         else:
-            self.n_params == torch.sum(init)
+            self.n_params = torch.sum(init)
             self.mask = init
 
         if self.bias is not None:
