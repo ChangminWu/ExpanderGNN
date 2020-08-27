@@ -9,7 +9,7 @@ from utils import activations
 
 class ActivationMLPNet(nn.Module):
     def __init__(self, net_params):
-        super(MLPNet, self).__init__()
+        super(ActivationMLPNet, self).__init__()
         indim = net_params["in_dim"]
         hiddim = net_params["hidden_dim"]
 

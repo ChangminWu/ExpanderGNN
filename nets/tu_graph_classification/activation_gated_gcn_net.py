@@ -10,7 +10,7 @@ from utils import activations
 
 class ActivationGatedGCNNet(nn.Module):
     def __init__(self, net_params):
-        super(GatedGCNNet, self).__init__()
+        super(ActivationGatedGCNNet, self).__init__()
         indim = net_params["in_dim"]
         hiddim = net_params["hidden_dim"]
 

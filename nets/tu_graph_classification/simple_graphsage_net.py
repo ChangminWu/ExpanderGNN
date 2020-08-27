@@ -9,7 +9,7 @@ from expander.expander_layer import LinearLayer, MultiLinearLayer
 
 class SimpleGraphSageNet(nn.Module):
     def __init__(self, net_params):
-        super(GraphSageNet, self).__init__()
+        super(SimpleGraphSageNet, self).__init__()
         indim = net_params["in_dim"]
         hiddim = net_params["hidden_dim"]
         outdim = net_params["out_dim"]
