@@ -13,9 +13,9 @@ from layers.activation_layer import LinearActiveLayer, BiasedRELULayer,\
 def activations(activ_name, param=None):
     if activ_name == "sigmoid":
         activation = nn.Sigmoid()
-    if activ_name == "tanh":
+    elif activ_name == "tanh":
         activation = nn.Tanh()
-    if activ_name == "relu":
+    elif activ_name == "relu":
         activation = nn.ReLU()
     elif activ_name == "prelu":
         activation = nn.PReLU()

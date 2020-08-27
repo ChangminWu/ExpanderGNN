@@ -20,9 +20,9 @@ class LinearLayer(nn.Module):
                                         **kwargs)
         elif self.linear_type == "regular":
             self.layer = nn.Linear(indim, outdim, bias=self.bias)
+            self.reset_parameters()
         else:
             raise ValueError("Invalid linear transform type.")
-        self.reset_parameters()
 
     def reset_parameters(self):
         nn.init.xavier_uniform_(self.layer.weight)
