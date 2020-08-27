@@ -45,6 +45,7 @@ class ActivationGINNet(nn.Module):
         for i in range(self.n_layers):
             self.layers.append(ActivationGINLayer(hiddim, hiddim,
                                                   aggr_type=self.neighbor_pool,
+                                                  activation=self.activation,
                                                   dropout=dropout,
                                                   batch_norm=self.batch_norm,
                                                   learn_eps=self.learn_eps))
