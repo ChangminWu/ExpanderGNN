@@ -34,7 +34,7 @@ class GINLayer(nn.Module):
         else:
             self.register_buffer("eps", torch.FloatTensor([init_eps]))
 
-    def forward(self, g, features, norm):
+    def forward(self, g, features):
         h_in = features
 
         g = g.local_var()

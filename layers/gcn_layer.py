@@ -11,7 +11,7 @@ class UpdateModule(nn.Module):
 
     def forward(self, node):
         h = self.apply_func(node.data["h"])
-        return {"h", h}
+        return {"h": h}
 
 
 class GCNLayer(nn.Module):
