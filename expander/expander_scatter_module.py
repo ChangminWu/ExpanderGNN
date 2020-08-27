@@ -22,7 +22,6 @@ class ExpanderScatterLinear(nn.Module):
             self.register_parameter("bias", None)
 
         self.register_buffer("mask", None)
-        self.reset_parameters()
 
     def reset_parameters(self):
         nn.init.xavier_uniform_(self.weight)
