@@ -107,11 +107,12 @@ class GraphSageLayer(nn.Module):
         self.batch_norm, self.residual = batch_norm, residual
         self.dgl_builtin = dgl_builtin
 
-        if self.apply_func.indim != self.apply_func.outdim:
+        indim, outdim = self.apply_func.indim//2, self.apply_func.outdim
+        if indim != outdim:
             self.residual = False
 
         self.activation = activation
-        self.batchnorm_h = nn.BatchNorm1d(self.apply_func.outdim)
+        self.batchnorm_h = nn.BatchNorm1d(outdim)
         self.dropout = nn.Dropout(dropout)
 
         if not self.dgl_builtin:
@@ -119,8 +120,8 @@ class GraphSageLayer(nn.Module):
                                           activation=self.activation,
                                           dropout=dropout)
             if aggr_type == "max":
-                self.reducer = MaxPoolAggregator(indim=self.apply_func.indim,
-                                                 outdim=self.apply_func.indim,
+                self.reducer = MaxPoolAggregator(indim=indim,
+                                                 outdim=outdim,
                                                  activation=self.activation,
                                                  bias=self.apply_func.bias,
                                                  linear_type=self.apply_func
@@ -165,7 +166,7 @@ class GraphSageEdgeLayer(nn.Module):
                  batch_norm, residual=False, dgl_builtin=False, **kwargs):
         super(GraphSageEdgeLayer, self).__init__()
 
-        indim, outdim, hiddim, n_mlp_layer = (apply_func.indim,
+        indim, outdim, hiddim, n_mlp_layer = (apply_func.indim//2,
                                               apply_func.outdim,
                                               apply_func.hiddim,
                                               apply_func.num_layers)
@@ -240,7 +241,7 @@ class GraphSageEdgeReprLayer(nn.Module):
                  batch_norm, residual=False, dgl_builtin=False, **kwargs):
         super(GraphSageEdgeReprLayer, self).__init__()
 
-        indim, outdim, hiddim, n_mlp_layer = (apply_func.indim,
+        indim, outdim, hiddim, n_mlp_layer = (apply_func.indim//2,
                                               apply_func.outdim,
                                               apply_func.hiddim,
                                               apply_func.num_layers)

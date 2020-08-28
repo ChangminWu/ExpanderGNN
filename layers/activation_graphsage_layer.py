@@ -81,7 +81,11 @@ class UpdateModule(nn.Module):
     def forward(self, node):
         h = node.data['h']
         c = node.data['c']
-        bundle = self.concat(h, c)
+        if "b" in node.data:
+            b = node.data['b']
+            bundle = self.concat(b, c)
+        else:
+            bundle = self.concat(h, c)
         bundle = F.normalize(bundle, p=2, dim=1)
         if self.activation is not None:
             bundle = self.activation(bundle)

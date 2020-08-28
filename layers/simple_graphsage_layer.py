@@ -136,7 +136,7 @@ class SimpleGraphSageLayer(nn.Module):
         g.update_all(fn.copy_src(src="h", out="m"), self.reducer,
                      self.apply_mod)
 
-        h = g.ndata.pop["h"]
+        h = g.ndata["h"]
         h = h*norm
 
         if self.batch_norm:
@@ -208,7 +208,7 @@ class SimpleGraphSageEdgeLayer(nn.Module):
         g.ndata["Ah"] = self.A(h)
         g.ndata["Bh"] = self.B(h)
         g.update_all(self.message_func, self.reduce_func, self.apply_mod)
-        h = g.ndata.pop["h"]
+        h = g.ndata.pop("h")
         h = h*norm
 
         if self.batch_norm:
@@ -292,8 +292,8 @@ class SimpleGraphSageEdgeReprLayer(nn.Module):
         g.ndata["e"] = e
         g.ndata["Ce"] = self.C(e)
         g.update_all(self.message_func, self.reduce_func, self.apply_mod)
-        h = g.ndata.pop["h"]
-        e = g.ndata.pop["e"]
+        h = g.ndata.pop("h")
+        e = g.ndata.pop("e")
         h = h*norm
 
         if self.batch_norm:

@@ -191,7 +191,7 @@ class ActivationPNASimplifiedLayer(nn.Module):
         self.aggregators = aggregators
         self.scalers = scalers
 
-        self.dropout = dropout
+        self.dropout = nn.Dropout(dropout)
         self.batch_norm = batch_norm
         self.batchnorm_h = nn.BatchNorm1d(indim *
                                           (1+len(aggregators)*len(scalers)))

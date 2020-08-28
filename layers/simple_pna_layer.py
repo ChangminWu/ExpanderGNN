@@ -232,7 +232,7 @@ class SimplePNASimplifiedLayer(nn.Module):
         if indim != outdim:
             self.residual = False
 
-        self.dropout = dropout
+        self.dropout = nn.Dropout(dropout)
         self.batch_norm = batch_norm
         self.batchnorm_h = nn.BatchNorm1d(outdim)
 

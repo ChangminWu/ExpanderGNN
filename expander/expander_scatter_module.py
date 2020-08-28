@@ -59,10 +59,9 @@ class ExpanderScatterLinear(nn.Module):
         self.weight = nn.Parameter(data=torch.Tensor(self.n_params))
         self.reset_parameters()
 
-        self.inds = torch.nonzero(self.mask,
-                                  as_tuple=True).to(self.weight.device)
-        self.ind_in = self.inds[1]
-        self.ind_out = self.inds[0]
+        self.inds = torch.nonzero(self.mask, as_tuple=True)
+        self.ind_in = self.inds[1].to(self.weight.device)
+        self.ind_out = self.inds[0].to(self.weight.device)
 
         if self.bias is not None:
             self.n_params += self.outdim

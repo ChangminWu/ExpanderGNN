@@ -36,7 +36,7 @@ class ActivationMLPNet(nn.Module):
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
-        for _ in n_layers:
+        for _ in range(n_layers):
             if self.batch_norm is not None:
                 self.layers.append(nn.BatchNorm1d(hiddim))
 
