@@ -92,6 +92,16 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
             print("Test Graphs: ", len(testset))
             print("Number of Classes: ", net_params['n_classes'])
 
+            if 'PNA' in MODEL_NAME:
+                D = torch.cat([
+                    torch.sparse.sum(g.adjacency_matrix(transpose=True),
+                                     dim=-1).to_dense()
+                    for g in dataset.train[split_number].graph_lists])
+                net_params['avg_d'] = dict(lin=torch.mean(D),
+                                           exp=torch.mean(torch.exp(
+                                               torch.div(1, D)) - 1),
+                                           log=torch.mean(torch.log(D + 1)))
+
             model = gnn_model(MODEL_NAME, net_params)
             saved_expander, _ = init_expander(model, saved_expander,
                                               saved_layers)
@@ -332,7 +342,7 @@ def main():
     parser.add_argument('--weight_decay',
                         help="Please give a value for weight_decay")
     parser.add_argument('--print_epoch_interval',
-                        help="Please give a value for print_epoch_interval")    
+                        help="Please give a value for print_epoch_interval")
     parser.add_argument('--L', help="Please give a value for L")
     parser.add_argument('--hidden_dim',
                         help="Please give a value for hidden_dim")
@@ -575,15 +585,6 @@ def main():
         num_nodes = [dataset.all[i][0].number_of_nodes()
                      for i in range(len(dataset.all))]
         net_params['avg_node_num'] = int(np.ceil(np.mean(num_nodes)))
-
-    if 'PNA' in MODEL_NAME:
-        D = torch.cat([torch.sparse.sum(dataset.train[i][0]
-                       .adjacency_matrix(transpose=True), dim=-1).to_dense()
-                       for i in range(len(dataset.train))])
-        net_params['avg_d'] = dict(lin=torch.mean(D),
-                                   exp=torch.mean(torch.exp(torch.div(1,
-                                                                      D)) - 1),
-                                   log=torch.mean(torch.log(D + 1)))
 
     root_log_dir = out_dir + 'logs/' + EXP_NAME + "_" + MODEL_NAME + "_" +\
         DATASET_NAME + "_density_" + str(net_params["density"])

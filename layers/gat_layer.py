@@ -45,6 +45,7 @@ class GATSingleHeadLayer(nn.Module):
         return {'h': h}
 
     def forward(self, g, h):
+        print(h)
         z = self.linear(h)
         g.ndata['z'] = z
         g.apply_edges(self.edge_attention)
