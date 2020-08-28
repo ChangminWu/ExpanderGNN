@@ -22,7 +22,7 @@ class ActivationGATNet(nn.Module):
         n_layers = net_params["L"]
 
         self.graph_pool = net_params["graph_pool"]
-        self.merge_type = net_params["merge_type"]
+        self.merge_type = "mean"  # net_params["merge_type"]
 
         self.residual = net_params["residual"]
         self.batch_norm = net_params["batch_norm"]

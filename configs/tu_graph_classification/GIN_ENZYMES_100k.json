@@ -26,6 +26,7 @@
     "net_params": {
         "L": 4,
         "hidden_dim": 110,
+        "out_dim": 110,
         "residual": true,
         "graph_pool": "sum",
         "mlp_layers": 2,

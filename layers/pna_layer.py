@@ -153,8 +153,8 @@ class PNALayer(nn.Module):
         self.towers = nn.ModuleList()
         for _ in range(num_tower):
             self.towers.append(
-                PNATower(indim=self.input_power,
-                         outdim=self.output_power,
+                PNATower(indim=self.input_tower,
+                         outdim=self.output_tower,
                          hiddim=hiddim,
                          activation=activation,
                          dropout=dropout,
