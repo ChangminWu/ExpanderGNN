@@ -38,7 +38,6 @@ class MaxPoolAggregator(Aggregator):
         self.activation = activation
 
     def aggre(self, neighbour):
-        print(neighbour.size())
         neighbour = self.linear(neighbour)
         if self.activation is not None:
             neighbour = self.activation(neighbour)
