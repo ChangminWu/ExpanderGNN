@@ -9,11 +9,12 @@ class ExpanderLinearFunction(torch.autograd.Function):
         ctx.save_for_backward(_input, weight, bias)
         ctx.mask = mask
         weight.mul_(mask)
-        output = torch.einsum("abc,cd->abd", (_input, weight.t()))
-
-        if bias is not None:
-            output += bias.unsqueeze(0).expand_as(output)
-
+        if _input.dim() == 2 and bias is not None:
+            output = torch.addmm(bias, _input, weight.t())
+        else:
+            output = _input.matmul(weight.t())
+            if bias is not None:
+                output += bias
         return output
 
     @staticmethod
@@ -23,9 +24,13 @@ class ExpanderLinearFunction(torch.autograd.Function):
         weight.mul_(ctx.mask)
 
         if ctx.needs_input_grad[0]:
-            grad_input = torch.einsum("abc,cd->abd", (grad_output, weight)) # grad_output.mm(weight)
+            grad_input = grad_output.matmul(weight)
         if ctx.needs_input_grad[1]:
-            grad_weight = torch.einsum("abc,acd->abd", (grad_output.t(), _input))  # grad_output.t().mm(_input)
+            if grad_output.dim() == 2:
+                grad_weight = grad_output.t().mm(_input)
+            else:
+                grad_weight = torch.matmul(grad_output.squeeze(-1),
+                                           _input.squeeze(-2)).sum(0).sum(0)
         if bias is not None and ctx.needs_input_grad[3]:
             grad_bias = grad_output.sum(0)
 
