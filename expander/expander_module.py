@@ -32,6 +32,7 @@ class ExpanderLinearFunction(torch.autograd.Function):
                 print(grad_output.size())
                 grad_weight = torch.matmul(grad_output.squeeze(-1),
                                            _input.squeeze(-2)).sum(0).sum(0)
+                print(grad_weight.size())
         if bias is not None and ctx.needs_input_grad[3]:
             grad_bias = grad_output.sum(0)
 
