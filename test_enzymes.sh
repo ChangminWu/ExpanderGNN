@@ -9,7 +9,7 @@ for i in "${datasets[@]}"
 do
   for j in "${models[@]}"
   do
-    config_file=configs/tu_graph_classification_${j}_${i}_100k.json
+    config_file=configs/tu_graph_classification/${j}_${i}_100k.json
     for d in "${densities[@]}"
     do
       python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model ${j} --density ${d} --linear_type "expander" --config ${config_file} --epochs 3
