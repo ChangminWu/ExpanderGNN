@@ -29,11 +29,8 @@ class ExpanderLinearFunction(torch.autograd.Function):
             if grad_output.dim() == 2:
                 grad_weight = grad_output.t().mm(_input)
             else:
-                print(grad_output.size())
-                print(_input.size())
-                grad_weight = torch.matmul(grad_output.squeeze(-1),
-                                           _input.squeeze(-2)).sum(0).sum(0)
-                print(grad_weight.size())
+                grad_weight = torch.matmul(grad_output.unsqueeze(-1),
+                                           _input.unsqueeze(-2)).sum(0).sum(0)
         if bias is not None and ctx.needs_input_grad[3]:
             grad_bias = grad_output.sum(0)
 
