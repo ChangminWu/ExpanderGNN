@@ -36,6 +36,11 @@ class GraphSageNet(nn.Module):
 
         linear_params = {"density": self.density, "sampler": self.sampler}
 
+        # if use expander linear, aggregation is set to mean,
+        # in order to avoid input of 3 dimensions
+        if self.linear_type == "expander":
+            self.neighbor_pool = "mean"
+
         self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
