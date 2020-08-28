@@ -38,12 +38,7 @@ class MaxPoolAggregator(Aggregator):
         self.activation = activation
 
     def aggre(self, neighbour):
-        dims = list(neighbour.size())
-        feat_dim = neighbour.size(-1)
-        neighbour = neighbour.reshape(-1, feat_dim)
         neighbour = self.linear(neighbour)
-        dims[-1] = neighbour.size(-1)
-        neighbour = neighbour.reshape(dims)
         if self.activation is not None:
             neighbour = self.activation(neighbour)
         maxpool_neighbour = torch.max(neighbour, dim=1)[0]

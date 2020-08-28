@@ -9,19 +9,17 @@ class ExpanderLinearFunction(torch.autograd.Function):
         ctx.save_for_backward(_input, weight, bias)
         ctx.mask = mask
         weight.mul_(mask)
+        # allow expander linear take multi-dimension tensor of dim>2
         # if _input.dim() == 2 and bias is not None:
         #     output = torch.addmm(bias, _input, weight.t())
         # else:
         #     output = _input.matmul(weight.t())
         #     if bias is not None:
         #         output += bias
-        # if bias is not None:
-        #     output = torch.addmm(bias, _input, weight.t())
-        # else:
-        #     output = _input.mm(weight.t())
-        output = _input.mm(weight.t())
         if bias is not None:
-            output += bias.unsqueeze(0).expand_as(output)
+            output = torch.addmm(bias, _input, weight.t())
+        else:
+            output = _input.mm(weight.t())
         return output
 
     @staticmethod
