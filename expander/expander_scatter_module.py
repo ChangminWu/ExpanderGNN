@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 
@@ -24,10 +25,14 @@ class ExpanderScatterLinear(nn.Module):
         self.register_buffer("mask", None)
 
     def reset_parameters(self):
-        nn.init.xavier_uniform_(self.weight)
-        # nn.init.kaiming_normal_(self.weight, mode="fan_ins")
+        # nn.init.xavier_uniform_(self.weight)
+        # # nn.init.kaiming_normal_(self.weight, mode="fan_ins")
+        # if self.bias is not None:
+        #     nn.init.zeros_(self.bias)
+        stdv = math.sqrt(2./self.indim)
+        self.weight.data = torch.randn(self.n_params) * stdv
         if self.bias is not None:
-            nn.init.zeros_(self.bias)
+            self.bias.data = torch.randn(self.outdim) * stdv
 
     def forward(self, _input):
         x = _input[:, self.ind_in]

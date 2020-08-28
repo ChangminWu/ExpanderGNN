@@ -415,7 +415,7 @@ def main():
     else:
         config["gpu"]["id"] = None
 
-    if config["gpu"]["id"] is not None and args.use_gpu == "True":
+    if config["gpu"]["id"] is not None and args.use_gpu:
         config["gpu"]["use"] = True
         device = torch.device("cuda")
     else:

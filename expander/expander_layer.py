@@ -44,7 +44,6 @@ class MultiLinearLayer(nn.Module):
                                                                  outdim,
                                                                  hiddim,
                                                                  num_layers)
-        self.activation, self.batch_norm = activation, batch_norm
         self.bias = bias
 
         layers = []
@@ -56,10 +55,10 @@ class MultiLinearLayer(nn.Module):
                 layers.append(LinearLayer(sizes[0], sizes[1], bias=self.bias,
                               linear_type=self.linear_type, **kwargs))
             else:
-                if self.batch_norm:
+                if batch_norm:
                     layers.append(nn.BatchNorm1d(sizes[i]))
-                if self.activation is not None:
-                    layers.append(self.activation)
+                if activation is not None:
+                    layers.append(activation)
                 layers.append(LinearLayer(sizes[i], sizes[i+1], bias=self.bias,
                               linear_type=self.linear_type, **kwargs))
 
