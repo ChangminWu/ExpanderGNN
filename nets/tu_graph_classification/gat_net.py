@@ -92,7 +92,7 @@ class GATNet(nn.Module):
             h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
             for conv in self.layers:
-                h = conv(g, h, e)
+                h, e = conv(g, h, e)
             g.ndata["h"] = h
 
             if self.graph_pool == "sum":

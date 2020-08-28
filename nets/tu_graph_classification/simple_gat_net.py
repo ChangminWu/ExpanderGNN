@@ -93,7 +93,7 @@ class SimpleGATNet(nn.Module):
             norm = norm.to(h.device).unsqueeze(1)
 
             for conv in self.layers:
-                h = conv(g, h, e, norm)
+                h, e = conv(g, h, e, norm)
             g.ndata["h"] = h
 
             if self.graph_pool == "sum":

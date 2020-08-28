@@ -46,6 +46,7 @@
       "gru": false,
       "edge_dim": 0,
       "num_pretrans_layer" : 2,
-      "num_posttrans_layer" : 2
+      "num_posttrans_layer" : 2,
+      "use_simplified_version": true
     }
 }
