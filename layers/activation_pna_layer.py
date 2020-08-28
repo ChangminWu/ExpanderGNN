@@ -5,7 +5,6 @@ import dgl.function as fn
 
 from pna_utils.aggregators import AGGREGATORS
 from pna_utils.scalers import SCALERS
-from expander.expander_layer import LinearLayer, MultiLinearLayer
 
 
 """

@@ -77,6 +77,7 @@ class GatedGCNNet(nn.Module):
 
     def forward(self, g, h, e):
         with g.local_scope():
+            g = g.to(h.device)
             h = self.node_encoder(h)
             e = self.edge_encoder(e)
 

@@ -577,9 +577,9 @@ def main():
         net_params['avg_node_num'] = int(np.ceil(np.mean(num_nodes)))
 
     if 'PNA' in MODEL_NAME:
-        D = torch.cat([torch.sparse.sum(g.adjacency_matrix(transpose=True),
-                                        dim=-1).to_dense()
-                       for g in dataset.train.graph_lists])
+        D = torch.cat([torch.sparse.sum(dataset.train[i][0]
+                       .adjacency_matrix(transpose=True), dim=-1).to_dense()
+                       for i in range(len(dataset.train))])
         net_params['avg_d'] = dict(lin=torch.mean(D),
                                    exp=torch.mean(torch.exp(torch.div(1,
                                                                       D)) - 1),

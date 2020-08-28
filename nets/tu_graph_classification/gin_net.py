@@ -61,15 +61,15 @@ class GINNet(nn.Module):
             self.linear_predictions.append(
                         nn.Sequential(LinearLayer(hiddim, n_classes,
                                                   bias=True,
+                                                  linear_type="regular"),
+                                      nn.ReLU(),
+                                      LinearLayer(hiddim//2, hiddim//4,
+                                                  bias=True,
+                                                  linear_type="regular"),
+                                      nn.ReLU(),
+                                      LinearLayer(hiddim//4, n_classes,
+                                                  bias=True,
                                                   linear_type="regular")))
-                                    #   nn.ReLU(),
-                                    #   LinearLayer(hiddim//2, hiddim//4,
-                                    #               bias=True,
-                                    #               linear_type="regular"),
-                                    #   nn.ReLU(),
-                                    #   LinearLayer(hiddim//4, n_classes,
-                                    #               bias=True,
-                                    #               linear_type="regular")))
 
         if self.graph_pool == "sum":
             self.pool = SumPooling()

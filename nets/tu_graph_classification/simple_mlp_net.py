@@ -58,6 +58,7 @@ class SimpleMLPNet(nn.Module):
 
     def forward(self, g, h, e):
         with g.local_scope():
+            g = g.to(h.device)
             h = self.in_feat_dropout(h)
             h = self.linear(h)
             if self.gated:

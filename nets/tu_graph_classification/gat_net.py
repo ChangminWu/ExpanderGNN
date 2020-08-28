@@ -88,10 +88,11 @@ class GATNet(nn.Module):
 
     def forward(self, g, h, e):
         with g.local_scope():
+            g = g.to(h.device)
             h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
             for conv in self.layers:
-                h = conv(g, h)
+                h = conv(g, h, e)
             g.ndata["h"] = h
 
             if self.graph_pool == "sum":

@@ -81,9 +81,10 @@ class SimpleGATNet(nn.Module):
                                      LinearLayer(outdim//4, n_classes,
                                                  bias=True,
                                                  linear_type="regular"))
-                                                 
+
     def forward(self, g, h, e):
         with g.local_scope():
+            g = g.to(h.device)
             h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
@@ -92,7 +93,7 @@ class SimpleGATNet(nn.Module):
             norm = norm.to(h.device).unsqueeze(1)
 
             for conv in self.layers:
-                h = conv(g, h, norm)
+                h = conv(g, h, e, norm)
             g.ndata["h"] = h
 
             if self.graph_pool == "sum":

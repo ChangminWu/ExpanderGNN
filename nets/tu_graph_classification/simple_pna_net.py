@@ -133,6 +133,7 @@ class SimplePNANet(nn.Module):
 
     def forward(self, g, h, e):
         with g.local_scope():
+            g = g.to(h.device)
             h = self.node_encoder(h)
             if self.edge_feat:
                 e = self.edge_encoder(e)
