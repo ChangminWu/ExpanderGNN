@@ -73,8 +73,10 @@ class PNATower(nn.Module):
         h = nodes.mailbox['e']
         D = h.shape[-2]
         h = torch.cat([aggregate(h) for aggregate in self.aggregators], dim=1)
+        print(h.size())
         h = torch.cat([scale(h, D=D, avg_d=self.avg_d)
                        for scale in self.scalers], dim=1)
+        print(h.size())
         return {'h': h}
 
     def posttrans_nodes(self, nodes):
@@ -92,6 +94,7 @@ class PNATower(nn.Module):
         # aggregation
         g.update_all(self.message_func, self.reduce_func)
         h = torch.cat([h, g.ndata['h']], dim=1)
+        print(h.size())
 
         # posttransformation
         h = self.posttrans(h)
