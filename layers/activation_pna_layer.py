@@ -109,7 +109,7 @@ class ActivationPNALayer(nn.Module):
 
         outdim = indim * (1+len(aggregators)*len(scalers))
 
-        self.output_power = outdim
+        self.output_tower = outdim
         assert avg_d is not None
 
         # retrieve the aggregators and scalers functions

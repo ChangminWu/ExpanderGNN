@@ -9,12 +9,16 @@ class ExpanderLinearFunction(torch.autograd.Function):
         ctx.save_for_backward(_input, weight, bias)
         ctx.mask = mask
         weight.mul_(mask)
-        if _input.dim() == 2 and bias is not None:
+        # if _input.dim() == 2 and bias is not None:
+        #     output = torch.addmm(bias, _input, weight.t())
+        # else:
+        #     output = _input.matmul(weight.t())
+        #     if bias is not None:
+        #         output += bias
+        if bias is not None:
             output = torch.addmm(bias, _input, weight.t())
         else:
-            output = _input.matmul(weight.t())
-            if bias is not None:
-                output += bias
+            output = _input.mm(weight.t())
         return output
 
     @staticmethod
@@ -24,16 +28,16 @@ class ExpanderLinearFunction(torch.autograd.Function):
         weight.mul_(ctx.mask)
 
         if ctx.needs_input_grad[0]:
-            grad_input = grad_output.matmul(weight)
+            # grad_input = grad_output.matmul(weight)
+            grad_input = grad_output.mm(weight)
         if ctx.needs_input_grad[1]:
-            if grad_output.dim() == 2:
-                grad_weight = grad_output.t().mm(_input)
-            else:
-                gout_temp = grad_output.clone().reshape(-1, grad_output.size(-1))
-                input_temp = _input.clone().reshape(-1, _input.size(-1))
-                # grad_weight = torch.matmul(gout_temp.unsqueeze(-1),
-                #                            input_temp.unsqueeze(-2)).sum(0).sum(0)
-                grad_weight = torch.matmul(gout_temp.t(), input_temp)
+            # if grad_output.dim() == 2:
+            #     grad_weight = grad_output.t().mm(_input)
+            # else:
+            #     grad_weight = torch.matmul(grad_output.unsqueeze(-1),
+            #                                _input.unsqueeze(-2)).sum(0).sum(0)
+            grad_weight = grad_output.t().mm(_input)
+            grad_weight.mul_(ctx.mask)
         if bias is not None and ctx.needs_input_grad[3]:
             grad_bias = grad_output.sum(0)
 
