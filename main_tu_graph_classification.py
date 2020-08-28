@@ -308,7 +308,7 @@ def main():
                         help="Please give a config.json file with training/\
                               model/data/param details")
     parser.add_argument('--gpu_id', help="Please give a value for gpu id")
-    parser.add_argument('--use_gpu', type=bool, default=True,
+    parser.add_argument('--use_gpu', default="true",
                         help="Please give a value for using gpu or not")
     parser.add_argument('--experiment',
                         help="Please give a value for experiment name")
@@ -415,8 +415,7 @@ def main():
     else:
         config["gpu"]["id"] = None
 
-    if config["gpu"]["id"] is not None and args.use_gpu:
-        print(args.use_gpu)
+    if config["gpu"]["id"] is not None and args.use_gpu == "true":
         config["gpu"]["use"] = True
         device = torch.device("cuda")
     else:
