@@ -18,7 +18,7 @@ from expander.expander_layer import LinearLayer, MultiLinearLayer
 
 
 class SimplePNATower(nn.Module):
-    def __init__(self, indim, outdim, hiddim, dropout, batch_norm,
+    def __init__(self, indim, outdim, dropout, batch_norm,
                  aggregators, scalers, avg_d,
                  num_pretrans_layer, num_posttrans_layer,
                  edge_features, edge_dim,
@@ -34,22 +34,22 @@ class SimplePNATower(nn.Module):
 
         self.pretrans = MultiLinearLayer(
                                  2*indim + (edge_dim if edge_features else 0),
-                                 hiddim,
+                                 indim,
                                  activation=None,
                                  batch_norm=self.batch_norm,
                                  num_layers=num_pretrans_layer,
-                                 hiddim=hiddim,
+                                 hiddim=indim,
                                  bias=bias,
                                  linear_type=linear_type,
                                  **kwargs)
 
         self.posttrans = MultiLinearLayer(
-                                 hiddim*(1+len(aggregators)*len(scalers)),
+                                 indim*(1+len(aggregators)*len(scalers)),
                                  outdim,
                                  activation=None,
                                  batch_norm=self.batch_norm,
                                  num_layers=num_posttrans_layer,
-                                 hiddim=hiddim,
+                                 hiddim=outdim,
                                  bias=bias,
                                  linear_type=linear_type,
                                  **kwargs)
@@ -155,7 +155,6 @@ class SimplePNALayer(nn.Module):
             self.towers.append(
                 SimplePNATower(indim=self.input_tower,
                                outdim=self.output_tower,
-                               hiddim=hiddim,
                                dropout=dropout,
                                batch_norm=batch_norm,
                                aggregators=aggregators,

@@ -18,7 +18,7 @@ from expander.expander_layer import LinearLayer, MultiLinearLayer
 
 
 class PNATower(nn.Module):
-    def __init__(self, indim, outdim, hiddim, activation, dropout, batch_norm,
+    def __init__(self, indim, outdim, activation, dropout, batch_norm,
                  aggregators, scalers, avg_d,
                  num_pretrans_layer, num_posttrans_layer,
                  edge_features, edge_dim,
@@ -35,22 +35,22 @@ class PNATower(nn.Module):
 
         self.pretrans = MultiLinearLayer(
                                  2*indim + (edge_dim if edge_features else 0),
-                                 hiddim,
+                                 indim,
                                  activation=self.activation,
                                  batch_norm=self.batch_norm,
                                  num_layers=num_pretrans_layer,
-                                 hiddim=hiddim,
+                                 hiddim=indim,
                                  bias=bias,
                                  linear_type=linear_type,
                                  **kwargs)
 
         self.posttrans = MultiLinearLayer(
-                                 hiddim*(1+len(aggregators)*len(scalers)),
+                                 indim*(1+len(aggregators)*len(scalers)),
                                  outdim,
                                  activation=self.activation,
                                  batch_norm=self.batch_norm,
                                  num_layers=num_posttrans_layer,
-                                 hiddim=hiddim,
+                                 hiddim=outdim,
                                  bias=bias,
                                  linear_type=linear_type,
                                  **kwargs)
@@ -73,10 +73,8 @@ class PNATower(nn.Module):
         h = nodes.mailbox['e']
         D = h.shape[-2]
         h = torch.cat([aggregate(h) for aggregate in self.aggregators], dim=1)
-        print(h.size())
         h = torch.cat([scale(h, D=D, avg_d=self.avg_d)
                        for scale in self.scalers], dim=1)
-        print(h.size())
         return {'h': h}
 
     def posttrans_nodes(self, nodes):
@@ -159,7 +157,6 @@ class PNALayer(nn.Module):
             self.towers.append(
                 PNATower(indim=self.input_tower,
                          outdim=self.output_tower,
-                         hiddim=hiddim,
                          activation=activation,
                          dropout=dropout,
                          batch_norm=batch_norm,
