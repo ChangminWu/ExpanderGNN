@@ -152,10 +152,13 @@ class ActivationPNALayer(nn.Module):
                                  for tower in self.towers], dim=0).sum(0)
 
         h_out = h_cat
+        print("h_out size ", h_out.size())
         if self.activation is not None:
             h_out = self.activation(h_out)
+            print("h_out size ", h_out.size())
 
         h_out = self.dropout(h_out)
+        print("h_out size ", h_out.size())
 
         if self.batch_norm:
             h_out = self.batchnorm_h(h_out)
