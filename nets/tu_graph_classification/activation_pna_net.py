@@ -106,11 +106,11 @@ class ActivationPNANet(nn.Module):
             self.layers.append(new_layer)
 
         outdim = hiddim * (1+len(self.aggregators)*len(self.scalers))
-        self.readout = nn.Sequential(LinearLayer(outdim, hiddim,
+        self.readout = nn.Sequential(LinearLayer(hiddim, hiddim//2,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer(hiddim, hiddim//4,
+                                     LinearLayer(hiddim//2, hiddim//4,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
