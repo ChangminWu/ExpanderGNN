@@ -17,10 +17,11 @@ class ActivationGATSingleHeadLayer(nn.Module):
 
     def edge_attention(self, edges):
         # https://github.com/pytorch/pytorch/issues/18027
+        print("z ", edges.src["z"].size())
         b, s = edges.src["z"].size(0), edges.src["z"].size(1)
         a = torch.bmm(edges.src["z"].view(b, 1, s),
-                      edges.dst['z'].view(b, s, 1))
-        print(a.size())
+                      edges.dst['z'].view(b, s, 1)).squeeze(-1)
+        print("a ", a.size())
         return {'e': self.attn_activation(a)}
 
     def message_func(self, edges):
@@ -29,7 +30,7 @@ class ActivationGATSingleHeadLayer(nn.Module):
     def reduce_func(self, nodes):
         alpha = self.softmax(nodes.mailbox['e'])
         alpha = self.dropout(alpha)
-        print(alpha.size())
+        print("alpha ", alpha.size())
         h = torch.sum(alpha * nodes.mailbox['z'], dim=1)
         return {'h': h}
 
