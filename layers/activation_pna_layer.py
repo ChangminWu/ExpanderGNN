@@ -113,7 +113,7 @@ class ActivationPNALayer(nn.Module):
         aggregators = [AGGREGATORS[aggr] for aggr in aggregators.split()]
         scalers = [SCALERS[scale] for scale in scalers.split()]
 
-        outdim = indim
+        outdim = indim * (1+len(aggregators)*len(scalers))
         self.output_tower = outdim
         self.edge_features = edge_features
 
@@ -212,8 +212,6 @@ class ActivationPNASimplifiedLayer(nn.Module):
 
         # aggregation
         g.update_all(fn.copy_u('h', 'm'), self.reduce_func)
-        print("g size ", g.ndata['h'].size())
-        print("h size ", h.size())
         h = torch.cat([h,
                        g.ndata['h']*norm],
                       dim=1).view(h.size(0),
