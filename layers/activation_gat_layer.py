@@ -96,7 +96,7 @@ class ActivationGATSingleHeadLayerEdgeReprFeat(nn.Module):
     def edge_attention(self, edges):
         b, s = edges.src["z"].size(0), edges.src["z"].size(1)
         a = torch.bmm(edges.src["z"].view(b, 1, s),
-                      edges.dst['z'].view(b, s, 1)).reshape(-1)
+                      edges.dst['z'].view(b, s, 1)).reshape(-1, 1)
         a = a*torch.norm(edges.data['z_e'], dim=1)
         e_proj = torch.stack([edges.data['z_e'], edges.src['z_h'],
                               edges.dst['z_h']], dim=0).sum(0)
@@ -165,8 +165,8 @@ class ActivationGATLayerEdgeReprFeat(nn.Module):
             h = torch.cat(head_outs_h, dim=1)
             e = torch.cat(head_outs_e, dim=1)
         elif self.merge_type == "mean":
-            h = torch.mean(torch.stack(head_outs_h, 0), 0)
-            e = torch.mean(torch.stack(head_outs_e, 0), 0)
+            h = torch.mean(torch.stack(head_outs_h, dim=0), 0)
+            e = torch.mean(torch.stack(head_outs_e, dim=0), 0)
         else:
             raise KeyError("merge type {} not recognized."
                            .format(self.merge_type))
@@ -233,7 +233,7 @@ class ActivationGATLayerIsotropic(nn.Module):
         if self.merge_type == "cat":
             h = torch.cat(head_outs, dim=1)
         elif self.merge_type == "mean":
-            h = torch.mean(torch.stack(head_outs, 0), 0)
+            h = torch.mean(torch.stack(head_outs, dim=0), 0)
         else:
             raise KeyError("merge type {} not recognized."
                            .format(self.merge_type))
