@@ -77,7 +77,7 @@ class ActivationGATLayer(nn.Module):
         if self.merge_type == "cat":
             h = torch.cat(head_outs, dim=1)
         elif self.merge_type == "mean":
-            h = torch.mean(torch.stack(head_outs))
+            h = torch.mean(torch.stack(head_outs, dim=0), 0)
         else:
             raise KeyError("merge type {} not recognized."
                            .format(self.merge_type))
