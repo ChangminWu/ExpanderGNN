@@ -31,8 +31,10 @@ class GATSingleHeadLayer(nn.Module):
         self.softmax = nn.Softmax(dim=1)
 
     def edge_attention(self, edges):
+        print("source z ", edges.src["z"].size())
         z2 = torch.cat([edges.src['z'], edges.dst['z']], dim=1)
         a = self.attn_linear(z2)
+        print("a ", a.size())
         return {'e': self.attn_activation(a)}
 
     def message_func(self, edges):
@@ -41,6 +43,8 @@ class GATSingleHeadLayer(nn.Module):
     def reduce_func(self, nodes):
         alpha = self.softmax(nodes.mailbox['e'])
         alpha = self.dropout(alpha)
+        print("alpha ", alpha.size())
+        print("z ", nodes.mailbox['z'].size())
         h = torch.sum(alpha * nodes.mailbox['z'], dim=1)
         return {'h': h}
 
