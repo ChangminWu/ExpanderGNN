@@ -113,7 +113,7 @@ class ActivationPNALayer(nn.Module):
         aggregators = [AGGREGATORS[aggr] for aggr in aggregators.split()]
         scalers = [SCALERS[scale] for scale in scalers.split()]
 
-        outdim = indim * (1+len(aggregators)*len(scalers))
+        outdim = indim
         self.output_tower = outdim
         self.edge_features = edge_features
 
@@ -193,8 +193,7 @@ class ActivationPNASimplifiedLayer(nn.Module):
 
         self.dropout = nn.Dropout(dropout)
         self.batch_norm = batch_norm
-        self.batchnorm_h = nn.BatchNorm1d(indim *
-                                          (1+len(aggregators)*len(scalers)))
+        self.batchnorm_h = nn.BatchNorm1d(indim)
         self.activation = activation
 
         self.avg_d = avg_d
@@ -205,7 +204,6 @@ class ActivationPNASimplifiedLayer(nn.Module):
         h = torch.cat([aggregate(h) for aggregate in self.aggregators], dim=1)
         h = torch.cat([scale(h, D=D, avg_d=self.avg_d)
                        for scale in self.scalers], dim=1)
-        print("h pass size ", h.size())
         return {'h': h}
 
     def forward(self, g, h, e, norm):
@@ -216,7 +214,11 @@ class ActivationPNASimplifiedLayer(nn.Module):
         g.update_all(fn.copy_u('h', 'm'), self.reduce_func)
         print("g size ", g.ndata['h'].size())
         print("h size ", h.size())
-        h = torch.cat([h, g.ndata['h']*norm], dim=1)
+        h = torch.cat([h,
+                       g.ndata['h']*norm],
+                      dim=1).view(h.size(0),
+                                  (1+len(self.aggregators)*len(self.scalers)),
+                                  -1).sum(1)
 
         if self.activation is not None:
             h = self.activation(h)
