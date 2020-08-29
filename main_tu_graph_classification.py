@@ -401,16 +401,16 @@ def main():
     parser.add_argument('--scalers', type=str, help="Scalers to use.")
     parser.add_argument('--num_tower', type=int,
                         help="number of towers to use.")
-    parser.add_argument('--divide_input', type=bool,
+    parser.add_argument('--divide_input',
                         help="Whether to divide the input.")
-    parser.add_argument('--gru', type=bool, help="Whether to use gru.")
+    parser.add_argument('--gru', help="Whether to use gru.")
     parser.add_argument('--edge_dim', type=int,
                         help="Size of edge embeddings.")
     parser.add_argument('--num_pretrans_layer', type=int,
                         help="number of pretrans layers.")
     parser.add_argument('--num_posttrans_layer', type=int,
                         help="number of posttrans layers.")
-    parser.add_argument('--use_simplified_version', type=bool,
+    parser.add_argument('--use_simplified_version',
                         help="whether to use simplified PNA.")
     args = parser.parse_args()
 

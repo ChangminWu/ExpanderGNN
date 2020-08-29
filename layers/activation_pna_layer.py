@@ -135,7 +135,7 @@ class ActivationPNALayer(nn.Module):
 
         self.dropout = nn.Dropout(dropout)
         self.batch_norm = batch_norm
-        self.batchnorm_h = nn.BatchNorm1d(self.output_power)
+        self.batchnorm_h = nn.BatchNorm1d(self.output_tower)
         self.activation = activation  # nn.LeakyReLU()
 
     def forward(self, g, h, e, norm):
