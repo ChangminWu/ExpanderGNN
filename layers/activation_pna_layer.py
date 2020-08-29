@@ -34,9 +34,10 @@ class ActivationPNATower(nn.Module):
 
     def pretrans_edges(self, edges):
         if self.edge_features:
-            z2 = torch.stack([edges.src['h'],
-                              edges.dst['h'],
-                              edges.data['ef']], dim=0).sum(0)
+            # z2 = torch.stack([edges.src['h'],
+            #                   edges.dst['h'],
+            #                   edges.data['ef']], dim=0).sum(0)
+            z2 = edges.src['h'] + edges.dst['h'] + edges.data['ef']
         else:
             z2 = torch.stack([edges.src['h'],
                               edges.dst['h']], dim=0).sum(0)
@@ -148,7 +149,6 @@ class ActivationPNALayer(nn.Module):
                 [tower(g, h[:, n_tower * self.input_tower:
                             (n_tower + 1) * self.input_tower], e) * norm
                  for n_tower, tower in enumerate(self.towers)], dim=1)
-            print("h_cat size ", h_cat.size())
         else:
             h_cat = torch.stack([tower(g, h, e) * norm
                                  for tower in self.towers], dim=0).sum(0)
