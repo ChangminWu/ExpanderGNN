@@ -161,6 +161,7 @@ class ActivationPNALayer(nn.Module):
         print("h_out size ", h_out.size())
 
         if self.batch_norm:
+            print("h_out size ", h_out.size())
             h_out = self.batchnorm_h(h_out)
 
         return h_out
