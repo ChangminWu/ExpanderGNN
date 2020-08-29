@@ -40,8 +40,6 @@ class GATSingleHeadLayer(nn.Module):
 
     def reduce_func(self, nodes):
         alpha = self.softmax(nodes.mailbox['e'])
-        print("alpha size:", alpha.size())
-        print("Z size:", nodes.mailbox['z'].size())
         alpha = self.dropout(alpha)
         h = torch.sum(alpha * nodes.mailbox['z'], dim=1)
         return {'h': h}
