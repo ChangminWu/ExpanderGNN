@@ -63,6 +63,8 @@ class ActivationPNATower(nn.Module):
 
         # aggregation
         g.update_all(self.message_func, self.reduce_func)
+        print("g size ", g.ndata['h'].size())
+        print("h size ", h.size())
         h = torch.cat([h, g.ndata['h']], dim=1)
 
         # graph and batch normalization
@@ -144,6 +146,7 @@ class ActivationPNALayer(nn.Module):
                 [tower(g, h[:, n_tower * self.input_tower:
                             (n_tower + 1) * self.input_tower], e) * norm
                  for n_tower, tower in enumerate(self.towers)], dim=1)
+            print("h_cat size ", h_cat.size())
         else:
             h_cat = torch.stack([tower(g, h, e) * norm
                                  for tower in self.towers], dim=0).sum(0)
