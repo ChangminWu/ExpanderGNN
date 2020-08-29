@@ -20,7 +20,7 @@ class ActivationGATSingleHeadLayer(nn.Module):
         print("source z ", edges.src["z"].size())
         b, s = edges.src["z"].size(0), edges.src["z"].size(1)
         a = torch.bmm(edges.src["z"].view(b, 1, s),
-                      edges.dst['z'].view(b, s, 1)).reshape(-1)
+                      edges.dst['z'].view(b, s, 1)).reshape(-1, 1)
         print("a ", a.size())
         return {'e': self.attn_activation(a)}
 
