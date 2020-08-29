@@ -26,8 +26,7 @@ class ActivationPNATower(nn.Module):
         self.edge_features = edge_features
         self.activation = activation
 
-        self.batchnorm_h = nn.BatchNorm1d(indim *
-                                          (1+len(aggregators)*len(scalers)))
+        self.batchnorm_h = nn.BatchNorm1d(indim)
         self.aggregators = aggregators
         self.scalers = scalers
 
@@ -35,9 +34,12 @@ class ActivationPNATower(nn.Module):
 
     def pretrans_edges(self, edges):
         if self.edge_features:
-            z2 = edges.src['h'] + edges.dst['h'] + edges.data['ef']
+            z2 = torch.stack([edges.src['h'],
+                              edges.dst['h'],
+                              edges.data['ef']], dim=0).sum(0)
         else:
-            z2 = edges.src['h'] + edges.dst['h']
+            z2 = torch.stack([edges.src['h'],
+                              edges.dst['h']], dim=0).sum(0)
         return {'e': z2}
 
     def message_func(self, edges):
@@ -63,9 +65,10 @@ class ActivationPNATower(nn.Module):
 
         # aggregation
         g.update_all(self.message_func, self.reduce_func)
-        print("g size ", g.ndata['h'].size())
-        print("h size ", h.size())
-        h = torch.cat([h, g.ndata['h']], dim=1)
+        h = torch.cat([h, g.ndata['h']],
+                      dim=1).view(h.size(0),
+                                  1+len(self.aggregators)*len(self.scalers),
+                                  -1).sum(1)
 
         # graph and batch normalization
         if self.batch_norm:
@@ -113,7 +116,7 @@ class ActivationPNALayer(nn.Module):
         aggregators = [AGGREGATORS[aggr] for aggr in aggregators.split()]
         scalers = [SCALERS[scale] for scale in scalers.split()]
 
-        outdim = indim * (1+len(aggregators)*len(scalers))
+        outdim = indim
         self.output_tower = outdim
         self.edge_features = edge_features
 
