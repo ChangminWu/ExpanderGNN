@@ -34,10 +34,10 @@ class ActivationPNATower(nn.Module):
 
     def pretrans_edges(self, edges):
         if self.edge_features:
-            # z2 = torch.stack([edges.src['h'],
-            #                   edges.dst['h'],
-            #                   edges.data['ef']], dim=0).sum(0)
-            z2 = edges.src['h'] + edges.dst['h'] + edges.data['ef']
+            z2 = torch.stack([edges.src['h'],
+                              edges.dst['h'],
+                              edges.data['ef']], dim=0).sum(0)
+            # z2 = edges.src['h'] + edges.dst['h'] + edges.data['ef']
         else:
             z2 = torch.stack([edges.src['h'],
                               edges.dst['h']], dim=0).sum(0)
