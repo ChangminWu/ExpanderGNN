@@ -34,13 +34,14 @@ class ActivationPNATower(nn.Module):
 
     def pretrans_edges(self, edges):
         if self.edge_features:
-            z2 = torch.stack([edges.src['h'],
-                              edges.dst['h'],
-                              edges.data['ef']], dim=0).sum(0)
-            # z2 = edges.src['h'] + edges.dst['h'] + edges.data['ef']
+            # z2 = torch.stack([edges.src['h'],
+            #                   edges.dst['h'],
+            #                   edges.data['ef']], dim=0).sum(0)
+            z2 = edges.src['h'] + edges.dst['h'] + edges.data['ef']
         else:
-            z2 = torch.stack([edges.src['h'],
-                              edges.dst['h']], dim=0).sum(0)
+            # z2 = torch.stack([edges.src['h'],
+            #                   edges.dst['h']], dim=0).sum(0)
+            z2 = edges.src['h'] + edges.dst['h']
         return {'e': z2}
 
     def message_func(self, edges):
@@ -69,7 +70,7 @@ class ActivationPNATower(nn.Module):
         h = torch.cat([h, g.ndata['h']],
                       dim=1).view(h.size(0),
                                   1+len(self.aggregators)*len(self.scalers),
-                                  -1).sum(1)
+                                  -1).mean(1)
 
         # graph and batch normalization
         if self.batch_norm:
@@ -219,7 +220,7 @@ class ActivationPNASimplifiedLayer(nn.Module):
                        g.ndata['h']*norm],
                       dim=1).view(h.size(0),
                                   (1+len(self.aggregators)*len(self.scalers)),
-                                  -1).sum(1)
+                                  -1).mean(1)
 
         if self.activation is not None:
             h = self.activation(h)
