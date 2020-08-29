@@ -17,11 +17,9 @@ class ActivationGATSingleHeadLayer(nn.Module):
 
     def edge_attention(self, edges):
         # https://github.com/pytorch/pytorch/issues/18027
-        print("source z ", edges.src["z"].size())
         b, s = edges.src["z"].size(0), edges.src["z"].size(1)
         a = torch.bmm(edges.src["z"].view(b, 1, s),
                       edges.dst['z'].view(b, s, 1)).reshape(-1, 1)
-        print("a ", a.size())
         return {'e': self.attn_activation(a)}
 
     def message_func(self, edges):
@@ -30,8 +28,6 @@ class ActivationGATSingleHeadLayer(nn.Module):
     def reduce_func(self, nodes):
         alpha = self.softmax(nodes.mailbox['e'])
         alpha = self.dropout(alpha)
-        print("alpha ", alpha.size())
-        print("z ", nodes.mailbox['z'].size())
         h = torch.sum(alpha * nodes.mailbox['z'], dim=1)
         return {'h': h}
 
@@ -169,8 +165,8 @@ class ActivationGATLayerEdgeReprFeat(nn.Module):
             h = torch.cat(head_outs_h, dim=1)
             e = torch.cat(head_outs_e, dim=1)
         elif self.merge_type == "mean":
-            h = torch.mean(torch.stack(head_outs_h))
-            e = torch.mean(torch.stack(head_outs_e))
+            h = torch.mean(torch.stack(head_outs_h, 0), 0)
+            e = torch.mean(torch.stack(head_outs_e, 0), 0)
         else:
             raise KeyError("merge type {} not recognized."
                            .format(self.merge_type))
@@ -237,7 +233,7 @@ class ActivationGATLayerIsotropic(nn.Module):
         if self.merge_type == "cat":
             h = torch.cat(head_outs, dim=1)
         elif self.merge_type == "mean":
-            h = torch.mean(torch.stack(head_outs))
+            h = torch.mean(torch.stack(head_outs, 0), 0)
         else:
             raise KeyError("merge type {} not recognized."
                            .format(self.merge_type))
