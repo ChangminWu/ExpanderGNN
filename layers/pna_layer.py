@@ -91,9 +91,7 @@ class PNATower(nn.Module):
 
         # aggregation
         g.update_all(self.message_func, self.reduce_func)
-        print("original", h.size())
         h = torch.cat([h, g.ndata['h']], dim=1)
-        print(h.size())
 
         # posttransformation
         h = self.posttrans(h)

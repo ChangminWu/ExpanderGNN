@@ -17,7 +17,7 @@ from pna_utils.scalers import SCALERS
 
 
 class ActivationPNATower(nn.Module):
-    def __init__(self, indim, outdim, hiddim, activation, dropout, batch_norm,
+    def __init__(self, indim, outdim, activation, dropout, batch_norm,
                  aggregators, scalers, avg_d,
                  edge_features, edge_dim):
         super().__init__()
@@ -124,14 +124,14 @@ class ActivationPNALayer(nn.Module):
             self.towers.append(
                 ActivationPNATower(indim=self.input_tower,
                                    outdim=self.output_tower,
-                                   hiddim=hiddim,
                                    activation=activation,
                                    dropout=dropout,
                                    batch_norm=batch_norm,
                                    aggregators=aggregators,
                                    scalers=scalers,
                                    avg_d=avg_d,
-                                   edge_features=self.edge_features))
+                                   edge_features=self.edge_features,
+                                   edge_dim=edge_dim))
 
         self.dropout = nn.Dropout(dropout)
         self.batch_norm = batch_norm

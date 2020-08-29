@@ -183,7 +183,8 @@ class SimplePNALayer(nn.Module):
                             (n_tower + 1) * self.input_tower], e, norm)
                  for n_tower, tower in enumerate(self.towers)], dim=1)
         else:
-            h_cat = torch.cat([tower(g, h, e) for tower in self.towers], dim=1)
+            h_cat = torch.cat([tower(g, h, e, norm) for tower in self.towers],
+                              dim=1)
 
         h_out = self.mixing_network(h_cat)
 
