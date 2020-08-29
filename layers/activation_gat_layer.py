@@ -28,6 +28,8 @@ class ActivationGATSingleHeadLayer(nn.Module):
     def reduce_func(self, nodes):
         alpha = self.softmax(nodes.mailbox['e'])
         alpha = self.dropout(alpha)
+        print("alpha size:", alpha.size())
+        print("Z size:", nodes.mailbox['z'].size())
         h = torch.sum(alpha * nodes.mailbox['z'], dim=1)
         return {'h': h}
 
