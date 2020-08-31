@@ -103,7 +103,7 @@ class MoleculeDatasetDGL(torch.utils.data.Dataset):
         # known meta-info about the zinc dataset; can be calculated as well
         self.num_bond_type = 4
 
-        data_dir = "./data/molecule"
+        data_dir = "./data/molecules"
 
         self.train = MoleculeDGL(data_dir, 'train', num_graphs=10000)
         self.val = MoleculeDGL(data_dir, 'val', num_graphs=1000)
@@ -172,7 +172,7 @@ class MoleculeDataset(torch.utils.data.Dataset):
         start = time.time()
         print("[I] Loading dataset %s..." % (name))
         self.name = name
-        data_dir = 'data/molecule/'
+        data_dir = 'data/molecules/'
         with open(data_dir+name+'.pkl', "rb") as f:
             f = pickle.load(f)
             self.train = f[0]

@@ -1,6 +1,6 @@
 import torch
 
-from train.metrics import accuracy_tu as accuracy
+from train.metrics import accuracy_superpixel as accuracy
 from utils import check_tensorboard
 
 

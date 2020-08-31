@@ -16,8 +16,8 @@ from tqdm import tqdm
 from data.data import LoadData
 from utils import expander_writer, expander_weights_writer,\
                   get_model_param, init_expander
-from nets.tu_graph_classification.load_net import gnn_model
-from train.train_tu_graph_classification import\
+from nets.molecule_graph_regression.load_net import gnn_model
+from train.train_molecule_graph_regression import\
     train_epoch_sparse as train_epoch,\
     evaluate_network_sparse as evaluate_network
 
@@ -35,24 +35,26 @@ def gpu_setup(use_gpu, gpu_id):
     return device
 
 
-def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
-    avg_test_acc = []
-    avg_train_acc = []
-    avg_convergence_epochs = []
-
+def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     t0 = time.time()
     per_epoch_time = []
     per_epoch_memory = []
     per_split_train_inference_time = []
     per_split_test_inference_time = []
 
-    dataset = LoadData(DATASET_NAME)
+    DATASET_NAME = dataset.name
 
     if "GCN" in MODEL_NAME or "GAT" in MODEL_NAME:
         if net_params['self_loop']:
             print("[!] Adding graph self-loops for Simple GCN models\
                   (central node trick).")
             dataset._add_self_loops()
+
+    if 'GatedGCN' in MODEL_NAME:
+        if net_params['pos_enc']:
+            print("[!] Adding graph positional encoding.")
+            dataset._add_positional_encodings(net_params['pos_enc_dim'])
+            print('Time PE:', time.time()-t0)
 
     trainset, valset, testset = dataset.train, dataset.val, dataset.test
 
@@ -65,217 +67,180 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     elif device.type == "cuda":
         total_memory = torch.cuda.get_device_properties(device).total_memory
 
+    log_dir = os.path.join(root_log_dir, "RUN_" + str(0))
+    writer = SummaryWriter(log_dir=log_dir)
+
+    saved_expander = OrderedDict()
+    saved_layers = dict()
+
+    # setting seeds
+    random.seed(params['seed'])
+    np.random.seed(params['seed'])
+    torch.manual_seed(params['seed'])
+    if device.type == 'cuda':
+        torch.cuda.manual_seed(params['seed'])
+
+    print("Training Graphs: ", len(trainset))
+    print("Validation Graphs: ", len(valset))
+    print("Test Graphs: ", len(testset))
+    print("Number of Classes: ", net_params['n_classes'])
+
+    model = gnn_model(MODEL_NAME, net_params)
+    model = model.to(device)
+    saved_expander, _ = init_expander(model, saved_expander,
+                                      saved_layers)
+
+    expander_writer(saved_expander, curr_path=write_expander_dir)
+    net_params['total_param'] = get_model_param(model, num=0)
+    print("MODEL/Total parameters:", MODEL_NAME,
+          net_params["total_param"])
+
+    # Write the network and optimization
+    # hyper-parameters in folder config/
+    with open(write_config_file + '.txt', 'w') as f:
+        f.write("""Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\n
+                Total Parameters:\
+                    {}\n\n""".format(DATASET_NAME,
+                                     MODEL_NAME,
+                                     params,
+                                     net_params,
+                                     net_params["total_param"]))
+
+    optimizer = optim.Adam(model.parameters(), lr=params['init_lr'],
+                           weight_decay=params['weight_decay'])
+    scheduler = optim.lr_scheduler.\
+        ReduceLROnPlateau(optimizer, mode="min",
+                          factor=params["lr_reduce_factor"],
+                          patience=params["lr_schedule_patience"],
+                          verbose=True)
+
+    epoch_train_losses, epoch_val_losses = [], []
+    epoch_train_MAEs, epoch_val_MAEs = [], []
+
+    # batching exception for Diffpool
+    drop_last = True if MODEL_NAME == 'DiffPool' else False
+
+    train_loader = DataLoader(trainset,
+                              batch_size=params['batch_size'],
+                              shuffle=True,
+                              drop_last=drop_last,
+                              collate_fn=dataset.collate)
+    val_loader = DataLoader(valset,
+                            batch_size=params['batch_size'],
+                            shuffle=False,
+                            drop_last=drop_last,
+                            collate_fn=dataset.collate)
+    test_loader = DataLoader(testset,
+                             batch_size=params['batch_size'],
+                             shuffle=False,
+                             drop_last=drop_last,
+                             collate_fn=dataset.collate)
+
+    ckpt_dir = os.path.join(root_ckpt_dir, "RUN_" + str(0))
+    if not os.path.exists(ckpt_dir):
+        os.makedirs(ckpt_dir)
+    torch.save(model.state_dict(),
+               "{}.pkl".format(ckpt_dir + "/epoch_{}".format(0)))
+
     # At any point you can hit Ctrl + C to break out of training early.
     try:
-        saved_expander = OrderedDict()
-        for split_number in range(params["num_split"]):
-            saved_layers = dict()
+        with tqdm(range(params['epochs'])) as t:
+            for epoch in t:
+                t.set_description('Epoch %d' % epoch)
 
-            t0_split = time.time()
-            log_dir = os.path.join(root_log_dir, "RUN_" + str(split_number))
-            writer = SummaryWriter(log_dir=log_dir)
+                start = time.time()
+                epoch_train_loss, epoch_train_mae, optimizer, writer =\
+                    train_epoch(model, optimizer, device, train_loader,
+                                epoch, writer)
 
-            # setting seeds
-            random.seed(params['seed'])
-            np.random.seed(params['seed'])
-            torch.manual_seed(params['seed'])
-            if device.type == 'cuda':
-                torch.cuda.manual_seed(params['seed'])
+                if device.type == "cuda":
+                    per_epoch_memory.append(torch.cuda.max_memory_cached(
+                        device=device))
+                elif device.type == "cpu":
+                    per_epoch_memory.append(1.)
 
-            print("RUN NUMBER: ", split_number)
-            trainset, valset, testset = (dataset.train[split_number],
-                                         dataset.val[split_number],
-                                         dataset.test[split_number])
+                epoch_val_loss, epoch_val_mae =\
+                    evaluate_network(model, device, val_loader, epoch)
+                _, epoch_test_mae =\
+                    evaluate_network(model, device, test_loader, epoch)
 
-            print("Training Graphs: ", len(trainset))
-            print("Validation Graphs: ", len(valset))
-            print("Test Graphs: ", len(testset))
-            print("Number of Classes: ", net_params['n_classes'])
+                epoch_train_losses.append(epoch_train_loss)
+                epoch_val_losses.append(epoch_val_loss)
+                epoch_train_MAEs.append(epoch_train_mae)
+                epoch_val_MAEs.append(epoch_val_mae)
 
-            if 'PNA' in MODEL_NAME:
-                D = torch.cat([
-                    torch.sparse.sum(g.adjacency_matrix(transpose=True),
-                                     dim=-1).to_dense()
-                    for g in dataset.train[split_number].graph_lists])
-                net_params['avg_d'] = dict(lin=torch.mean(D),
-                                           exp=torch.mean(torch.exp(
-                                               torch.div(1, D)) - 1),
-                                           log=torch.mean(torch.log(D + 1)))
+                writer.add_scalar("train/_loss", epoch_train_loss, epoch)
+                writer.add_scalar("val/_loss", epoch_val_loss, epoch)
+                writer.add_scalar("train/_mae", epoch_train_mae, epoch)
+                writer.add_scalar("val/_mae", epoch_val_mae, epoch)
+                writer.add_scalar("test/_mae", epoch_test_mae, epoch)
+                writer.add_scalar("learning_rate",
+                                  optimizer.param_groups[0]['lr'], epoch)
 
-            model = gnn_model(MODEL_NAME, net_params)
-            saved_expander, _ = init_expander(model, saved_expander,
-                                              saved_layers)
-            model = model.to(device)
+                t.set_postfix(time=time.time()-start,
+                              lr=optimizer.param_groups[0]['lr'],
+                              train_loss=epoch_train_loss,
+                              val_loss=epoch_val_loss,
+                              train_acc=epoch_train_mae,
+                              val_acc=epoch_val_mae,
+                              test_acc=epoch_test_mae)
 
-            if split_number == 0:
-                expander_writer(saved_expander, curr_path=write_expander_dir)
-                net_params['total_param'] = get_model_param(model, num=0)
-                print("MODEL/Total parameters:", MODEL_NAME,
-                      net_params["total_param"])
+                per_epoch_time.append(time.time()-start)
 
-                # Write the network and optimization
-                # hyper-parameters in folder config/
-                with open(write_config_file + '.txt', 'w') as f:
-                    f.write("""Dataset: {},\nModel: {}\n\nparams={}\n\nnet_params={}\n\n\n
-                            Total Parameters:\
-                                {}\n\n""".format(DATASET_NAME,
-                                                 MODEL_NAME,
-                                                 params,
-                                                 net_params,
-                                                 net_params["total_param"]))
+                # Saving checkpoint
+                torch.save(model.state_dict(),
+                           "{}.pkl".format(ckpt_dir + "/epoch_"
+                                           + str(epoch+1)))
 
-            optimizer = optim.Adam(model.parameters(), lr=params['init_lr'],
-                                   weight_decay=params['weight_decay'])
-            scheduler = optim.lr_scheduler.\
-                ReduceLROnPlateau(optimizer, mode="min",
-                                  factor=params["lr_reduce_factor"],
-                                  patience=params["lr_schedule_patience"],
-                                  verbose=True)
+                files = glob.glob(ckpt_dir + '/*.pkl')
+                for file in files:
+                    epoch_nb = file.split('_')[-1]
+                    epoch_nb = int(epoch_nb.split('.')[0])
+                    if epoch_nb < epoch-1 and epoch_nb % 50 != 0:
+                        os.remove(file)
 
-            epoch_train_losses, epoch_val_losses = [], []
-            epoch_train_accs, epoch_val_accs = [], []
+                scheduler.step(epoch_val_loss)
 
-            # batching exception for Diffpool
-            drop_last = True if MODEL_NAME == 'DiffPool' else False
+                if optimizer.param_groups[0]["lr"] < params["min_lr"]:
+                    print("\n!! LR EQUAL TO MIN LR SET.")
+                    break
 
-            train_loader = DataLoader(trainset,
-                                      batch_size=params['batch_size'],
-                                      shuffle=True,
-                                      drop_last=drop_last,
-                                      collate_fn=dataset.collate)
-            val_loader = DataLoader(valset,
-                                    batch_size=params['batch_size'],
-                                    shuffle=False,
-                                    drop_last=drop_last,
-                                    collate_fn=dataset.collate)
-            test_loader = DataLoader(testset,
-                                     batch_size=params['batch_size'],
-                                     shuffle=False,
-                                     drop_last=drop_last,
-                                     collate_fn=dataset.collate)
-
-            ckpt_dir = os.path.join(root_ckpt_dir, "RUN_" + str(split_number))
-            if not os.path.exists(ckpt_dir):
-                os.makedirs(ckpt_dir)
-            torch.save(model.state_dict(),
-                       "{}.pkl".format(ckpt_dir + "/epoch_{}".format(0)))
-
-            with tqdm(range(params['epochs'])) as t:
-                for epoch in t:
-                    t.set_description('Epoch %d' % epoch)
-
-                    start = time.time()
-                    epoch_train_loss, epoch_train_acc, optimizer, writer =\
-                        train_epoch(model, optimizer, device, train_loader,
-                                    epoch, writer)
-
-                    if device.type == "cuda":
-                        per_epoch_memory.append(torch.cuda.max_memory_cached(
-                            device=device))
-                    elif device.type == "cpu":
-                        per_epoch_memory.append(1.)
-
-                    epoch_val_loss, epoch_val_acc =\
-                        evaluate_network(model, device, val_loader, epoch)
-                    _, epoch_test_acc =\
-                        evaluate_network(model, device, test_loader, epoch)
-
-                    epoch_train_losses.append(epoch_train_loss)
-                    epoch_val_losses.append(epoch_val_loss)
-                    epoch_train_accs.append(epoch_train_acc)
-                    epoch_val_accs.append(epoch_val_acc)
-
-                    writer.add_scalar("train/_loss", epoch_train_loss, epoch)
-                    writer.add_scalar("val/_loss", epoch_val_loss, epoch)
-                    writer.add_scalar("train/_acc", epoch_train_acc, epoch)
-                    writer.add_scalar("val/_acc", epoch_val_acc, epoch)
-                    writer.add_scalar("test/_acc", epoch_test_acc, epoch)
-                    writer.add_scalar("learning_rate",
-                                      optimizer.param_groups[0]['lr'], epoch)
-
-                    t.set_postfix(time=time.time()-start,
-                                  lr=optimizer.param_groups[0]['lr'],
-                                  train_loss=epoch_train_loss,
-                                  val_loss=epoch_val_loss,
-                                  train_acc=epoch_train_acc,
-                                  val_acc=epoch_val_acc,
-                                  test_acc=epoch_test_acc)
-
-                    per_epoch_time.append(time.time()-start)
-
-                    # Saving checkpoint
-                    torch.save(model.state_dict(),
-                               "{}.pkl".format(ckpt_dir + "/epoch_"
-                                               + str(epoch+1)))
-
-                    files = glob.glob(ckpt_dir + '/*.pkl')
-                    for file in files:
-                        epoch_nb = file.split('_')[-1]
-                        epoch_nb = int(epoch_nb.split('.')[0])
-                        if epoch_nb < epoch-1 and epoch_nb % 50 != 0:
-                            os.remove(file)
-
-                    scheduler.step(epoch_val_loss)
-
-                    if optimizer.param_groups[0]["lr"] < params["min_lr"]:
-                        print("\n!! LR EQUAL TO MIN LR SET.")
-                        break
-
-                    # Stop training after params["max_time"] hours
-                    # Dividing max_time by 10, since there are 10 runs in TUs
-                    if time.time()-t0_split >\
-                            params['max_time']*3600/params["num_split"]:
-                        print("-" * 89)
-                        print("Max_time for one train-val-test split\
-                              experiment elapsed {:.3f} hours, so stopping"
-                              .format(params['max_time']/params["num_split"]))
-                        break
-
-            start_inference_test = time.time()
-            _, test_acc = evaluate_network(model, device, test_loader, epoch)
-            per_split_test_inference_time.\
-                append(time.time() - start_inference_test)
-            start_inference_train = time.time()
-            _, train_acc = evaluate_network(model, device, train_loader, epoch)
-            per_split_train_inference_time.\
-                append(time.time() - start_inference_train)
-            avg_test_acc.append(test_acc)
-            avg_train_acc.append(train_acc)
-            avg_convergence_epochs.append(epoch)
-
-            _ = expander_weights_writer(model, saved_expander, saved_layers={},
-                                        curr_path=write_weight_dir+"/RUN_{}/"
-                                        .format(split_number))
-
-            print("Test Accuracy [LAST EPOCH]: {:.4f}".format(test_acc))
-            print("Train Accuracy [LAST EPOCH]: {:.4f}".format(train_acc))
-            print("Convergence Time (Epochs): {:.4f}".format(epoch))
-
-            if device.type == "cuda":
-                torch.cuda.reset_peak_memory_stats(device)
+                # Stop training after params["max_time"] hours
+                if time.time()-t0 >\
+                        params['max_time']*3600:
+                    print("-" * 89)
+                    print("Max_time for one train-val-test split\
+                          experiment elapsed {:.3f} hours, so stopping"
+                          .format(params['max_time']))
+                    break
 
     except KeyboardInterrupt:
         print("-" * 89)
         print("Exiting from training early because of KeyboardInterrupt")
 
-    print("TOTAL TIME TAKEN: {:.4f}hrs".format((time.time()-t0)/3600))
+    _ = expander_weights_writer(model, saved_expander, saved_layers={},
+                                curr_path=write_weight_dir+"/RUN_{}/"
+                                .format(0))
+
+    start_inference_test = time.time()
+    _, test_mae = evaluate_network(model, device, test_loader, epoch)
+    per_split_test_inference_time.\
+        append(time.time() - start_inference_test)
+    start_inference_train = time.time()
+    _, train_mae = evaluate_network(model, device, train_loader, epoch)
+    per_split_train_inference_time.\
+        append(time.time() - start_inference_train)
+
+    print("Test Accuracy: {:.4f}".format(test_mae))
+    print("Train Accuracy: {:.4f}".format(train_mae))
+    print("CONVERGENCE Time (Epochs): {:.4f}".format(epoch))
+    print("TOTAL TIME TAKEN: {:.4f}s".format(time.time()-t0))
     print("AVG TIME PER EPOCH: {:.4f}s".format(np.mean(per_epoch_time)))
-    print("AVG CONVERGENCE Time (Epochs): {:.4f}".format(
-        np.mean(np.array(avg_convergence_epochs))))
     print("AVG MEMORY PER EPOCH: {:.4%}".format(
         np.mean(per_epoch_memory)/total_memory))
 
-    # Final test accuracy value averaged over K-fold
-    print("""\n\n\nFINAL RESULTS\n\nTEST ACCURACY """
-          """averaged: {:.4f} with s.d. {:.4f}"""
-          .format(np.mean(np.array(avg_test_acc))*100,
-                  np.std(avg_test_acc)*100))
-    print("\nAll splits Test Accuracies:\n", avg_test_acc)
-    print("""\n\n\nFINAL RESULTS\n\nTRAIN ACCURACY """
-          """averaged: {:.4f} with s.d. {:.4f}"""
-          .format(np.mean(np.array(avg_train_acc))*100,
-                  np.std(avg_train_acc)*100))
-    print("\nAll splits Train Accuracies:\n", avg_train_acc)
+    if device.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(device)
 
     writer.close()
 
@@ -287,29 +252,24 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                 """params={}\n\nnet_params={}\n\n{}\n\n"""
                 """Total Parameters: {}\n\n"""
                 """FINAL RESULTS\n"""
-                """TEST ACCURACY averaged: {:.4f} with s.d. {:.4f}\n"""
-                """TRAIN ACCURACY averaged: {:.4f} with s.d. {:.4f}\n\n"""
+                """TEST MAE averaged: {:.4f}\n"""
+                """TRAIN MAE averaged: {:.4f}\n\n"""
                 """Average Convergence Time (Epochs): {:.4f} """
-                """with s.d. {:.4f}\nTotal Time Taken: {:.4f} hrs\n """
+                """Total Time Taken: {:.4f} hrs\n """
                 """Percentage of Average Memory taken per Epoch: {:.4%} \n"""
                 """Average Time Per Epoch: {:.4f} s\n"""
                 """Average Inference Time For Train Per Split: {:.4f} s\n"""
                 """Average Inference Time For Test Per Split: {:.4f} s\n\n\n"""
-                """All Splits Test Accuracies: {}"""
                 .format(DATASET_NAME, MODEL_NAME, params,
                         net_params, model, net_params['total_param'],
-                        np.mean(np.array(avg_test_acc))*100,
-                        np.std(avg_test_acc)*100,
-                        np.mean(np.array(avg_train_acc))*100,
-                        np.std(avg_train_acc)*100,
-                        np.mean(avg_convergence_epochs),
-                        np.std(avg_convergence_epochs),
+                        test_mae,
+                        train_mae,
+                        epoch,
                         (time.time()-t0)/3600,
                         np.mean(per_epoch_memory)/total_memory,
                         np.mean(per_epoch_time),
                         np.mean(per_split_train_inference_time),
-                        np.mean(per_split_test_inference_time),
-                        avg_test_acc))
+                        np.mean(per_split_test_inference_time)))
 
 
 def main():
@@ -412,6 +372,10 @@ def main():
                         help="number of posttrans layers.")
     parser.add_argument('--use_simplified_version',
                         help="whether to use simplified PNA.")
+    parser.add_argument("--pos_enc_dim",
+                        help="Please give a value for pos_enc_dim")
+    parser.add_argument("--pos_enc",
+                        help="Please give a value for pos_enc")
     args = parser.parse_args()
 
     with open(args.config) as f:
@@ -421,15 +385,18 @@ def main():
     if args.gpu_id is not None:
         config["gpu"]["id"] = int(args.gpu_id)
     elif torch.cuda.is_available():
-        config["gpu"]["id"] = torch.cuda.device_count()
+        config["gpu"]["id"] = torch.cuda.device_count()-1
     else:
         config["gpu"]["id"] = None
 
-    if config["gpu"]["id"] is not None and args.use_gpu == "true":
+    config["gpu"]["use"] = True if args.use_gpu == "True" else False
+    if config["gpu"]["id"] is not None and config["gpu"]["use"]:
         config["gpu"]["use"] = True
+        print("cuda available with GPU:", torch.cuda.get_device_name(0))
         device = torch.device("cuda")
     else:
         config["gpu"]["use"] = False
+        print("cuda not available")
         device = torch.device("cpu")
 
     # model, dataset, out_dir
@@ -565,26 +532,39 @@ def main():
     if args.use_simplified_version is not None:
         net_params['use_simplified_version'] = args.use_simplified_version\
             if args.use_simplified_version == 'True' else False
+    if args.pos_enc is not None:
+        net_params['pos_enc'] = True\
+            if args.pos_enc == 'True' else False
+    if args.pos_enc_dim is not None:
+        net_params['pos_enc_dim'] = int(args.pos_enc_dim)
 
-    # TU datasets
-    net_params['in_dim'] = dataset.all.graph_lists[0].ndata['feat'][0].shape[0]
-    num_classes = len(np.unique(dataset.all.graph_labels))
-    net_params['n_classes'] = num_classes
+    # ZINC
+    net_params['num_atom_type'] = dataset.num_atom_type
+    net_params['num_bond_type'] = dataset.num_bond_type
 
     if MODEL_NAME == 'DiffPool':
         # calculate assignment dimension: pool_ratio * largest graph's maximum
         # number of nodes  in the dataset
-        num_nodes = [dataset.all[i][0].number_of_nodes()
-                     for i in range(len(dataset.all))]
+        num_nodes = [dataset.train[i][0].number_of_nodes()
+                     for i in range(len(dataset.train))]
         max_num_node = max(num_nodes)
-        net_params['assign_dim'] = int(max_num_node *
-                                       net_params['pool_ratio'])\
-            * net_params['batch_size']
+        net_params['assign_dim'] =\
+            int(max_num_node * net_params['pool_ratio']) *\
+            net_params['batch_size']
 
     if MODEL_NAME == 'RingGNN':
-        num_nodes = [dataset.all[i][0].number_of_nodes()
-                     for i in range(len(dataset.all))]
+        num_nodes = [dataset.train[i][0].number_of_nodes()
+                     for i in range(len(dataset.train))]
         net_params['avg_node_num'] = int(np.ceil(np.mean(num_nodes)))
+
+    if 'PNA' in MODEL_NAME:
+        D = torch.cat([torch.sparse.sum(g.adjacency_matrix(transpose=True),
+                                        dim=-1).to_dense()
+                       for g in dataset.train.graph_lists])
+        net_params['avg_d'] = dict(lin=torch.mean(D),
+                                   exp=torch.mean(
+                                       torch.exp(torch.div(1, D))-1),
+                                   log=torch.mean(torch.log(D + 1)))
 
     root_log_dir = out_dir + 'logs/' + EXP_NAME + "_" + MODEL_NAME + "_" +\
         DATASET_NAME + "_density_" + str(net_params["density"])
@@ -611,7 +591,7 @@ def main():
     if not os.path.exists(out_dir + 'configs'):
         os.makedirs(out_dir + 'configs')
 
-    train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs)
+    train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs)
 
 
 if __name__ == '__main__':
