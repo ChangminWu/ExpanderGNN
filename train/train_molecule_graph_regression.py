@@ -51,7 +51,7 @@ def evaluate_network_sparse(model, device, data_loader, epoch):
         for iter, (batch_graphs, batch_targets) in enumerate(data_loader):
             batch_x = batch_graphs.ndata['feat'].to(device)
             batch_e = batch_graphs.edata['feat'].to(device)
-            batch_labels = batch_targets.to(device)
+            batch_targets = batch_targets.to(device)
             try:
                 batch_pos_enc = batch_graphs.ndata['pos_enc'].to(device)
                 batch_scores = model.forward(batch_graphs, batch_x,
@@ -60,7 +60,7 @@ def evaluate_network_sparse(model, device, data_loader, epoch):
                 batch_scores = model.forward(batch_graphs, batch_x, batch_e)
             loss = model.loss(batch_scores, batch_targets)
             epoch_test_loss += loss.detach().item()
-            epoch_test_mae += MAE(batch_scores, batch_labels)
+            epoch_test_mae += MAE(batch_scores, batch_targets)
             nb_data += batch_targets.size(0)
         epoch_test_loss /= (iter + 1)
         epoch_test_mae /= (iter + 1)
