@@ -1,4 +1,6 @@
 from data.tu_graph_classification import TUsDataset
+from data.superpixel_graph_classification import SuperPixDataset
+from data.molecule_graph_regression import MoleculeDataset
 
 
 def LoadData(DATASET_NAME):
@@ -7,3 +9,9 @@ def LoadData(DATASET_NAME):
                    "REDDIT-MULTI-12K", "PTC-MR"]
     if DATASET_NAME in TU_DATASETS:
         return TUsDataset(DATASET_NAME)
+
+    if DATASET_NAME == 'MNIST' or DATASET_NAME == 'CIFAR10':
+        return SuperPixDataset(DATASET_NAME)
+
+    if DATASET_NAME == 'ZINC':
+        return MoleculeDataset(DATASET_NAME)
