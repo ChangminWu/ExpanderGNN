@@ -74,6 +74,7 @@ class ActivationGatedGCNNet(nn.Module):
             h = self.node_encoder(h)
             if self.pos_enc:
                 h_pos_enc = self.pos_encoder(h_pos_enc.float())
+                h = h + h_pos_enc
             if not self.edge_feat:
                 e = torch.ones(e.size(0), 1).to(self.device)
             e = self.edge_encoder(e)

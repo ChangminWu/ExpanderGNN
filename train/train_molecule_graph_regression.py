@@ -16,17 +16,17 @@ def train_epoch_sparse(model, optimizer, device, data_loader, epoch,
         batch_targets = batch_targets.to(device)
         optimizer.zero_grad()
 
-        # try:
-        batch_pos_enc = batch_graphs.ndata["pos_enc"].to(device)
-        sign_flip = torch.rand(batch_pos_enc.size(1)).to(device)
-        sign_flip[sign_flip >= 0.5] = 1.0
-        sign_flip[sign_flip < 0.5] = -1.0
-        batch_pos_enc = batch_pos_enc * sign_flip.unsqueeze(0)
-        batch_scores = model.forward(batch_graphs, batch_x,
-                                     batch_e, batch_pos_enc)
-        print(batch_pos_enc)
-        # except:
-        #     batch_scores = model.forward(batch_graphs, batch_x, batch_e)
+        try:
+            batch_pos_enc = batch_graphs.ndata["pos_enc"].to(device)
+            sign_flip = torch.rand(batch_pos_enc.size(1)).to(device)
+            sign_flip[sign_flip >= 0.5] = 1.0
+            sign_flip[sign_flip < 0.5] = -1.0
+            batch_pos_enc = batch_pos_enc * sign_flip.unsqueeze(0)
+            batch_scores = model.forward(batch_graphs, batch_x,
+                                         batch_e, batch_pos_enc)
+        except:
+            batch_scores = model.forward(batch_graphs, batch_x, batch_e)
+
         loss = model.loss(batch_scores, batch_targets)
         loss.backward()
         optimizer.step()
@@ -58,6 +58,7 @@ def evaluate_network_sparse(model, device, data_loader, epoch):
                                              batch_e, batch_pos_enc)
             except:
                 batch_scores = model.forward(batch_graphs, batch_x, batch_e)
+
             loss = model.loss(batch_scores, batch_targets)
             epoch_test_loss += loss.detach().item()
             epoch_test_mae += MAE(batch_scores, batch_targets)

@@ -143,7 +143,6 @@ def check_tensorboard(net, writer, step, step_size=30, saved_layers=None):
                     net.weight.data[index].cpu().detach().numpy(), step)
 
             if step % step_size == 0:
-                print(net)
                 writer.add_image(
                     "train/_gradient_{}".format(label),
                     net.weight.grad.data.unsqueeze(0).cpu().numpy(),
