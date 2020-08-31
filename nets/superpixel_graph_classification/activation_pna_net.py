@@ -3,8 +3,10 @@ import torch.nn as nn
 
 import dgl
 
-from layers.simple_pna_layer import SimplePNALayer, SimplePNASimplifiedLayer
+from layers.activation_pna_layer import ActivationPNALayer,\
+    ActivationPNASimplifiedLayer
 from expander.expander_layer import LinearLayer
+from utils import activations
 
 
 """
@@ -17,10 +19,11 @@ from expander.expander_layer import LinearLayer
 """
 
 
-class SimplePNANet(nn.Module):
+class ActivationPNANet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         indim = net_params["in_dim"]
+        indim_edge = net_params["in_dim_edge"]
         hiddim = net_params["hidden_dim"]
         outdim = net_params["out_dim"]
 
@@ -30,10 +33,9 @@ class SimplePNANet(nn.Module):
 
         self.graph_pool = net_params["graph_pool"]
 
-        self.residual = net_params["residual"]
         self.batch_norm = net_params["batch_norm"]
-        self.n_mlp_layer = net_params["mlp_layers"]
 
+        self.activation = activations(net_params["activation"])
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
@@ -48,15 +50,13 @@ class SimplePNANet(nn.Module):
         edge_dim = net_params["edge_dim"]
         self.divide_input = net_params["divide_input"]
 
-        num_pretrans_layer = net_params["num_pretrans_layer"]
-        num_posttrans_layer = net_params["num_posttrans_layer"]
         self.simplified = net_params["use_simplified_version"]
 
         self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
         if self.edge_feat:
-            self.edge_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+            self.edge_encoder = LinearLayer(indim_edge, hiddim, bias=self.bias,
                                             linear_type=self.linear_type,
                                             **linear_params)
             self.simplified = False
@@ -65,71 +65,59 @@ class SimplePNANet(nn.Module):
         for i in range(n_layers):
             if i == n_layers-1:
                 if self.simplified:
-                    new_layer = SimplePNASimplifiedLayer(
+                    new_layer = ActivationPNASimplifiedLayer(
                                     indim=hiddim, outdim=outdim, hiddim=hiddim,
+                                    activation=self.activation,
                                     dropout=dropout,
                                     batch_norm=self.batch_norm,
                                     aggregators=self.aggregators,
-                                    scalers=self.scalers, avg_d=self.avg_d,
-                                    num_posttrans_layer=num_posttrans_layer,
-                                    residual=self.residual, bias=self.bias,
-                                    linear_type=self.linear_type,
-                                    **linear_params)
+                                    scalers=self.scalers, avg_d=self.avg_d)
                 else:
-                    new_layer = SimplePNALayer(
+                    new_layer = ActivationPNALayer(
                                     indim=hiddim, outdim=outdim, hiddim=hiddim,
+                                    activation=self.activation,
                                     dropout=dropout,
                                     batch_norm=self.batch_norm,
                                     aggregators=self.aggregators,
                                     scalers=self.scalers, avg_d=self.avg_d,
                                     num_tower=self.num_tower,
-                                    num_pretrans_layer=num_pretrans_layer,
-                                    num_posttrans_layer=num_posttrans_layer,
-                                    divide_input=False, residual=self.residual,
+                                    divide_input=False,
                                     edge_features=self.edge_feat,
-                                    edge_dim=edge_dim, bias=self.bias,
-                                    linear_type=self.linear_type,
-                                    **linear_params)
+                                    edge_dim=edge_dim)
 
             else:
                 if self.simplified:
-                    new_layer = SimplePNASimplifiedLayer(
+                    new_layer = ActivationPNASimplifiedLayer(
                                     indim=hiddim, outdim=hiddim, hiddim=hiddim,
+                                    activation=self.activation,
                                     dropout=dropout,
                                     batch_norm=self.batch_norm,
                                     aggregators=self.aggregators,
-                                    scalers=self.scalers, avg_d=self.avg_d,
-                                    num_posttrans_layer=num_posttrans_layer,
-                                    residual=self.residual, bias=self.bias,
-                                    linear_type=self.linear_type,
-                                    **linear_params)
+                                    scalers=self.scalers, avg_d=self.avg_d)
                 else:
-                    new_layer = SimplePNALayer(
+                    new_layer = ActivationPNALayer(
                                     indim=hiddim, outdim=hiddim, hiddim=hiddim,
+                                    activation=self.activation,
                                     dropout=dropout,
                                     batch_norm=self.batch_norm,
                                     aggregators=self.aggregators,
                                     scalers=self.scalers, avg_d=self.avg_d,
                                     num_tower=self.num_tower,
-                                    num_pretrans_layer=num_pretrans_layer,
-                                    num_posttrans_layer=num_posttrans_layer,
                                     divide_input=self.divide_input,
-                                    residual=self.residual,
                                     edge_features=self.edge_feat,
-                                    edge_dim=edge_dim, bias=self.bias,
-                                    linear_type=self.linear_type,
-                                    **linear_params)
+                                    edge_dim=edge_dim)
             self.layers.append(new_layer)
 
-        self.readout = nn.Sequential(LinearLayer(outdim, outdim//2,
+        outdim = hiddim * (1+len(self.aggregators)*len(self.scalers))
+        self.readout = nn.Sequential(LinearLayer(hiddim, hiddim//2,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer(outdim//2, outdim//4,
+                                     LinearLayer(hiddim//2, hiddim//4,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer(outdim//4, n_classes,
+                                     LinearLayer(hiddim//4, n_classes,
                                                  bias=True,
                                                  linear_type="regular"))
 

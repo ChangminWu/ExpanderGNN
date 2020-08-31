@@ -52,7 +52,7 @@ class SimpleGINNet(nn.Module):
         self.linear_predictions = nn.ModuleList()
         for layer in range(self.n_layers+1):
             self.linear_predictions.append(
-                        LinearLayer(hiddim, n_classes,
+                        LinearLayer(outdim, n_classes,
                                     bias=True, linear_type="regular"))
                         # nn.Sequential(LinearLayer(outdim, outdim//2,
                         #                           bias=True,

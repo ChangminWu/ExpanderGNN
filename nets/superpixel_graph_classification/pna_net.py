@@ -1,10 +1,11 @@
-import torch
 import torch.nn as nn
 
 import dgl
 
-from layers.simple_pna_layer import SimplePNALayer, SimplePNASimplifiedLayer
+from pna_utils.utils import GRULayer
+from layers.pna_layer import PNALayer, PNASimplifiedLayer
 from expander.expander_layer import LinearLayer
+from utils import activations
 
 
 """
@@ -17,14 +18,16 @@ from expander.expander_layer import LinearLayer
 """
 
 
-class SimplePNANet(nn.Module):
+class PNANet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         indim = net_params["in_dim"]
+        indim_edge = net_params["in_dim_edge"]
         hiddim = net_params["hidden_dim"]
         outdim = net_params["out_dim"]
 
         n_classes = net_params["n_classes"]
+        in_feat_dropout = net_params['in_feat_dropout']
         dropout = net_params["dropout"]
         n_layers = net_params["L"]
 
@@ -34,6 +37,7 @@ class SimplePNANet(nn.Module):
         self.batch_norm = net_params["batch_norm"]
         self.n_mlp_layer = net_params["mlp_layers"]
 
+        self.activation = activations(net_params["activation"])
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
@@ -50,13 +54,16 @@ class SimplePNANet(nn.Module):
 
         num_pretrans_layer = net_params["num_pretrans_layer"]
         num_posttrans_layer = net_params["num_posttrans_layer"]
+        self.gru_enable = net_params["gru"]
         self.simplified = net_params["use_simplified_version"]
+
+        device = net_params["device"]
 
         self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
         if self.edge_feat:
-            self.edge_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+            self.edge_encoder = LinearLayer(indim_edge, hiddim, bias=self.bias,
                                             linear_type=self.linear_type,
                                             **linear_params)
             self.simplified = False
@@ -65,8 +72,9 @@ class SimplePNANet(nn.Module):
         for i in range(n_layers):
             if i == n_layers-1:
                 if self.simplified:
-                    new_layer = SimplePNASimplifiedLayer(
+                    new_layer = PNASimplifiedLayer(
                                     indim=hiddim, outdim=outdim, hiddim=hiddim,
+                                    activation=self.activation,
                                     dropout=dropout,
                                     batch_norm=self.batch_norm,
                                     aggregators=self.aggregators,
@@ -76,8 +84,9 @@ class SimplePNANet(nn.Module):
                                     linear_type=self.linear_type,
                                     **linear_params)
                 else:
-                    new_layer = SimplePNALayer(
+                    new_layer = PNALayer(
                                     indim=hiddim, outdim=outdim, hiddim=hiddim,
+                                    activation=self.activation,
                                     dropout=dropout,
                                     batch_norm=self.batch_norm,
                                     aggregators=self.aggregators,
@@ -93,8 +102,9 @@ class SimplePNANet(nn.Module):
 
             else:
                 if self.simplified:
-                    new_layer = SimplePNASimplifiedLayer(
+                    new_layer = PNASimplifiedLayer(
                                     indim=hiddim, outdim=hiddim, hiddim=hiddim,
+                                    activation=self.activation,
                                     dropout=dropout,
                                     batch_norm=self.batch_norm,
                                     aggregators=self.aggregators,
@@ -104,8 +114,9 @@ class SimplePNANet(nn.Module):
                                     linear_type=self.linear_type,
                                     **linear_params)
                 else:
-                    new_layer = SimplePNALayer(
+                    new_layer = PNALayer(
                                     indim=hiddim, outdim=hiddim, hiddim=hiddim,
+                                    activation=self.activation,
                                     dropout=dropout,
                                     batch_norm=self.batch_norm,
                                     aggregators=self.aggregators,
@@ -120,6 +131,9 @@ class SimplePNANet(nn.Module):
                                     linear_type=self.linear_type,
                                     **linear_params)
             self.layers.append(new_layer)
+
+        if self.gru_enable:
+            self.gru = GRULayer(hiddim, hiddim, device)
 
         self.readout = nn.Sequential(LinearLayer(outdim, outdim//2,
                                                  bias=True,
@@ -140,12 +154,12 @@ class SimplePNANet(nn.Module):
             if self.edge_feat:
                 e = self.edge_encoder(e)
 
-            degs = g.in_degrees().float().clamp(min=1)
-            norm = torch.pow(degs, -0.5)
-            norm = norm.to(h.device).unsqueeze(1)
-
             for i, conv in enumerate(self.layers):
-                h = conv(g, h, e, norm)
+                h_t = conv(g, h, e)
+                if self.gru_enable and i != len(self.layers) - 1:
+                    h_t = self.gru(h, h_t)
+                h = h_t
+
             g.ndata['h'] = h
 
             if self.graph_pool == "sum":

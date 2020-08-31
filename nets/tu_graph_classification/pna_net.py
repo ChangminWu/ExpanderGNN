@@ -60,9 +60,11 @@ class PNANet(nn.Module):
         self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
-        self.edge_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        if self.edge_feat:
+            self.edge_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+                                            linear_type=self.linear_type,
+                                            **linear_params)
+            self.simplified = False
 
         self.layers = nn.ModuleList()
         for i in range(n_layers):
