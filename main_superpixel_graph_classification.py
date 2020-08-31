@@ -379,12 +379,13 @@ def main():
     else:
         config["gpu"]["id"] = None
 
-    device = gpu_setup(args.use_gpu, config["gpu"]["id"])
     if config["gpu"]["id"] is not None and args.use_gpu == "true":
         config["gpu"]["use"] = True
+        print("cuda available with GPU:", torch.cuda.get_device_name(0))
         device = torch.device("cuda")
     else:
         config["gpu"]["use"] = False
+        print("cuda not available")
         device = torch.device("cpu")
 
     # model, dataset, out_dir
