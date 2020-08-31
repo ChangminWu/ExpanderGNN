@@ -1,4 +1,4 @@
-use_gpu="True"
+use_gpu=True
 script=main_molecule_graph_regression.py
 datasets=("ZINC")
 actives=('relu' 'prelu' 'linear' 'brelu' 'brelu-intercept' 'conv' 'rrelu' 'elu' 'sigmoid' 'tanh' 'lelu' 'softplus')

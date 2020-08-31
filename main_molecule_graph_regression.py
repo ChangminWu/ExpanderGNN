@@ -83,7 +83,6 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     print("Training Graphs: ", len(trainset))
     print("Validation Graphs: ", len(valset))
     print("Test Graphs: ", len(testset))
-    print("Number of Classes: ", net_params['n_classes'])
 
     model = gnn_model(MODEL_NAME, net_params)
     model = model.to(device)
