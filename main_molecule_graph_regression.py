@@ -44,7 +44,8 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
 
     DATASET_NAME = dataset.name
 
-    if "GCN" in MODEL_NAME or "GAT" in MODEL_NAME:
+    if ("GCN" in MODEL_NAME or "GAT" in MODEL_NAME)\
+       and "GatedGCN" not in MODEL_NAME:
         if net_params['self_loop']:
             print("[!] Adding graph self-loops for Simple GCN models\
                   (central node trick).")
@@ -180,9 +181,9 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
                               lr=optimizer.param_groups[0]['lr'],
                               train_loss=epoch_train_loss,
                               val_loss=epoch_val_loss,
-                              train_acc=epoch_train_mae,
-                              val_acc=epoch_val_mae,
-                              test_acc=epoch_test_mae)
+                              train_mae=epoch_train_mae,
+                              val_mae=epoch_val_mae,
+                              test_mae=epoch_test_mae)
 
                 per_epoch_time.append(time.time()-start)
 
