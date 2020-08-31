@@ -24,8 +24,8 @@ def train_epoch_sparse(model, optimizer, device, data_loader, epoch,
             batch_pos_enc = batch_pos_enc * sign_flip.unsqueeze(0)
             batch_scores = model.forward(batch_graphs, batch_x,
                                          batch_e, batch_pos_enc)
-        except:
-            batch_scores = model.forward(batch_graphs, batch_x, batch_e)
+        # except:
+        #     batch_scores = model.forward(batch_graphs, batch_x, batch_e)
 
         loss = model.loss(batch_scores, batch_targets)
         loss.backward()
