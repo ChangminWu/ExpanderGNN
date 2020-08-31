@@ -576,7 +576,7 @@ def main():
     if not os.path.exists(out_dir + 'configs'):
         os.makedirs(out_dir + 'configs')
 
-    train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs)
+    train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs)
 
 
 if __name__ == '__main__':
