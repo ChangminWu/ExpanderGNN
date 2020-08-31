@@ -37,7 +37,7 @@ class ExpanderScatterLinear(nn.Module):
     def forward(self, _input):
         x = _input[:, self.ind_in]
         x = x*self.weight
-        x = scatter_add(x, self.ind_out)
+        x = scatter_add(x, self.ind_out.to(_input.device))
         # x = spmm(self.inds, self.weight,
         #          self.outdim, self.indim, _input.t()).t()
 
@@ -60,8 +60,8 @@ class ExpanderScatterLinear(nn.Module):
         self.reset_parameters()
 
         self.inds = torch.nonzero(self.mask, as_tuple=True)
-        self.ind_in = self.inds[1].to(self.weight.device)
-        self.ind_out = self.inds[0].to(self.weight.device)
+        self.ind_in = self.inds[1]
+        self.ind_out = self.inds[0]
 
         if self.bias is not None:
             self.n_params += self.outdim
