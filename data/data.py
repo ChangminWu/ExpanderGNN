@@ -1,6 +1,6 @@
-from data.tu_graph_classification import TUsDataset
-from data.superpixel_graph_classification import SuperPixDataset
-from data.molecule_graph_regression import MoleculeDataset
+from data.TUs import TUsDataset
+from data.superpixels import SuperPixDataset
+from data.molecules import MoleculeDataset
 
 
 def LoadData(DATASET_NAME):
