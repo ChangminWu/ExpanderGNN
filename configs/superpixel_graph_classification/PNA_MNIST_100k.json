@@ -1,0 +1,51 @@
+{
+    "gpu": {
+      "use": true,
+      "id": 0
+    },
+
+    "model": "PNA",
+    "dataset": "MNIST",
+
+    "out_dir": "out/superpixel_graph_classification/",
+    
+    "params": {
+      "seed": 41,
+      "epochs": 1000,
+      "batch_size": 128,
+      "init_lr": 1e-3,
+      "lr_reduce_factor": 0.5,
+      "lr_schedule_patience": 5,
+      "min_lr": 1e-5,
+      "weight_decay": 3e-6,
+      "print_epoch_interval": 5,
+      "max_time": 12
+    },
+    
+    "net_params": {
+      "L": 4,
+      "hidden_dim": 100,
+      "out_dim": 70,
+      "residual": true,
+      "edge_feat": false,
+      "graph_pool": "sum",
+      "in_feat_dropout": 0.0,
+      "dropout": 0.0,
+      "batch_norm": true,
+      "density": 0.1,
+      "activation": "relu",
+      "mlp_layers": 2,
+      "sampler": "regular",
+      "linear_type": "regular",
+      "bias": true,
+      "aggregators": "mean max min std",
+      "scalers": "identity amplification attenuation",
+      "num_tower": 5,
+      "divide_input": true,
+      "gru": false,
+      "edge_dim": 0,
+      "num_pretrans_layer" : 1,
+      "num_posttrans_layer" : 1,
+      "use_simplified_version": false
+    }
+}
