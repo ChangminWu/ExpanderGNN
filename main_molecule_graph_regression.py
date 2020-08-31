@@ -85,9 +85,9 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
     print("Test Graphs: ", len(testset))
 
     model = gnn_model(MODEL_NAME, net_params)
-    model = model.to(device)
     saved_expander, _ = init_expander(model, saved_expander,
                                       saved_layers)
+    model = model.to(device)
 
     expander_writer(saved_expander, curr_path=write_expander_dir)
     net_params['total_param'] = get_model_param(model, num=0)
