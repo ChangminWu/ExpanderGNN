@@ -24,8 +24,8 @@
     
     "net_params": {
       "L": 2,
-      "hidden_dim": 16,
-      "out_dim": 8,
+      "hidden_dim": 75,
+      "out_dim": 70,
       "residual": true,
       "edge_feat": false,
       "graph_pool": "sum",
