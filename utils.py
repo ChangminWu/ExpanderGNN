@@ -107,7 +107,7 @@ def expander_weights_writer(net, saved_expander, saved_layers=None,
             mask = weight.copy()
             mask[mask != 0] = 1
             print(net)
-            print("mask ", mask.sum(), " size", mask.size())
+            print("mask ", mask.sum(), " size ", mask.shape)
             print("expander ", saved_expander[label].cpu().detach().numpy().sum(), " size", saved_expander[label].cpu().detach().numpy().shape)
             assert (mask == saved_expander[label].cpu().detach().numpy()).all()
             # with open(curr_path + label + ".pickle") as f:
