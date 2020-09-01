@@ -101,6 +101,7 @@ def expander_weights_writer(net, saved_expander, saved_layers=None,
         saved_layers[layer_name] = [label]
 
     if num_children == 0:
+        print(list(saved_expander.keys()))
         if "Linear" in label:
             weight = net.weight.cpu().detach().numpy()
 
