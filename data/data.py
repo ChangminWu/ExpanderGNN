@@ -1,6 +1,7 @@
 from data.TUs import TUsDataset
 from data.superpixels import SuperPixDataset
 from data.molecules import MoleculeDataset
+from data.citations import CitationsDataset
 
 
 def LoadData(DATASET_NAME):
@@ -15,3 +16,7 @@ def LoadData(DATASET_NAME):
 
     if DATASET_NAME == 'ZINC':
         return MoleculeDataset(DATASET_NAME)
+
+    CITATIONGRAPHS_DATASETS = ['CORA', 'CITESEER', 'PUBMED']
+    if DATASET_NAME in CITATIONGRAPHS_DATASETS:
+        return CitationsDataset(DATASET_NAME)

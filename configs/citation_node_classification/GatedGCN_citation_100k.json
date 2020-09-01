@@ -1,0 +1,44 @@
+{
+    "gpu": {
+        "use": true,
+        "id": 0
+    },
+    
+    "model": "GatedGCN",
+    "dataset": "cora",
+    
+    "out_dir": "out/citation_node_classification/",
+    
+    "params": {
+        "seed": 41,
+        "epochs": 1000,
+        "batch_size": 128,
+        "init_lr": 1e-2, 
+        "lr_reduce_factor": 0.5,
+        "lr_schedule_patience": 5,
+        "min_lr": 1e-5,
+        "weight_decay": 5e-4,
+        "print_epoch_interval": 5,
+        "max_time": 12
+    },
+    
+    "net_params": {
+        "L": 2,
+        "hidden_dim": 8,
+        "out_dim": 8,
+        "residual": false,
+        "graph_pool": "mean",
+        "in_feat_dropout": 0.5,
+        "dropout": 0.5,
+        "batch_norm": true,
+        "edge_feat": true,
+        "density": 0.1,
+        "activation": "relu",
+        "neighbor_pool": "sum",
+        "mlp_layers": 2,
+        "sampler": "regular",
+        "linear_type": "regular",
+        "bias": true,
+        "dgl_builtin": false
+    }
+}

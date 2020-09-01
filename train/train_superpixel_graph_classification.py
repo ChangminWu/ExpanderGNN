@@ -24,8 +24,8 @@ def train_epoch_sparse(model, optimizer, device, data_loader, epoch,
         epoch_train_acc += accuracy(batch_scores, batch_labels)
         nb_data += batch_labels.size(0)
 
-        if writer is not None:
-            writer, _ = check_tensorboard(model, writer, step=iter)
+    if writer is not None:
+        writer, _ = check_tensorboard(model, writer, step=epoch)
 
     epoch_loss /= (iter + 1)
     epoch_train_acc /= nb_data
