@@ -23,9 +23,9 @@
     },
     
     "net_params": {
-      "L": 2,
-      "hidden_dim": 75,
-      "out_dim": 70,
+      "L": 16,
+      "hidden_dim": 96,
+      "out_dim": 90,
       "residual": true,
       "edge_feat": false,
       "graph_pool": "sum",

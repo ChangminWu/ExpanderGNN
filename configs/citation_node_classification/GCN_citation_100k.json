@@ -22,9 +22,9 @@
     },
     
     "net_params": {
-        "L": 4,
-        "hidden_dim": 145,
-        "out_dim": 145,
+        "L": 16,
+        "hidden_dim": 172,
+        "out_dim": 172,
         "residual": true,
         "graph_pool": "mean",
         "in_feat_dropout": 0.5,

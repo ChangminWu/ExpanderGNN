@@ -101,16 +101,12 @@ def expander_weights_writer(net, saved_expander, saved_layers=None,
         saved_layers[layer_name] = [label]
 
     if num_children == 0:
-        print(list(saved_expander.keys()))
         if "Linear" in label:
             weight = net.weight.cpu().detach().numpy()
 
             mask = weight.copy()
             mask[mask != 0] = 1
-            print(label)
-            print("mask ", mask.sum(), " size ", mask.shape)
-            print("expander ", saved_expander[label].cpu().detach().numpy().sum(), " size", saved_expander[label].cpu().detach().numpy().shape)
-            # assert (mask == saved_expander[label].cpu().detach().numpy()).all()
+            assert (mask == saved_expander[label].cpu().detach().numpy()).all()
             # with open(curr_path + label + ".pickle") as f:
             #     pickle.dump(weight, f)
             np.save(curr_path + label + ".npy", weight)

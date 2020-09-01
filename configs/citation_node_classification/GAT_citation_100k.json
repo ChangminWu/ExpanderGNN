@@ -23,9 +23,9 @@
     },
     
     "net_params": {
-        "L": 4,
-        "hidden_dim": 18,
-        "out_dim": 144,
+        "L": 16,
+        "hidden_dim": 22,
+        "out_dim": 176,
         "residual": true,
         "graph_pool": "mean",
         "merge_type": "cat",

@@ -101,13 +101,12 @@ class GraphSageLayer(nn.Module):
                  aggr_type, activation, dropout,
                  batch_norm, residual=False, dgl_builtin=False, **kwargs):
         super(GraphSageLayer, self).__init__()
-        self.apply_func = apply_func
         self.dgl_builtin = dgl_builtin
 
         self.batch_norm, self.residual = batch_norm, residual
         self.dgl_builtin = dgl_builtin
 
-        indim, outdim = self.apply_func.indim//2, self.apply_func.outdim
+        indim, outdim = apply_func.indim//2, apply_func.outdim
         if indim != outdim:
             self.residual = False
 
@@ -136,8 +135,8 @@ class GraphSageLayer(nn.Module):
                 raise KeyError("Aggregator type {} not recognized."
                                .format(aggr_type))
         else:
-            self.sageconv = SAGEConv(self.apply_func.indim,
-                                     self.apply_func.outdim,
+            self.sageconv = SAGEConv(apply_func.indim,
+                                     apply_func.outdim,
                                      aggr_type, dropout,
                                      self.activation)
 

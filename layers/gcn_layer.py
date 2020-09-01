@@ -19,8 +19,6 @@ class GCNLayer(nn.Module):
                  aggr_type, activation, dropout,
                  batch_norm, residual=False, dgl_builtin=False):
         super().__init__()
-        self.apply_func = apply_func
-
         if aggr_type == "sum":
             self._reducer = fn.sum
         elif aggr_type == "max":
@@ -34,18 +32,18 @@ class GCNLayer(nn.Module):
         self.batch_norm, self.residual = batch_norm, residual
         self.dgl_builtin = dgl_builtin
 
-        if self.apply_func.indim != self.apply_func.outdim:
+        if apply_func.indim != apply_func.outdim:
             self.residual = False
 
         self.activation = activation
-        self.batchnorm_h = nn.BatchNorm1d(self.apply_func.outdim)
+        self.batchnorm_h = nn.BatchNorm1d(apply_func.outdim)
         self.dropout = nn.Dropout(dropout)
 
         if self.dgl_builtin:
-            self.conv = GraphConv(self.apply_func.indim,
-                                  self.apply_func.outdim)
+            self.conv = GraphConv(apply_func.indim,
+                                  apply_func.outdim)
         else:
-            self.apply_mod = UpdateModule(self.apply_func)
+            self.apply_mod = UpdateModule(apply_func)
 
     def forward(self, g, features):
         h_in = features

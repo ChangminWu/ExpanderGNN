@@ -23,9 +23,9 @@
     },
     
     "net_params": {
-        "L": 4,
-        "hidden_dim": 150,
-        "out_dim": 150,
+        "L": 16,
+        "hidden_dim": 173,
+        "out_dim": 173,
         "graph_pool": "mean",
         "gated": false,
         "in_feat_dropout": 0.6,
