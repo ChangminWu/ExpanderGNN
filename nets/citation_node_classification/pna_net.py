@@ -22,7 +22,6 @@ class PNANet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         indim = net_params["in_dim"]
-        indim_edge = net_params["in_dim_edge"]
         hiddim = net_params["hidden_dim"]
         outdim = net_params["out_dim"]
 
@@ -63,7 +62,7 @@ class PNANet(nn.Module):
                                         linear_type=self.linear_type,
                                         **linear_params)
         if self.edge_feat:
-            self.edge_encoder = LinearLayer(indim_edge, hiddim, bias=self.bias,
+            self.edge_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                             linear_type=self.linear_type,
                                             **linear_params)
             self.simplified = False

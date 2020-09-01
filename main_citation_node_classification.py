@@ -104,11 +104,11 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
 
     optimizer = optim.Adam(model.parameters(), lr=params['init_lr'],
                            weight_decay=params['weight_decay'])
-    scheduler = optim.lr_scheduler.\
-        ReduceLROnPlateau(optimizer, mode="min",
-                          factor=params["lr_reduce_factor"],
-                          patience=params["lr_schedule_patience"],
-                          verbose=True)
+    # scheduler = optim.lr_scheduler.\
+    #     ReduceLROnPlateau(optimizer, mode="min",
+    #                       factor=params["lr_reduce_factor"],
+    #                       patience=params["lr_schedule_patience"],
+    #                       verbose=True)
 
     epoch_train_losses, epoch_val_losses = [], []
     epoch_train_accs, epoch_val_accs = [], []
@@ -182,11 +182,12 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
                     if epoch_nb < epoch-1 and epoch_nb % 50 != 0:
                         os.remove(file)
 
-                scheduler.step(epoch_val_loss)
+                # scheduler.step(epoch_val_loss)
 
                 if optimizer.param_groups[0]["lr"] < params["min_lr"]:
                     print("\n!! LR EQUAL TO MIN LR SET.")
-                    break
+                    optimizer.param_groups[0]["lr"] = params["min_lr"]
+                    # break
 
                 # Stop training after params["max_time"] hours
                 if time.time()-t0 >\

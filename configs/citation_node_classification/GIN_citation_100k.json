@@ -26,7 +26,7 @@
         "L": 2,
         "hidden_dim": 16,
         "out_dim": 16,
-        "residual": false,
+        "residual": true,
         "graph_pool": "sum",
         "mlp_layers": 2,
         "learn_eps": true,

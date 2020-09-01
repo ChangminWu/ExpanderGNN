@@ -26,7 +26,7 @@
       "L": 2,
       "hidden_dim": 16,
       "out_dim": 8,
-      "residual": false,
+      "residual": true,
       "edge_feat": false,
       "graph_pool": "sum",
       "in_feat_dropout": 0.0,
