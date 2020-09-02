@@ -17,4 +17,8 @@ def sampler(outdim, indim, density, method):
 
         n_params = int(density * max(outdim, indim)) * min(outdim, indim)
 
+    elif method == "random":
+
+
+
     return mask, n_params

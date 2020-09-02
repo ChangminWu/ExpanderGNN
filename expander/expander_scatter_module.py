@@ -53,7 +53,7 @@ class ExpanderScatterLinear(nn.Module):
                                                method=self.sampler)
 
         else:
-            self.n_params == torch.sum(init)
+            self.n_params = torch.sum(init)
             self.mask = init
 
         self.weight = nn.Parameter(data=torch.Tensor(self.n_params))
