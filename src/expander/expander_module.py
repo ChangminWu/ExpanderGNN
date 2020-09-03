@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch import Tensor
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
+from torch_sparse.tensor import SparseTensor
 
 
 class ExpanderLinear(nn.Module):
@@ -24,7 +25,6 @@ class ExpanderLinear(nn.Module):
             self.bias = Parameter(torch.Tensor(out_features))
         else:
             self.register_parameter("bias", None)
-        self.reset_parameters()
 
     def forward(self, input: Tensor) -> Tensor:
         self.weight.mul_(self.mask)
@@ -53,9 +53,17 @@ class SparseLinear(nn.Module):
 
         n_params = torch.nonzero(mask)
         self.weight = Parameter(torch.Tensor(n_params))
+        inds = torch.nonzero(self.mask, as_tuple=True)
+        self.sparse_weight = SparseTensor(row=inds[0], col=inds[1], sparse_sizes=(in_features, out_features),
+                                          value=self.weight)
 
-        self.inds = torch.nonzero(self.mask, as_tuple=True)
-        self.sparse_weight = SparseTensor(row=self.inds[0], col=self.inds[1], value=self.weight)
+    def forward(self, _input: Tensor) -> Tensor:
+        if self.bias is not None:
+            return (self.sparse_weight @ _input.t()).t() + self.bias
+        else:
+            return (self.sparse_weight @ _input.t()).t()
 
-    def forward(self, _input):
-        return (self.sparse_weight, _input.t()).t()
+    def extra_repr(self) -> str:
+        return 'in_features={}, out_features={}, bias={}'.format(
+            self.in_features, self.out_features, self.bias is not None
+        )
