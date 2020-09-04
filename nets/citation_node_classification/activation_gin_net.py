@@ -67,14 +67,6 @@ class ActivationGINNet(nn.Module):
                         #                           bias=True,
                         #                           linear_type="regular")))
 
-        if self.graph_pool == "sum":
-            self.pool = SumPooling()
-        elif self.graph_pool == "mean":
-            self.pool = AvgPooling()
-        elif self.graph_pool == "max":
-            self.pool = MaxPooling()
-        else:
-            self.pool = AvgPooling()
 
     def forward(self, g, h, e):
         with g.local_scope():
@@ -95,10 +87,7 @@ class ActivationGINNet(nn.Module):
 
             score_over_layer = 0
             for i, h in enumerate(hidden_rep):
-                print("h size ", h.size())
-                hg = self.pool(g, h)
-                print("hg size ", hg.size())
-                score_over_layer += self.linear_predictions[i](hg)
+                score_over_layer += self.linear_predictions[i](h)
 
         return score_over_layer
 
