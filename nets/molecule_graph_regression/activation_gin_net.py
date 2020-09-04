@@ -15,7 +15,6 @@ class ActivationGINNet(nn.Module):
         num_atom_type = net_params['num_atom_type']
         hiddim = net_params["hidden_dim"]
 
-        n_classes = net_params["n_classes"]
         in_feat_dropout = net_params['in_feat_dropout']
         dropout = net_params["dropout"]
         self.n_layers = net_params["L"]
