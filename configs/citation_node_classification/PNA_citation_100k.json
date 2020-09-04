@@ -24,7 +24,7 @@
     
     "net_params": {
       "L": 16,
-      "hidden_dim": 96,
+      "hidden_dim": 100,
       "out_dim": 90,
       "residual": true,
       "edge_feat": false,
