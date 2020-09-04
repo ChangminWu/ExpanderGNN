@@ -5,19 +5,21 @@ from torch import Tensor
 from src.expander.expander_module import ExpanderLinear, SparseLinear
 from src.expander.helper import sampler
 
+from typing import Optional
+
 
 class LinearLayer(nn.Module):
     __constants__ = ["in_features", "out_features"]
     in_features: int
     out_features: int
 
-    def __init__(self, in_features: int, out_features: int, bias: bool = True, type: str = "full",
+    def __init__(self, in_features: int, out_features: int, bias: bool = True, layer_type: str = "full",
                  sample_method: str = "prabhu", density: float = 1.0, mask: Optional[Tensor] = None) -> None:
         super(LinearLayer, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.bias = bias
-        self.type, self.sample_method = type.lower(), sample_method.lower()
+        self.type, self.sample_method = layer_type.lower(), sample_method.lower()
         self.density = density
 
         if self.type == "full":
@@ -63,7 +65,6 @@ class LinearLayer(nn.Module):
         else:
             return sampler(in_features, out_features, density, sample_method)
 
-class MultiLlinearLayer(nn.Module):
 
 
 
