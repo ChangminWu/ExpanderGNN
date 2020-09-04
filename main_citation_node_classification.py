@@ -516,7 +516,7 @@ def main():
 
     # citation graph datasets
     net_params['in_dim'] = dataset.num_dims  # node_dim (feat is an integer)
-    net_params["in_im_edge"] = dataset.num_dims
+    net_params["in_dim_edge"] = dataset.num_dims
     net_params['n_classes'] = dataset.num_classes
 
     if MODEL_NAME == 'DiffPool':

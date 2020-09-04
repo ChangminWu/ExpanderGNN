@@ -96,6 +96,7 @@ class ActivationGINNet(nn.Module):
             score_over_layer = 0
             for i, h in enumerate(hidden_rep):
                 hg = self.pool(g, h)
+                print(hg.size())
                 score_over_layer += self.linear_predictions[i](hg)
 
         return score_over_layer
