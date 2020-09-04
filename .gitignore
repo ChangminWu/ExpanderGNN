@@ -6,8 +6,6 @@ backup/
 */.ipynb_checkpoints/
 */*/.ipynb_checkpoints/
 data/__pycache__/
-baselines/layers/__pycache__/
-baselines/nets/__pycache__/
 expander/__pycache__/
 models/__pycache__/
 

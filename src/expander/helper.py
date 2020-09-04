@@ -1,4 +1,5 @@
 import torch
+from torch import Tensor
 
 
 def sampler(in_features: int, out_features: int, density: float, sample_method: str="prabhu") -> Tensor:

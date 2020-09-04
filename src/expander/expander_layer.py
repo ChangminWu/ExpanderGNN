@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from expander.expander_module import ExpanderLinear, ScatterLinear
-from expander.helper import sampler
+from src.expander.expander_module import ExpanderLinear, SparseLinear
+from src.expander.helper import sampler
 
 
 class LinearLayer(nn.Module):
@@ -25,11 +25,11 @@ class LinearLayer(nn.Module):
             self.linear = nn.Linear(in_features, out_features, bias=self.bias)
 
         elif self.type == "expander":
-            self.mask = generate_mask(in_features, out_features, self.density, sample_method, mask)
+            self.mask = self.generate_mask(in_features, out_features, self.density, sample_method, mask)
             self.linear = ExpanderLinear(in_features, out_features, mask=self.mask, bias=self.bias)
 
         elif self.type == "sparse":
-            self.mask = generate_mask(in_features, out_features, self.density, sample_method, mask)
+            self.mask = self.generate_mask(in_features, out_features, self.density, sample_method, mask)
             self.linear = SparseLinear(in_features, out_features, mask=self.mask, bias=self.bias)
 
         self.n_params = torch.nonzero(self.mask, as_tuple=False).size(0)
@@ -59,11 +59,9 @@ class LinearLayer(nn.Module):
     def generate_mask(in_features: int, out_features: int, density: float,
                       sample_method: str = "prabhu", mask: Optional[Tensor] = None) -> Tensor:
         if mask is not None:
-            self.mask = mask
+            return mask
         else:
-            self.mask = sampler(in_features, out_features, density, sample_method)
-        return mask
-
+            return sampler(in_features, out_features, density, sample_method)
 
 class MultiLlinearLayer(nn.Module):
 
