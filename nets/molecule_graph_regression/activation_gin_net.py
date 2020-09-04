@@ -100,4 +100,4 @@ class ActivationGINNet(nn.Module):
     def loss(self, scores, targets):
         # loss = nn.MSELoss()(scores,targets)
         loss = nn.L1Loss()(scores, targets)
-        return 
+        return loss
