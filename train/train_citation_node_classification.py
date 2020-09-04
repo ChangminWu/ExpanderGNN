@@ -12,6 +12,7 @@ def train_epoch_sparse(model, optimizer, device, graph, epoch,
     epoch_train_acc = 0
 
     logits = model(graph, nfeat, efeat)
+    print("logits size ", logits.size(), "label size ", labels.size())
     loss = model.loss(logits[train_mask], labels[train_mask])
     optimizer.zero_grad()
     loss.backward()
