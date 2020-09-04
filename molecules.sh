@@ -32,9 +32,11 @@ savedir="results/molecule-supplementary/"
 
 for i in "{datasets[@]}"
 do
+  config_file=configs/molecule_graph_regression/GraphSage_${i}_100k.json
   python $script --dataset ${i} --out_dir ${savedir} --experiment "regular" --model "GraphSage" --linear_type "regular" --config ${config_file} --density 1.0 --mlp_layers 1 --use_gpu $use_gpu
   for a in "${actives[@]}"
   do
+    config_file=configs/molecule_graph_regression/GIN_${i}_100k.json
     python $script --dataset ${i} --out_dir ${savedir} --experiment "activations-${a}" --model "ActivationGIN" --activation ${a} --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu
   done
 done
