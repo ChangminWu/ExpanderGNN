@@ -1,6 +1,6 @@
 script=main_tu_graph_classification.py
-datasets=("ENZYMES")
-actives=('relu' 'prelu' 'linear' 'brelu' 'brelu-intercept' 'conv' 'rrelu' 'elu' 'sigmoid' 'tanh' 'lelu' 'softplus')
+datasets=("ENZYMES" "DD" "PROTEINS_full" "REDDIT-BINARY" "IMDB-BINARY")
+actives=('relu' 'prelu' 'linear' 'brelu' 'brelu-intercept' 'rrelu' 'softplus')
 models=('GCN' 'GIN' 'MLP' 'GraphSage' 'GatedGCN' 'GAT' 'PNA')
 densities=( 0.1 0.5 0.9 )
 savedir="results/test/"
@@ -9,7 +9,12 @@ for i in "${datasets[@]}"
 do
   for j in "${models[@]}"
   do
-    config_file=configs/tu_graph_classification/${j}_${i}_100k.json
+    if [[ "$i" == "REDDIT-BINARY" || "$i" == "IMDB-BINARY" ]]
+    then
+      config_file=configs/tu_graph_classification/${j}_DD_100k.json
+    else
+      config_file=configs/tu_graph_classification/${j}_${i}_100k.json
+    fi
     for d in "${densities[@]}"
     do
       python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model ${j} --density ${d} --linear_type "expander" --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu -num_split 3
