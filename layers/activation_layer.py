@@ -20,18 +20,18 @@ class LinearActiveLayer(nn.Module):
 class BiasedRELULayer(nn.Module):
     def __init__(self, intercept=False):
         super(BiasedRELULayer, self).__init__()
-        self.alpha = nn.Parameter(data=torch.Tensor(1))
+        self.alpha = nn.Parameter(data=torch.Tensor(0.0))
         if intercept:
-            self.beta = nn.Parameter(data=torch.Tensor(1))
+            self.beta = nn.Parameter(data=torch.Tensor(0.0))
         else:
             self.register_parameter("beta", None)
         self.reset_parameters()
 
     def forward(self, _input):
         if self.beta is None:
-            return torch.max(_input-self.alpha, torch)
+            return (_input-self.alpha).clamp(min=0)
         else:
-            return torch.max(_input-self.alpha, torch) + self.beta
+            return (_input-self.alpha).clamp(min=0) + self.beta
 
     def reset_parameters(self):
         # nn.init.uniform_(self.alpha, a=-np.sqrt(6), b=np.sqrt(6))
