@@ -18,13 +18,13 @@ do
     fi
     for d in "${densities[@]}"
     do
-      python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model ${j} --density ${d} --linear_type "expander" --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu -num_split 3
+      python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model ${j} --density ${d} --linear_type "expander" --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu --num_split 3
     done
     for a in "${actives[@]}"
     do
       python $script --dataset ${i} --out_dir ${savedir} --experiment "activations-${a}" --model "Activation${j}" --activation ${a} --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu --num_split 3
     done
-    python $script --dataset ${i} --out_dir ${savedir} --experiment "simple" --model "Simple${j}" --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu -num_split 3
-    python $script --dataset ${i} --out_dir ${savedir} --experiment "regular" --model ${j} --density 1.0 --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu -num_split 3
+    python $script --dataset ${i} --out_dir ${savedir} --experiment "simple" --model "Simple${j}" --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu --num_split 3
+    python $script --dataset ${i} --out_dir ${savedir} --experiment "regular" --model ${j} --density 1.0 --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu --num_split 3
   done
 done
