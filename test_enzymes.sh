@@ -1,3 +1,4 @@
+use_gpu=True
 script=main_tu_graph_classification.py
 datasets=("ENZYMES" "DD" "PROTEINS_full" "REDDIT-BINARY" "IMDB-BINARY")
 actives=('relu' 'prelu' 'linear' 'brelu' 'brelu-intercept' 'rrelu' 'softplus')
