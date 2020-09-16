@@ -5,7 +5,7 @@
     },
 
     "model": "PNA",
-    "dataset": "ENZYMES",
+    "dataset": "PROTEINS_full",
 
     "out_dir": "out/tu_graph_classification/",
     
@@ -25,7 +25,7 @@
     
     "net_params": {
       "L": 4,
-      "hidden_dim": 90,
+      "hidden_dim": 100,
       "out_dim": 70,
       "residual": true,
       "edge_feat": false,

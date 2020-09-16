@@ -421,15 +421,18 @@ def main():
     if args.gpu_id is not None:
         config["gpu"]["id"] = int(args.gpu_id)
     elif torch.cuda.is_available():
-        config["gpu"]["id"] = torch.cuda.device_count()
+        config["gpu"]["id"] = torch.cuda.device_count()-1
     else:
         config["gpu"]["id"] = None
 
-    if config["gpu"]["id"] is not None and args.use_gpu == "true":
+    config["gpu"]["use"] = True if args.use_gpu == "True" else False
+    if config["gpu"]["id"] is not None and config["gpu"]["use"]:
         config["gpu"]["use"] = True
+        print("cuda available with GPU:", torch.cuda.get_device_name(0))
         device = torch.device("cuda")
     else:
         config["gpu"]["use"] = False
+        print("cuda not available")
         device = torch.device("cpu")
 
     # model, dataset, out_dir
