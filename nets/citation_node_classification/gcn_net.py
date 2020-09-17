@@ -44,7 +44,7 @@ class GCNNet(nn.Module):
         for i in range(n_layers):
             if i == n_layers-1:
                 linear_transform = \
-                                MultiLinearLayer(indim, n_classes,
+                                MultiLinearLayer(hiddim, n_classes,
                                                  activation=self.activation,
                                                  batch_norm=self.batch_norm,
                                                  num_layers=self.n_mlp_layer,
@@ -54,7 +54,7 @@ class GCNNet(nn.Module):
                                                  **linear_params)
             else:
                 linear_transform = \
-                                MultiLinearLayer(hiddim, hiddim,
+                                MultiLinearLayer(indim, hiddim,
                                                  activation=self.activation,
                                                  batch_norm=self.batch_norm,
                                                  num_layers=self.n_mlp_layer,
