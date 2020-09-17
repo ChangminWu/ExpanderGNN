@@ -47,7 +47,7 @@ class SimpleGCNNet(nn.Module):
 
         self.batchnorm_h = nn.BatchNorm1d(outdim)
 
-        self.linear = MultiLinearLayer(hiddim, outdim,
+        self.linear = MultiLinearLayer(indim, outdim,
                                        activation=None,
                                        batch_norm=self.batch_norm,
                                        num_layers=self.n_mlp_layer,
@@ -63,7 +63,7 @@ class SimpleGCNNet(nn.Module):
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
             degs = g.in_degrees().float().clamp(min=1)
