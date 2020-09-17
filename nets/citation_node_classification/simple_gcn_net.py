@@ -83,9 +83,6 @@ class SimpleGCNNet(nn.Module):
             #     h = self.batchnorm_h(h)
 
             h = self.linear(h)
-
-            g.ndata['h'] = h
-
             return h
 
     def loss(self, pred, label):

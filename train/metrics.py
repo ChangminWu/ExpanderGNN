@@ -25,9 +25,12 @@ def accuracy_superpixel(scores, targets):
 
 
 def accuracy_citation(scores, targets):
-    scores = scores.detach().argmax(dim=1)
-    acc = (scores == targets).float().sum().item()
-    acc = acc / len(targets)
+    _, indices = torch.max(scores, dim=1)
+    correct = torch.sum(indices == targets)
+    acc = correct.item() * 1.0 / len(targets)
+    # scores = scores.detach().argmax(dim=1)
+    # acc = (scores == targets).float().sum().item()
+    # acc = acc / len(targets)
     return acc
 
 
