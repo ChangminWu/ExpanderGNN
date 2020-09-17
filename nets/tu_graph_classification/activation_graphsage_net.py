@@ -49,7 +49,7 @@ class ActivationGraphSageNet(nn.Module):
                 ActivationGraphSageLayer(hiddim, hiddim,
                                          aggr_type=self.neighbor_pool,
                                          activation=self.activation,
-                                         bundle_activation=None,
+                                         bundle_activation=None, #activations(net_params["activation"], param=(i+2)*hiddim),
                                          dropout=dropout,
                                          batch_norm=self.batch_norm))
 
@@ -81,8 +81,8 @@ class ActivationGraphSageNet(nn.Module):
             for conv in self.layers:
                 h, b = conv(g, h, norm)
 
-            # if self.batch_norm:
-            #     b = self.batchnorm_h(b)
+            if self.batch_norm:
+                b = self.batchnorm_h(b)
 
             g.ndata["h"] = b
 

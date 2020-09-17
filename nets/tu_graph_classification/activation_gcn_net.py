@@ -80,8 +80,8 @@ class ActivationGCNNet(nn.Module):
 
                 h = self.activation(h)
 
-            if self.batch_norm:
-                h = self.batchnorm_h(h)
+            # if self.batch_norm:
+            #     h = self.batchnorm_h(h)
 
             g.ndata['h'] = h
 
