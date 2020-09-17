@@ -4,8 +4,7 @@ import time
 import numpy as np
 
 import dgl
-from dgl.data import CoraDataset
-from dgl.data import CitationGraphDataset
+from dgl.data import CoraGraphDataset, CiteseerGraphDataset, PubmedGraphDataset
 import networkx as nx
 
 import random
@@ -47,28 +46,33 @@ class CitationsDataset(torch.utils.data.Dataset):
         self.name = name.lower()
 
         if self.name == 'cora':
-            dataset = CoraDataset()
-        else:
-            dataset = CitationGraphDataset(self.name)
+            dataset = CoraGraphDataset()
+        elif self.name == 'citeseer':
+            dataset = CiteseerGraphDataset()
+        elif self.name == 'pubmed':
+            dataset = PubmedGraphDataset()
 
         print("[!] Dataset: ", self.name)
 
-        dataset.graph.remove_edges_from(nx.selfloop_edges(dataset.graph))
-        graph = dgl.DGLGraph(dataset.graph)
-        E = graph.number_of_edges()
-        N = graph.number_of_nodes()
-        D = dataset.features.shape[1]
-        graph.ndata['feat'] = torch.Tensor(dataset.features)
-        graph.edata['feat'] = torch.zeros((E, D))
-        graph.batch_num_nodes = [N]
+        # dataset.graph.remove_edges_from(nx.selfloop_edges(dataset.graph))
+        # graph = dgl.DGLGraph(dataset.graph)
+        # E = graph.number_of_edges()
+        # N = graph.number_of_nodes()
+        # D = dataset.features.shape[1]
+        # graph.ndata['feat'] = torch.Tensor(dataset.features)
+        # graph.edata['feat'] = torch.zeros((E, D))
+        # graph.batch_num_nodes = [N]
 
-        self.graph = graph
-        self.train_mask = torch.BoolTensor(dataset.train_mask)
-        self.val_mask = torch.BoolTensor(dataset.val_mask)
-        self.test_mask = torch.BoolTensor(dataset.test_mask)
-        self.labels = torch.LongTensor(dataset.labels)
+        g = dataset[0]
+        self.train_mask = torch.BoolTensor(g.ndata['train_mask']) #dataset.train_mask)
+        self.val_mask = torch.BoolTensor(g.ndata['val_mask']) #dataset.val_mask)
+        self.test_mask = torch.BoolTensor(g.ndata['test_mask']) #torch.BoolTensor(dataset.test_mask)
+        self.labels = torch.BoolTensor(g.ndata['label']) #torch.LongTensor(dataset.labels)
         self.num_classes = dataset.num_labels
-        self.num_dims = D
+        self.num_dims = g.ndata["feat"].shape[1]  #D
+        g = dgl.remove_self_loop(g)
+        g = dgl.add_self_loop(g)
+        self.graph = g
 
         print("[!] Dataset: ", self.name)
         print("Time taken: {:.4f}s".format(time.time()-t0))
