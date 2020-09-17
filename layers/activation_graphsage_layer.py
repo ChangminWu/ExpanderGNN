@@ -94,7 +94,7 @@ class UpdateModule(nn.Module):
 
 class ActivationGraphSageLayer(nn.Module):
     def __init__(self, indim, outdim,
-                 aggr_type, activation, dropout,
+                 aggr_type, activation, bundle_activation, dropout,
                  batch_norm):
         super(ActivationGraphSageLayer, self).__init__()
 
@@ -104,7 +104,7 @@ class ActivationGraphSageLayer(nn.Module):
         self.batchnorm_h = nn.BatchNorm1d(outdim)
         self.dropout = nn.Dropout(dropout)
 
-        self.apply_mod = UpdateModule(activation=None,
+        self.apply_mod = UpdateModule(activation=bundle_activation,
                                       dropout=dropout)
         if aggr_type == "max":
             self.reducer = MaxPoolAggregator(activation=self.activation)
