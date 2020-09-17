@@ -55,11 +55,11 @@ class CitationsDataset(torch.utils.data.Dataset):
 
         # dataset.graph.remove_edges_from(nx.selfloop_edges(dataset.graph))
         graph = dgl.DGLGraph(dataset.graph)
-        
+
         E = graph.number_of_edges()
         N = graph.number_of_nodes()
         D = dataset.features.shape[1]
-        graph.ndata['feat'] = torch.Tensor(dataset.features)
+        graph.ndata['feat'] = torch.FloatTensor(dataset.features)
         graph.edata['feat'] = torch.zeros((E, D))
         graph.batch_num_nodes = [N]
 
