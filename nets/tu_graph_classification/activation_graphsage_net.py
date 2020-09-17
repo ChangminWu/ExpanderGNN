@@ -24,7 +24,7 @@ class ActivationGraphSageNet(nn.Module):
 
         self.batch_norm = net_params["batch_norm"]
 
-        self.activation = activations(net_params["activation"], param=hiddim)
+        # self.activation = activations(net_params["activation"], param=2*hiddim)
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
@@ -48,7 +48,7 @@ class ActivationGraphSageNet(nn.Module):
             self.layers.append(
                 ActivationGraphSageLayer(hiddim, hiddim,
                                          aggr_type=self.neighbor_pool,
-                                         activation=self.activation,
+                                         activation=activations(net_params["activation"], param=(i+2)*hiddim),
                                          dropout=dropout,
                                          batch_norm=self.batch_norm))
 

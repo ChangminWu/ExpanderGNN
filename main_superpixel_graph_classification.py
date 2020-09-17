@@ -44,7 +44,8 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
 
     DATASET_NAME = dataset.name
 
-    if "GCN" in MODEL_NAME or "GAT" in MODEL_NAME:
+    if ("GCN" in MODEL_NAME or "GAT" in MODEL_NAME)\
+       and "GatedGCN" not in MODEL_NAME:
         if net_params['self_loop']:
             print("[!] Adding graph self-loops for Simple GCN models\
                   (central node trick).")

@@ -48,7 +48,8 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
 
     dataset = LoadData(DATASET_NAME)
 
-    if "GCN" in MODEL_NAME or "GAT" in MODEL_NAME:
+    if ("GCN" in MODEL_NAME or "GAT" in MODEL_NAME)\
+       and "GatedGCN" not in MODEL_NAME:
         if net_params['self_loop']:
             print("[!] Adding graph self-loops for Simple GCN models\
                   (central node trick).")

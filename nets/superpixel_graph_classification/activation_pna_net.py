@@ -35,7 +35,7 @@ class ActivationPNANet(nn.Module):
 
         self.batch_norm = net_params["batch_norm"]
 
-        self.activation = activations(net_params["activation"])
+        self.activation = activations(net_params["activation"], param=hiddim)
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
