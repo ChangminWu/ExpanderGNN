@@ -1,9 +1,9 @@
 use_gpu=True
 script=main_tu_graph_classification.py
-datasets=("DD" "PROTEINS_full" "REDDIT-BINARY" "IMDB-BINARY")
+datasets=("REDDIT-BINARY" "IMDB-BINARY")
 actives=("linear")
 # 'relu' 'prelu' 'linear' 'brelu' 'brelu-intercept' 'rrelu' 'softplus'
-models=('GCN' 'GIN' 'MLP' 'GraphSage' 'GatedGCN' 'GAT' 'PNA')
+models=('GraphSage' 'GatedGCN' 'GAT' )
 densities=( 0.1 )
 savedir="results/test-new/"
 
@@ -17,10 +17,10 @@ do
     else
       config_file=configs/tu_graph_classification/${j}_${i}_100k.json
     fi
-    for d in "${densities[@]}"
-    do
-      python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model ${j} --density ${d} --linear_type "expander" --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu --num_split 3
-    done
+    # for d in "${densities[@]}"
+    # do
+    #   python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model ${j} --density ${d} --linear_type "expander" --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu --num_split 3
+    # done
     for a in "${actives[@]}"
     do
       python $script --dataset ${i} --out_dir ${savedir} --experiment "activations-${a}" --model "Activation${j}" --activation ${a} --config ${config_file} --epochs 2 --mlp_layers 1 --use_gpu $use_gpu --num_split 3
