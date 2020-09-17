@@ -60,7 +60,7 @@ class GCNLayer(nn.Module):
             g.update_all(fn.copy_src(src="h", out="m"),
                          self._reducer("m", "h"))
             g.apply_nodes(func=self.apply_mod)
-            h = g.ndata.pop["h"]
+            h = g.ndata["h"]
             # h = h*norm
 
         if self.batch_norm:
