@@ -47,7 +47,7 @@ class SimpleGCNNet(nn.Module):
 
         self.batchnorm_h = nn.BatchNorm1d(outdim)
 
-        self.linear = MultiLinearLayer(indim, outdim,
+        self.linear = MultiLinearLayer(indim, n_classes,
                                        activation=None,
                                        batch_norm=self.batch_norm,
                                        num_layers=self.n_mlp_layer,
@@ -56,9 +56,9 @@ class SimpleGCNNet(nn.Module):
                                        linear_type=self.linear_type,
                                        **linear_params)
 
-        self.readout = LinearLayer(outdim, n_classes, bias=True,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+        # self.readout = LinearLayer(outdim, n_classes, bias=True,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
@@ -86,7 +86,7 @@ class SimpleGCNNet(nn.Module):
 
             g.ndata['h'] = h
 
-            return self.readout(h)
+            return h
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()
