@@ -48,8 +48,8 @@ class ActivationGraphSageNet(nn.Module):
             self.layers.append(
                 ActivationGraphSageLayer(hiddim, hiddim,
                                          aggr_type=self.neighbor_pool,
-                                         activation=None,
-                                         bundle_activation=activations(net_params["activation"], param=(i+2)*hiddim),
+                                         activation=self.activation,
+                                         bundle_activation=None,
                                          dropout=dropout,
                                          batch_norm=self.batch_norm))
 
