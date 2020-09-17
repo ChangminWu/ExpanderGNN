@@ -84,8 +84,8 @@ class ActivationGraphSageNet(nn.Module):
             if self.batch_norm:
                 b = self.batchnorm_h(b)
 
-            if self.activation is not None:
-                b = self.activation(b)
+            # if self.activation is not None:
+            #     b = self.activation(b)
 
             g.ndata["h"] = b
 
