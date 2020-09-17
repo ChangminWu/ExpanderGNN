@@ -28,7 +28,7 @@ class ActivationGATNet(nn.Module):
         self.batch_norm = net_params["batch_norm"]
         self.n_mlp_layer = net_params["mlp_layers"]
 
-        self.activation = activations(net_params["activation"], param=hiddim)
+        self.activation = activations(net_params["activation"], param=hiddim*num_heads)
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
