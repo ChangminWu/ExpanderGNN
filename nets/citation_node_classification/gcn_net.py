@@ -44,7 +44,7 @@ class GCNNet(nn.Module):
         for i in range(n_layers):
             if i == n_layers-1:
                 linear_transform = \
-                                MultiLinearLayer(hiddim, n_classes,
+                                MultiLinearLayer(indim, n_classes,
                                                  activation=self.activation,
                                                  batch_norm=self.batch_norm,
                                                  num_layers=self.n_mlp_layer,
@@ -54,7 +54,7 @@ class GCNNet(nn.Module):
                                                  **linear_params)
             else:
                 linear_transform = \
-                                MultiLinearLayer(indim, hiddim,
+                                MultiLinearLayer(hiddim, hiddim,
                                                  activation=self.activation,
                                                  batch_norm=self.batch_norm,
                                                  num_layers=self.n_mlp_layer,
@@ -78,7 +78,7 @@ class GCNNet(nn.Module):
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
             for conv in self.layers:
                 h = conv(g, h)
