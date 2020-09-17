@@ -81,11 +81,8 @@ class ActivationGraphSageNet(nn.Module):
             for conv in self.layers:
                 h, b = conv(g, h, norm)
 
-            if self.batch_norm:
-                b = self.batchnorm_h(b)
-
-            # if self.activation is not None:
-            #     b = self.activation(b)
+            # if self.batch_norm:
+            #     b = self.batchnorm_h(b)
 
             g.ndata["h"] = b
 
