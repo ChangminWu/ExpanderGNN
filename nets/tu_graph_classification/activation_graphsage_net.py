@@ -49,7 +49,7 @@ class ActivationGraphSageNet(nn.Module):
                 ActivationGraphSageLayer(hiddim, hiddim,
                                          aggr_type=self.neighbor_pool,
                                          activation=self.activation,
-                                         bundle_activation=None,  #activations(net_params["activation"], param=(i+2)*hiddim),
+                                         bundle_activation=activations(net_params["activation"], param=(i+2)*hiddim),
                                          dropout=dropout,
                                          batch_norm=self.batch_norm))
 
