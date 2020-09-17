@@ -45,7 +45,7 @@ def activations(activ_name, param=None):
         activation = BiasedRELULayer(intercept=True)
     elif activ_name == "conv":
         activation = ConvActivLayer()
-    elif activ_name is None:
+    elif activ_name == "None":
         activation = None
     else:
         raise ValueError("Invalid activation type.")

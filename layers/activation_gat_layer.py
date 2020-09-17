@@ -7,7 +7,7 @@ class ActivationGATSingleHeadLayer(nn.Module):
                  batch_norm):
         super().__init__()
         self.activation = activation  # nn.ELU()
-        self.attn_activation = nn.LeakyReLU()  # activation
+        self.attn_activation = activation  # nn.LeakyReLU()
 
         self.dropout = nn.Dropout(dropout)
         self.batch_norm = batch_norm

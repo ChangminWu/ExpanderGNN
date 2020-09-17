@@ -104,7 +104,7 @@ class ActivationGraphSageLayer(nn.Module):
         self.batchnorm_h = nn.BatchNorm1d(outdim)
         self.dropout = nn.Dropout(dropout)
 
-        self.apply_mod = UpdateModule(activation=self.activation,
+        self.apply_mod = UpdateModule(activation=None,
                                       dropout=dropout)
         if aggr_type == "max":
             self.reducer = MaxPoolAggregator(activation=self.activation)
