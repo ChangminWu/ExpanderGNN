@@ -29,6 +29,7 @@ class LinearLayer(nn.Module):
         # # nn.init.kaiming_normal_(self.layer.weight, mode="fan_ins")
         # if self.layer.bias is not None:
         #     nn.init.zeros_(self.layer.bias)
+        pass
 
     def forward(self, _input):
         return self.layer(_input)
