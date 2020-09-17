@@ -61,7 +61,7 @@ class ActivationGATNet(nn.Module):
                                        indim=hiddim*num_heads,
                                        outdim=hiddim*num_heads,
                                        hiddim=hiddim*num_heads,
-                                       activation=activations(net_params["activation"], param=hiddim),
+                                       activation=activations(net_params["activation"], param=hiddim*num_heads),
                                        dropout=dropout,
                                        batch_norm=self.batch_norm))
 
