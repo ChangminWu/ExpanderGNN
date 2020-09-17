@@ -20,7 +20,10 @@ class ActivationGATSingleHeadLayer(nn.Module):
         b, s = edges.src["z"].size(0), edges.src["z"].size(1)
         a = torch.bmm(edges.src["z"].view(b, 1, s),
                       edges.dst['z'].view(b, s, 1)).reshape(-1, 1)
-        return {'e': self.attn_activation(a)}
+        if self.attn_activation is not None:
+            return {'e': self.attn_activation(a)}
+        else:
+            return  {'e': a}
 
     def message_func(self, edges):
         return {'z': edges.src['z'], 'e': edges.data['e']}
