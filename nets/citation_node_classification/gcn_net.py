@@ -82,7 +82,7 @@ class GCNNet(nn.Module):
             h = self.in_feat_dropout(h)
             for conv in self.layers:
                 h = conv(g, h)
-            g.ndata["h"] = h
+            # g.ndata["h"] = h
 
             return self.readout(h)
 
