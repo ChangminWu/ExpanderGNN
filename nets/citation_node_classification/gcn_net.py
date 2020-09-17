@@ -44,7 +44,7 @@ class GCNNet(nn.Module):
         for i in range(n_layers):
             if i == n_layers-1:
                 linear_transform = \
-                                MultiLinearLayer(hiddim, outdim,
+                                MultiLinearLayer(hiddim, n_classes,
                                                  activation=self.activation,
                                                  batch_norm=self.batch_norm,
                                                  num_layers=self.n_mlp_layer,
@@ -70,10 +70,10 @@ class GCNNet(nn.Module):
                                         residual=self.residual,
                                         dgl_builtin=self.dgl_builtin))
 
-        self.readout = LinearLayer(outdim,
-                                   n_classes, bias=self.bias,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+        # self.readout = LinearLayer(outdim,
+        #                            n_classes, bias=self.bias,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
@@ -84,7 +84,7 @@ class GCNNet(nn.Module):
                 h = conv(g, h)
             # g.ndata["h"] = h
 
-            return self.readout(h)
+            return h #self.readout(h)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()
