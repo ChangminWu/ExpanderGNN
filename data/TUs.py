@@ -148,7 +148,7 @@ class TUsDataset(torch.utils.data.Dataset):
             dataset.graph_labels = np.array([1 if x == 2 else x
                                              for x in dataset.graph_labels])
         if self.name == "REDDIT-BINARY":
-            dataset.graph_labels = np.array([0 if x == -1 else x
+            dataset.graph_labels = np.array([1 if x == 2 else x
                                              for x in dataset.graph_labels])
 
         print("[!] Dataset: ", self.name)
