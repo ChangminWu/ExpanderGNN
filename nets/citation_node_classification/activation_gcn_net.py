@@ -40,21 +40,21 @@ class ActivationGCNNet(nn.Module):
             raise KeyError("Aggregator type {} not recognized."
                            .format(self.neighbor_pool))
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.batchnorm_h = nn.BatchNorm1d(hiddim)
 
-        self.readout = LinearLayer(hiddim, n_classes, bias=True,
+        self.readout = LinearLayer(indim, n_classes, bias=True,
                                    linear_type=self.linear_type,
                                    **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
             degs = g.in_degrees().float().clamp(min=1)
@@ -75,7 +75,7 @@ class ActivationGCNNet(nn.Module):
             # if self.batch_norm:
             #     h = self.batchnorm_h(h)
 
-            g.ndata['h'] = h
+            # g.ndata['h'] = h
 
             return self.readout(h)
 
