@@ -101,12 +101,12 @@ class GCNNet(nn.Module):
             # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
-            degs = g.in_degrees().float().clamp(min=1)
-            norm = torch.pow(degs, -0.5)
-            norm = norm.to(h.device).unsqueeze(1)
+            # degs = g.in_degrees().float().clamp(min=1)
+            # norm = torch.pow(degs, -0.5)
+            # norm = norm.to(h.device).unsqueeze(1)
 
             for conv in self.layers:
-                h = conv(g, h, norm)
+                h = conv(g, h)
             # g.ndata["h"] = h
 
             return h #self.readout(h)

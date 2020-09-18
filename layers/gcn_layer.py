@@ -46,19 +46,19 @@ class GCNLayer(nn.Module):
         else:
             self.apply_mod = UpdateModule(apply_func)
 
-    def forward(self, g, features, norm):
+    def forward(self, g, features, norm=None):
         h_in = features
 
         if self.dgl_builtin:
             h = self.conv(g, features)
         else:
-            features = features * norm
+            # features = features * norm
             g.ndata["h"] = features
             g.update_all(fn.copy_src(src="h", out="m"),
                          self._reducer("m", "h"))
             g.apply_nodes(func=self.apply_mod)
             h = g.ndata.pop('h')
-            h = h*norm
+            # h = h*norm
 
         if self.batch_norm:
             h = self.batchnorm_h(h)
