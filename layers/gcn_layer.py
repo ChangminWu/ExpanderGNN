@@ -52,13 +52,15 @@ class GCNLayer(nn.Module):
         if self.dgl_builtin:
             h = self.conv(g, features)
         else:
-            # features = features * norm
+            if norm is not None:
+                features = features * norm
             g.ndata["h"] = features
             g.update_all(fn.copy_src(src="h", out="m"),
                          self._reducer("m", "h"))
             g.apply_nodes(func=self.apply_mod)
             h = g.ndata.pop('h')
-            # h = h*norm
+            if norm is not None:
+                h = h*norm
 
         if self.batch_norm:
             h = self.batchnorm_h(h)
