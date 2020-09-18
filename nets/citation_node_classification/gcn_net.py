@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 import dgl
@@ -35,14 +36,31 @@ class GCNNet(nn.Module):
 
         linear_params = {"density": self.density, "sampler": self.sampler}
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
-        for i in range(n_layers):
-            if i == n_layers-1:
+        linear_transform = MultiLinearLayer(indim, hiddim,
+                                            activation=self.activation,
+                                            batch_norm=self.batch_norm,
+                                            num_layers=self.n_mlp_layer,
+                                            hiddim=hiddim,
+                                            bias=self.bias,
+                                            linear_type=self.linear_type,
+                                            **linear_params)
+
+        self.layers.append(GCNLayer(linear_transform,
+                                    aggr_type=self.neighbor_pool,
+                                    activation=self.activation,
+                                    dropout=dropout,
+                                    batch_norm=self.batch_norm,
+                                    residual=self.residual,
+                                    dgl_builtin=self.dgl_builtin))
+
+        for i in range(n_layers-1):
+            if i == n_layers-2:
                 linear_transform = \
                                 MultiLinearLayer(hiddim, n_classes,
                                                  activation=self.activation,
@@ -62,11 +80,12 @@ class GCNNet(nn.Module):
                                                  bias=self.bias,
                                                  linear_type=self.linear_type,
                                                  **linear_params)
+            
             self.layers.append(GCNLayer(linear_transform,
                                         aggr_type=self.neighbor_pool,
-                                        activation=self.activation,
+                                        activation=None,
                                         dropout=dropout,
-                                        batch_norm=self.batch_norm,
+                                        batch_norm=False,
                                         residual=self.residual,
                                         dgl_builtin=self.dgl_builtin))
 
@@ -77,11 +96,17 @@ class GCNNet(nn.Module):
 
     def forward(self, g, h, e):
         with g.local_scope():
+
             g = g.to(h.device)
             # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
+
+            degs = g.in_degrees().float().clamp(min=1)
+            norm = torch.pow(degs, -0.5)
+            norm = norm.to(h.device).unsqueeze(1)
+
             for conv in self.layers:
-                h = conv(g, h)
+                h = conv(g, h, norm)
             # g.ndata["h"] = h
 
             return h #self.readout(h)
@@ -90,4 +115,3 @@ class GCNNet(nn.Module):
         criterion = nn.CrossEntropyLoss()
         loss = criterion(pred, label)
         return loss
-

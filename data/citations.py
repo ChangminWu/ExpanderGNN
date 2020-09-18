@@ -54,7 +54,11 @@ class CitationsDataset(torch.utils.data.Dataset):
         print("[!] Dataset: ", self.name)
 
         # dataset.graph.remove_edges_from(nx.selfloop_edges(dataset.graph))
-        graph = dgl.DGLGraph(dataset.graph)
+
+        g = dataset.graph
+        g.remove_edges_from(nx.selfloop_edges(g))
+        g.add_edges_from(zip(g.nodes(), g.nodes()))
+        graph = dgl.DGLGraph(g)
 
         E = graph.number_of_edges()
         N = graph.number_of_nodes()
@@ -63,7 +67,7 @@ class CitationsDataset(torch.utils.data.Dataset):
         graph.edata['feat'] = torch.zeros((E, D))
         graph.batch_num_nodes = [N]
 
-        graph.add_edges(graph.nodes(), graph.nodes())
+        # graph.add_edges(graph.nodes(), graph.nodes())
         self.graph = graph
         self.train_mask = torch.BoolTensor(dataset.train_mask)
         self.val_mask = torch.BoolTensor(dataset.val_mask)
