@@ -11,9 +11,9 @@ import itertools
 
 
 MODEL = ["GCN", "GIN", "GAT", "GraphSage", "PNA", "MLP"] #"GatedGCN"
-ACTIV = ["ReLU", "PReLU", "SoftPlus"]
+ACTIV = ["ReLU", "PReLU", "SoftPlus", "RReLU"]
 DENSITY = [0.1, 0.5, 0.9]
-RECORD = ["ACC", "Time per Epoch(s)", "Converge(#Epochs)"]
+RECORD = ["Accuracy", "Time per Epoch(s)", "Converge(#Epochs)"]
 BARWIDTH = 0.3
 
 def bar_plot(folder, dataset, output_file):
@@ -26,46 +26,63 @@ def bar_plot(folder, dataset, output_file):
         for i in dataset:
             if components[3].lower() == i.lower():
                 single_row.append(i)
+        if len(single_row) == 0:
+            continue
 
         # add model name
-        single_row.append(components[2].replace("Simple", "").replace("Activation", ""))
+        gnn = components[2].replace("Simple", "").replace("Activation", "")
+        for i in MODEL:
+            if gnn.lower() == i.lower():
+                single_row.append(i)
+        if len(single_row) == 1:
+            continue
 
         # add experiment type
         types = components[1].split("-")
         for i in ["Regular", "Expander", "Activations", "Simple"]:
             if types[0].lower() == i.lower():
-                if len(types) == 1:
-                    single_row.append(i)
-                elif len(types) == 2:
-                    for j in ACTIV:
-                        if j.lower() == types[1].lower():
-                            single_row.append(i+"-"+j)
-                else:
-                    single_row.append(i+"-{:.0%}".format(float(types[-1])))
+                exp = i
+        if len(types) == 1:
+            single_row.append(exp)
+        elif len(types) == 2:
+            for j in ACTIV:
+                if j.lower() == types[1].lower():
+                    single_row.append(exp+"-"+j)
+            if len(single_row) == 2:
+                continue
+        elif len(types) == 3:
+            for j in DENSITY:
+                if float(types[-1]) == j:
+                    single_row.append(exp+"-{:.0%}".format(j))
+            if len(single_row) == 2:
+                continue
 
         # add results, time, convergence
+        # rows = []
         with open(file) as f:
             for line in f.readlines():
                 if line.split(":")[0] == "TEST ACCURACY averaged":
                     res = line.split(":")[1].split("with s.d.")[0]
+                    # rows.append(single_row+[float(res), "Accuracy"]) 
                 if line.split(":")[0] == "TEST MAE averaged":
-                    res = line.split(":")[1].split("with s.d.")[0]                
+                    res = line.split(":")[1].split("with s.d.")[0]
+                    # rows.append(single_row+[float(res)], "MAE")              
                 if line.split(":")[0] == "Average Convergence Time (Epochs)":
                     epochs = line.split(":")[1].split(" ")[1]
+                    # rows.append(single_row+[int(float(epochs)), "Converge(#Epochs)"])
                 if line.split(":")[0] == "Average Time Per Epoch":
                     time = line.split(":")[1].split(" ")[1]
+                    # rows.append(single_row+[float(time), "Time per Epoch(s)"])
             single_row.extend([float(res), float(time), int(float(epochs))])
         f.close()
-
         data.append(single_row)
-    df = pd.DataFrame(data=data, columns=["Dataset", "Model", "Type", "Accuracy", "Time per Epoch(s)", "Converge(#Epochs)"])
-    
-    sns.set_theme(style="whitegrid")
-    g = sns.catplot(x="Model", y="Accuracy", hue="Type", col="Dataset", data=df, kind="bar", height=4, aspect=.7)
-    fig = g.get_figure()
-    g.tight_layout()
-    fig.savefig(output_file) 
 
+    df = pd.DataFrame(data=data, columns=["Dataset", "Model", "Type"]+RECORD)  # "Value", "ValueType"])
+
+    sns.set_theme(style="whitegrid")
+    g = sns.catplot(x="Model", y="Accuracy", hue="Type", row="Dataset", data=df, kind="bar", height=4, aspect=2.0, sharex=True, sharey=True)
+    g.set_xticklabels(rotation=45, horizontalalignment='right', fontweight='light')
+    g.savefig(output_file, dpi=1600)
                     
 # def draw_errorplot(dataset, exp_name="varing-sparsity-sparse-readout", path="d:\\results\\results\\", add_head=True, add_tail=True):
 #     fig, ax = plt.subplots()
