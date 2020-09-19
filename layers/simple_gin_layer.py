@@ -31,16 +31,17 @@ class SimpleGINLayer(nn.Module):
         else:
             self.register_buffer("eps", torch.FloatTensor([init_eps]))
 
-    def forward(self, g, h, norm):
+    def forward(self, g, h, norm=None):
         h_in = h
-
-        h = h*norm
+        if norm is not None:
+            h = h*norm
         g = g.local_var()
         g.ndata["h"] = h
         g.update_all(fn.copy_u("h", "m"), self._reducer("m", "neigh"))
         h = g.ndata["h"]
         h = (1+self.eps)*h + g.ndata["neigh"]
-        h = h*norm
+        if norm is not None:
+            h = h*norm
 
         if self.batch_norm:
             h = self.batchnorm_h(h)
