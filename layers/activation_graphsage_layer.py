@@ -75,21 +75,22 @@ class UpdateModule(nn.Module):
         self.activation = activation
 
     def concat(self, h, aggre_result):
-        bundle = torch.cat((h, aggre_result), 1)
+        bundle = h+aggre_result #torch.cat((h, aggre_result), 1)
         return bundle
 
     def forward(self, node):
         h = node.data['h']
         c = node.data['c']
-        if "b" in node.data:
-            b = node.data['b']
-            bundle = self.concat(b, c)
-        else:
-            bundle = self.concat(h, c)
+        # if "b" in node.data:
+        #     b = node.data['b']
+        #     bundle = self.concat(b, c)
+        # else:
+        #     bundle = self.concat(h, c)
+        bundle = self.concat(h, c)
         bundle = F.normalize(bundle, p=2, dim=1)
         if self.activation is not None:
             bundle = self.activation(bundle)
-        return {"b": bundle, "h": c}
+        return {"h": bundle} #{"b": bundle, "h": c}
 
 
 class ActivationGraphSageLayer(nn.Module):
@@ -118,6 +119,7 @@ class ActivationGraphSageLayer(nn.Module):
                            .format(aggr_type))
 
     def forward(self, g, h, norm=None):
+        h_in = h
         h = self.dropout(h)
         if norm is not None:
             h = h*norm
@@ -127,11 +129,19 @@ class ActivationGraphSageLayer(nn.Module):
         h = g.ndata["h"]
         if norm is not None:
             h = h*norm
-        b = g.ndata["b"]
 
         if self.batch_norm:
             h = self.batchnorm_h(h)
-        return h, b
+
+        if self.residual:
+            h = h_in+h
+        return h
+
+        # b = g.ndata["b"]
+        #
+        # if self.batch_norm:
+        #     h = self.batchnorm_h(h)
+        # return h, b
 
 
 class ActivationGraphSageEdgeLayer(nn.Module):

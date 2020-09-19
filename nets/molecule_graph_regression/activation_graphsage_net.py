@@ -38,7 +38,7 @@ class ActivationGraphSageNet(nn.Module):
         self.node_encoder = nn.Embedding(num_atom_type, hiddim)
 
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
-        self.batchnorm_h = nn.BatchNorm1d((n_layers+1)*hiddim)
+        self.batchnorm_h = nn.BatchNorm1d(hiddim) # (n_layers+1)*
 
         self.layers = nn.ModuleList()
         for i in range(n_layers):
@@ -49,17 +49,17 @@ class ActivationGraphSageNet(nn.Module):
                                          dropout=dropout,
                                          batch_norm=self.batch_norm))
 
-        self.readout = nn.Sequential(LinearLayer((n_layers+1)*hiddim,
-                                                 (n_layers+1)*hiddim//2,
+        self.readout = nn.Sequential(LinearLayer(hiddim,
+                                                 hiddim//2,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer((n_layers+1)*hiddim//2,
-                                                 (n_layers+1)*hiddim//4,
+                                     LinearLayer(hiddim//2,
+                                                 hiddim//4,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer((n_layers+1)*hiddim//4,
+                                     LinearLayer(hiddim//4,
                                                  1,
                                                  bias=True,
                                                  linear_type="regular"))
@@ -75,7 +75,7 @@ class ActivationGraphSageNet(nn.Module):
             norm = norm.to(h.device).unsqueeze(1)
 
             for conv in self.layers:
-                h, b = conv(g, h, None)
+                h = conv(g, h, norm)
 
             # if self.batch_norm:
             #     b = self.batchnorm_h(b)
