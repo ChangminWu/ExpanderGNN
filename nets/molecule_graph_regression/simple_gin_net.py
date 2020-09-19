@@ -86,14 +86,14 @@ class SimpleGINNet(nn.Module):
 
             for i in range(self.n_layers):
                 h = self.layers[i](g, h, norm)
-                h_layer = self.linears[i](h)
-
-                hidden_rep.append(h_layer)
+                hidden_rep.append(h)
 
             score_over_layer = 0
             for i, h in enumerate(hidden_rep):
-                hg = self.pool(g, h)
-                score_over_layer += self.linear_predictions[i](hg)
+                if i == len(hidden_rep)-1:
+                    h = self.linears[i](h)
+                    hg = self.pool(g, h)
+                    score_over_layer += self.linear_predictions[i](hg)
 
         return score_over_layer
 
