@@ -85,7 +85,7 @@ class SimpleGINNet(nn.Module):
             hidden_rep = [h]
 
             for i in range(self.n_layers):
-                h = self.layers[i](g, h, None)
+                h = self.layers[i](g, h, norm)
                 h = self.linears[i](h)
                 hidden_rep.append(h)
 
