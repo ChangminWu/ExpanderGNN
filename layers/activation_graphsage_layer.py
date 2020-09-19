@@ -119,7 +119,7 @@ class ActivationGraphSageLayer(nn.Module):
                            .format(aggr_type))
 
     def forward(self, g, h, norm=None):
-        h_in = h
+        # h_in = h
         h = self.dropout(h)
         if norm is not None:
             h = h*norm
@@ -134,7 +134,7 @@ class ActivationGraphSageLayer(nn.Module):
             h = self.batchnorm_h(h)
 
         # if self.residual:
-        h = h_in+h
+        # h = h_in+h
         return h
 
         # b = g.ndata["b"]
