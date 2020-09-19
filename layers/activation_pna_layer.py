@@ -70,7 +70,7 @@ class ActivationPNATower(nn.Module):
         h = torch.cat([h, g.ndata['h']],
                       dim=1).view(h.size(0),
                                   1+len(self.aggregators)*len(self.scalers),
-                                  -1).mean(1)
+                                  -1).max(1)[0]
 
         # graph and batch normalization
         if self.batch_norm:
