@@ -83,7 +83,7 @@ class ActivationGraphSageNet(nn.Module):
             # if self.activation is not None:
             #     b = self.activation(b)
 
-            g.ndata["h"] = b
+            g.ndata["h"] = h
 
             if self.graph_pool == "sum":
                 hg = dgl.sum_nodes(g, "h")
