@@ -117,14 +117,16 @@ class ActivationGraphSageLayer(nn.Module):
             raise KeyError("Aggregator type {} not recognized."
                            .format(aggr_type))
 
-    def forward(self, g, h, norm):
+    def forward(self, g, h, norm=None):
         h = self.dropout(h)
-        h = h*norm
+        if norm is not None:
+            h = h*norm
         g.ndata["h"] = h
         g.update_all(fn.copy_src(src="h", out="m"), self.reducer,
                      self.apply_mod)
         h = g.ndata["h"]
-        h = h*norm
+        if norm is not None:
+            h = h*norm
         b = g.ndata["b"]
 
         if self.batch_norm:

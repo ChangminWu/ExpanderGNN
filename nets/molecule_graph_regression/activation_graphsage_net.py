@@ -75,7 +75,7 @@ class ActivationGraphSageNet(nn.Module):
             norm = norm.to(h.device).unsqueeze(1)
 
             for conv in self.layers:
-                h, b = conv(g, h, norm)
+                h, b = conv(g, h, None)
 
             # if self.batch_norm:
             #     b = self.batchnorm_h(b)
