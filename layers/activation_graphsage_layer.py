@@ -133,8 +133,8 @@ class ActivationGraphSageLayer(nn.Module):
         if self.batch_norm:
             h = self.batchnorm_h(h)
 
-        if self.residual:
-            h = h_in+h
+        # if self.residual:
+        h = h_in+h
         return h
 
         # b = g.ndata["b"]
