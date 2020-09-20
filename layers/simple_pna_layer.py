@@ -269,8 +269,8 @@ class SimplePNASimplifiedLayer(nn.Module):
         # posttransformation
         h = self.posttrans(h)
 
-        if self.activation is not None:
-            h = self.activation(h)
+        # if self.activation is not None:
+        #     h = self.activation(h)
         h = self.dropout(h)
         if self.batch_norm:
             h = self.batchnorm_h(h)
