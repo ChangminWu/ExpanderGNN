@@ -48,7 +48,7 @@ class GraphSageNet(nn.Module):
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
-        apply_func = MultiLinearLayer(indim+hiddim, hiddim,
+        apply_func = MultiLinearLayer(2*indim, hiddim,
                                       activation=self.activation,
                                       batch_norm=self.batch_norm,
                                       num_layers=self.n_mlp_layer,
@@ -68,7 +68,7 @@ class GraphSageNet(nn.Module):
 
         for i in range(n_layers-1):
             if i == n_layers-2:
-                apply_func = MultiLinearLayer(hiddim+n_classes, n_classes,
+                apply_func = MultiLinearLayer(2*hiddim, n_classes,
                                               activation=self.activation,
                                               batch_norm=self.batch_norm,
                                               num_layers=self.n_mlp_layer,

@@ -106,7 +106,7 @@ class GraphSageLayer(nn.Module):
         self.batch_norm, self.residual = batch_norm, residual
         self.dgl_builtin = dgl_builtin
 
-        indim, outdim = apply_func.indim - apply_func.outdim, apply_func.outdim
+        indim, outdim = apply_func.indim // 2, apply_func.outdim
         if indim != outdim:
             self.residual = False
 
@@ -120,7 +120,7 @@ class GraphSageLayer(nn.Module):
                                           dropout=dropout)
             if aggr_type == "max":
                 self.reducer = MaxPoolAggregator(indim=indim,
-                                                 outdim=outdim,
+                                                 outdim=indim,
                                                  activation=self.activation,
                                                  bias=apply_func.bias,
                                                  linear_type=apply_func
