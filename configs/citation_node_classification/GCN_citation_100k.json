@@ -10,21 +10,21 @@
 
     "params": {
         "seed": 41,
-        "epochs": 1000,
+        "epochs": 200,
         "batch_size": 128,
-        "init_lr": 0.2,
+        "init_lr": 0.01,
         "lr_reduce_factor": 0.5,
-        "lr_schedule_patience": 25,
+        "lr_schedule_patience": 200,
         "min_lr": 1e-5,
-        "weight_decay": 1.3e-5,
+        "weight_decay": 5e-5,
         "print_epoch_interval": 5,
         "max_time": 12
     },
     
     "net_params": {
-        "L": 16,
-        "hidden_dim": 172,
-        "out_dim": 172,
+        "L": 2,
+        "hidden_dim": 16,
+        "out_dim": 16,
         "residual": true,
         "graph_pool": "mean",
         "in_feat_dropout": 0.0,
