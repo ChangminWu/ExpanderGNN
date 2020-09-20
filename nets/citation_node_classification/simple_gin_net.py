@@ -32,34 +32,44 @@ class SimpleGINNet(nn.Module):
 
         linear_params = {"density": self.density, "sampler": self.sampler}
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
         self.linears = nn.ModuleList()
-        for i in range(self.n_layers):
+
+        self.layers.append(SimpleGINLayer(indim, hiddim,
+                                          aggr_type=self.neighbor_pool,
+                                          batch_norm=self.batch_norm,
+                                          residual=self.residual,
+                                          learn_eps=self.learn_eps))
+        self.linears.append(LinearLayer(hiddim, n_classes, bias=self.bias,
+                                        linear_type=self.linear_type,
+                                        **linear_params))
+
+        for i in range(self.n_layers-1):
             self.layers.append(SimpleGINLayer(hiddim, hiddim,
                                               aggr_type=self.neighbor_pool,
                                               batch_norm=self.batch_norm,
                                               residual=self.residual,
                                               learn_eps=self.learn_eps))
-            self.linears.append(LinearLayer(hiddim, outdim, bias=self.bias,
+            self.linears.append(LinearLayer(hiddim, n_classes, bias=self.bias,
                                             linear_type=self.linear_type,
                                             **linear_params))
 
         self.linear_predictions = nn.ModuleList()
         for layer in range(self.n_layers+1):
             self.linear_predictions.append(
-                LinearLayer(outdim, n_classes, bias=True,
+                LinearLayer(hiddim, n_classes, bias=True,
                             linear_type=self.linear_type,
                             **linear_params))
 
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
             degs = g.in_degrees().float().clamp(min=1)
@@ -76,7 +86,7 @@ class SimpleGINNet(nn.Module):
 
             score_over_layer = 0
             for i, h in enumerate(hidden_rep):
-                score_over_layer += self.linear_predictions[i](h)
+                score_over_layer += h #self.linear_predictions[i](h)
 
         return score_over_layer
 

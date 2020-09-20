@@ -41,8 +41,14 @@ class ActivationGINNet(nn.Module):
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
-        self.linears = nn.ModuleList()
-        for i in range(self.n_layers):
+        # self.linears = nn.ModuleList()
+        self.layers.append(ActivationGINLayer(indim, hiddim,
+                                              aggr_type=self.neighbor_pool,
+                                              activation=self.activation,
+                                              dropout=dropout,
+                                              batch_norm=self.batch_norm,
+                                              learn_eps=self.learn_eps))
+        for i in range(self.n_layers-1):
             self.layers.append(ActivationGINLayer(hiddim, hiddim,
                                                   aggr_type=self.neighbor_pool,
                                                   activation=self.activation,
@@ -51,10 +57,18 @@ class ActivationGINNet(nn.Module):
                                                   learn_eps=self.learn_eps))
 
         self.linear_predictions = nn.ModuleList()
-        for layer in range(self.n_layers+1):
+        self.linear_predictions.append(
+            LinearLayer(indim,
+                        n_classes, bias=self.bias,
+                        linear_type=self.linear_type,
+                        **linear_params))
+
+        for layer in range(self.n_layers):
             self.linear_predictions.append(
-                        LinearLayer(hiddim, n_classes,
-                                    bias=True, linear_type="regular"))
+                        LinearLayer(hiddim,
+                                    n_classes, bias=self.bias,
+                                    linear_type=self.linear_type,
+                                    **linear_params))
                         # nn.Sequential(LinearLayer(hiddim, hiddim//2,
                         #                           bias=True,
                         #                           linear_type="regular"),
@@ -71,7 +85,7 @@ class ActivationGINNet(nn.Module):
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
             degs = g.in_degrees().float().clamp(min=1)
@@ -82,7 +96,6 @@ class ActivationGINNet(nn.Module):
 
             for i in range(self.n_layers):
                 h = self.layers[i](g, h, norm)
-
                 hidden_rep.append(h)
 
             score_over_layer = 0

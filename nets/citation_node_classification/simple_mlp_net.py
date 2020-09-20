@@ -28,7 +28,7 @@ class SimpleMLPNet(nn.Module):
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.linear = MultiLinearLayer(indim=indim,
-                                       outdim=outdim,
+                                       outdim=n_classes,
                                        activation=None,
                                        batch_norm=self.batch_norm,
                                        num_layers=self.n_mlp_layer,
@@ -38,24 +38,24 @@ class SimpleMLPNet(nn.Module):
                                        **linear_params)
 
         if self.gated:
-            self.gates = LinearLayer(outdim, outdim, bias=self.bias,
+            self.gates = LinearLayer(indim, indim, bias=self.bias,
                                      linear_type=self.linear_type,
                                      **linear_params)
-
-        self.readout = LinearLayer(outdim, n_classes, bias=True,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+        #
+        # self.readout = LinearLayer(outdim, n_classes, bias=True,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
             h = self.in_feat_dropout(h)
-            h = self.linear(h)
             if self.gated:
                 h = torch.sigmoid(self.gates(h))*h
-            g.ndata["h"] = h
+            h = self.linear(h)
+            # g.ndata["h"] = h
 
-        return self.readout(h)
+        return h #self.readout(h)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()

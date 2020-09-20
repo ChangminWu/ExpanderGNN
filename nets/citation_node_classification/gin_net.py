@@ -33,12 +33,28 @@ class GINNet(nn.Module):
 
         linear_params = {"density": self.density, "sampler": self.sampler}
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
-
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
         self.layers = nn.ModuleList()
-        for i in range(self.n_layers):
+        linear_transform = \
+            MultiLinearLayer(indim, hiddim,
+                             activation=self.activation,
+                             batch_norm=self.batch_norm,
+                             num_layers=self.n_mlp_layer,
+                             hiddim=hiddim,
+                             bias=self.bias,
+                             linear_type=self.linear_type,
+                             **linear_params)
+        self.layers.append(GINLayer(linear_transform,
+                                    aggr_type=self.neighbor_pool,
+                                    activation=self.activation,
+                                    dropout=dropout,
+                                    batch_norm=self.batch_norm,
+                                    residual=self.residual,
+                                    learn_eps=self.learn_eps))
+
+        for i in range(self.n_layers-1):
             linear_transform = \
                             MultiLinearLayer(hiddim, hiddim,
                                              activation=self.activation,
@@ -56,6 +72,7 @@ class GINNet(nn.Module):
                                         residual=self.residual,
                                         learn_eps=self.learn_eps))
 
+
         self.linear_predictions = nn.ModuleList()
         for layer in range(self.n_layers+1):
             self.linear_predictions.append(
@@ -67,7 +84,7 @@ class GINNet(nn.Module):
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
 
             hidden_rep = [h]
 

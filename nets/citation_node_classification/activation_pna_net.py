@@ -61,22 +61,44 @@ class ActivationPNANet(nn.Module):
             self.simplified = False
 
         self.layers = nn.ModuleList()
-        for i in range(n_layers):
-            if i == n_layers-1:
+        if self.simplified:
+            new_layer = ActivationPNASimplifiedLayer(
+                indim=indim, outdim=hiddim, hiddim=hiddim,
+                activation=self.activation,
+                dropout=dropout,
+                batch_norm=self.batch_norm,
+                aggregators=self.aggregators,
+                scalers=self.scalers, avg_d=self.avg_d)
+        else:
+            new_layer = ActivationPNALayer(
+                indim=indim, outdim=hiddim, hiddim=hiddim,
+                activation=self.activation,
+                dropout=dropout,
+                batch_norm=self.batch_norm,
+                aggregators=self.aggregators,
+                scalers=self.scalers, avg_d=self.avg_d,
+                num_tower=self.num_tower,
+                divide_input=False,
+                edge_features=self.edge_feat,
+                edge_dim=edge_dim)
+        self.layers.append(new_layer)
+
+        for i in range(n_layers-1):
+            if i == n_layers-2:
                 if self.simplified:
                     new_layer = ActivationPNASimplifiedLayer(
-                                    indim=hiddim, outdim=outdim, hiddim=hiddim,
-                                    activation=self.activation,
+                                    indim=hiddim, outdim=n_classes, hiddim=hiddim,
+                                    activation=None,
                                     dropout=dropout,
-                                    batch_norm=self.batch_norm,
+                                    batch_norm=False,
                                     aggregators=self.aggregators,
                                     scalers=self.scalers, avg_d=self.avg_d)
                 else:
                     new_layer = ActivationPNALayer(
-                                    indim=hiddim, outdim=outdim, hiddim=hiddim,
-                                    activation=self.activation,
+                                    indim=hiddim, outdim=n_classes, hiddim=hiddim,
+                                    activation=None,
                                     dropout=dropout,
-                                    batch_norm=self.batch_norm,
+                                    batch_norm=False,
                                     aggregators=self.aggregators,
                                     scalers=self.scalers, avg_d=self.avg_d,
                                     num_tower=self.num_tower,
@@ -107,15 +129,15 @@ class ActivationPNANet(nn.Module):
                                     edge_dim=edge_dim)
             self.layers.append(new_layer)
 
-        outdim = hiddim * (1+len(self.aggregators)*len(self.scalers))
-        self.readout = LinearLayer(hiddim, n_classes, bias=True,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+        # outdim = hiddim * (1+len(self.aggregators)*len(self.scalers))
+        # self.readout = LinearLayer(hiddim, n_classes, bias=True,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             if self.edge_feat:
                 e = self.edge_encoder(e)
 
@@ -125,9 +147,9 @@ class ActivationPNANet(nn.Module):
 
             for i, conv in enumerate(self.layers):
                 h = conv(g, h, e, norm)
-            g.ndata['h'] = h
+            # g.ndata['h'] = h
 
-            return self.readout(h)
+            return h #self.readout(h)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()

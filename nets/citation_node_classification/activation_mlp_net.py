@@ -46,24 +46,24 @@ class ActivationMLPNet(nn.Module):
             self.layers.append(nn.Dropout(dropout))
 
         if self.gated:
-            self.gates = LinearLayer(hiddim, hiddim, bias=self.bias,
+            self.gates = LinearLayer(indim, indim, bias=self.bias,
                                      linear_type=self.linear_type,
                                      **linear_params)
 
-        self.readout = LinearLayer(hiddim, n_classes, bias=True,
+        self.readout = LinearLayer(indim, n_classes, bias=True,
                                    linear_type=self.linear_type,
                                    **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
             for layer in self.layers:
                 h = layer(h)
             if self.gated:
                 h = torch.sigmoid(self.gates(h))*h
-            g.ndata["h"] = h
+            # g.ndata["h"] = h
 
         return self.readout(h)
 

@@ -36,7 +36,7 @@ class MLPNet(nn.Module):
         self.layers = nn.ModuleList()
         sizes = [indim]
         sizes.extend([hiddim]*(n_layers-1))
-        sizes.append(outdim)
+        sizes.append(n_classes)
 
         for i in range(len(sizes)-1):
             self.layers.append(MultiLinearLayer(indim=sizes[i],
@@ -58,25 +58,25 @@ class MLPNet(nn.Module):
             self.layers.append(nn.Dropout(dropout))
 
         if self.gated:
-            self.gates = LinearLayer(outdim, outdim, bias=self.bias,
+            self.gates = LinearLayer(hiddim, hiddim, bias=self.bias,
                                      linear_type=self.linear_type,
                                      **linear_params)
 
-        self.readout = LinearLayer(outdim, n_classes, bias=True,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+        # self.readout = LinearLayer(outdim, n_classes, bias=True,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
             h = self.in_feat_dropout(h)
-            for conv in self.layers:
+            for i, conv in enumerate(self.layers):
                 h = conv(h)
-            if self.gated:
-                h = torch.sigmoid(self.gates(h))*h
+                if i == len(self.layer)-2 and self.gated:
+                    h = torch.sigmoid(self.gates(h))*h
             g.ndata["h"] = h
 
-        return self.readout(h)
+        return h #self.readout(h)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()

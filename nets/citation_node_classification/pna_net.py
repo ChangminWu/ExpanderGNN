@@ -68,14 +68,44 @@ class PNANet(nn.Module):
             self.simplified = False
 
         self.layers = nn.ModuleList()
-        for i in range(n_layers):
-            if i == n_layers-1:
+        if self.simplified:
+            new_layer = PNASimplifiedLayer(
+                indim=indim, outdim=hiddim, hiddim=hiddim,
+                activation=self.activation,
+                dropout=dropout,
+                batch_norm=self.batch_norm,
+                aggregators=self.aggregators,
+                scalers=self.scalers, avg_d=self.avg_d,
+                num_posttrans_layer=num_posttrans_layer,
+                residual=self.residual, bias=self.bias,
+                linear_type=self.linear_type,
+                **linear_params)
+        else:
+            new_layer = PNALayer(
+                indim=indim, outdim=hiddim, hiddim=hiddim,
+                activation=self.activation,
+                dropout=dropout,
+                batch_norm=self.batch_norm,
+                aggregators=self.aggregators,
+                scalers=self.scalers, avg_d=self.avg_d,
+                num_tower=self.num_tower,
+                num_pretrans_layer=num_pretrans_layer,
+                num_posttrans_layer=num_posttrans_layer,
+                divide_input=False, residual=self.residual,
+                edge_features=self.edge_feat,
+                edge_dim=edge_dim, bias=self.bias,
+                linear_type=self.linear_type,
+                **linear_params)
+        self.layers.append(new_layer)
+
+        for i in range(n_layers-1):
+            if i == n_layers-2:
                 if self.simplified:
                     new_layer = PNASimplifiedLayer(
-                                    indim=hiddim, outdim=outdim, hiddim=hiddim,
-                                    activation=self.activation,
+                                    indim=hiddim, outdim=n_classes, hiddim=hiddim,
+                                    activation=None,
                                     dropout=dropout,
-                                    batch_norm=self.batch_norm,
+                                    batch_norm=False,
                                     aggregators=self.aggregators,
                                     scalers=self.scalers, avg_d=self.avg_d,
                                     num_posttrans_layer=num_posttrans_layer,
@@ -84,10 +114,10 @@ class PNANet(nn.Module):
                                     **linear_params)
                 else:
                     new_layer = PNALayer(
-                                    indim=hiddim, outdim=outdim, hiddim=hiddim,
-                                    activation=self.activation,
+                                    indim=hiddim, outdim=n_classes, hiddim=hiddim,
+                                    activation=None,
                                     dropout=dropout,
-                                    batch_norm=self.batch_norm,
+                                    batch_norm=False,
                                     aggregators=self.aggregators,
                                     scalers=self.scalers, avg_d=self.avg_d,
                                     num_tower=self.num_tower,
@@ -134,14 +164,14 @@ class PNANet(nn.Module):
         if self.gru_enable:
             self.gru = GRULayer(hiddim, hiddim, device)
 
-        self.readout = LinearLayer(outdim, n_classes, bias=True,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+        # self.readout = LinearLayer(outdim, n_classes, bias=True,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             if self.edge_feat:
                 e = self.edge_encoder(e)
 
@@ -151,9 +181,9 @@ class PNANet(nn.Module):
                     h_t = self.gru(h, h_t)
                 h = h_t
 
-            g.ndata['h'] = h
+            # g.ndata['h'] = h
 
-            return self.readout(h)
+            return h #self.readout(h)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()

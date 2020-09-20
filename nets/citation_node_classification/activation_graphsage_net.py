@@ -44,22 +44,37 @@ class ActivationGraphSageNet(nn.Module):
         self.batchnorm_h = nn.BatchNorm1d(hiddim)
 
         self.layers = nn.ModuleList()
-        for i in range(n_layers):
-            self.layers.append(
-                ActivationGraphSageLayer(hiddim, hiddim,
-                                         aggr_type=self.neighbor_pool,
-                                         activation=activations(net_params["activation"], param=hiddim),
-                                         dropout=dropout,
-                                         batch_norm=self.batch_norm))
+        self.layers.append(
+            ActivationGraphSageLayer(indim, hiddim,
+                                     aggr_type=self.neighbor_pool,
+                                     activation=activations(net_params["activation"], param=hiddim),
+                                     dropout=dropout,
+                                     batch_norm=self.batch_norm))
+        for i in range(n_layers-1):
+            if i == n_layers-2:
+                self.layers.append(
+                    ActivationGraphSageLayer(hiddim, n_classes,
+                                             aggr_type=self.neighbor_pool,
+                                             activation=None,
+                                             dropout=dropout,
+                                             batch_norm=False))
 
-        self.readout = LinearLayer(hiddim, n_classes, bias=True,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+            else:
+                self.layers.append(
+                    ActivationGraphSageLayer(hiddim, hiddim,
+                                             aggr_type=self.neighbor_pool,
+                                             activation=activations(net_params["activation"], param=hiddim),
+                                             dropout=dropout,
+                                             batch_norm=self.batch_norm))
+
+        # self.readout = LinearLayer(hiddim, n_classes, bias=True,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
             degs = g.in_degrees().float().clamp(min=1)
@@ -75,9 +90,9 @@ class ActivationGraphSageNet(nn.Module):
             # if self.activation is not None:
             #     b = self.activation(b)
 
-            g.ndata["h"] = h
+            # g.ndata["h"] = h
 
-            return self.readout(b)
+            return h  # self.readout(b)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()
