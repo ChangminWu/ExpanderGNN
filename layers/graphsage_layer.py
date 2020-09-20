@@ -106,7 +106,7 @@ class GraphSageLayer(nn.Module):
         self.batch_norm, self.residual = batch_norm, residual
         self.dgl_builtin = dgl_builtin
 
-        indim, outdim = apply_func.indim//2, apply_func.outdim
+        indim, outdim = apply_func.indim - apply_func.outdim, apply_func.outdim
         if indim != outdim:
             self.residual = False
 
@@ -165,7 +165,7 @@ class GraphSageEdgeLayer(nn.Module):
                  batch_norm, residual=False, dgl_builtin=False, **kwargs):
         super(GraphSageEdgeLayer, self).__init__()
 
-        indim, outdim, hiddim, n_mlp_layer = (apply_func.indim//2,
+        indim, outdim, hiddim, n_mlp_layer = (apply_func.indim - apply_func.outdim,
                                               apply_func.outdim,
                                               apply_func.hiddim,
                                               apply_func.num_layers)
@@ -240,7 +240,7 @@ class GraphSageEdgeReprLayer(nn.Module):
                  batch_norm, residual=False, dgl_builtin=False, **kwargs):
         super(GraphSageEdgeReprLayer, self).__init__()
 
-        indim, outdim, hiddim, n_mlp_layer = (apply_func.indim//2,
+        indim, outdim, hiddim, n_mlp_layer = (apply_func.indim-apply_func.outdim,
                                               apply_func.outdim,
                                               apply_func.hiddim,
                                               apply_func.num_layers)
