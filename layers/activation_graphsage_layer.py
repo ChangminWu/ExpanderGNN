@@ -123,10 +123,12 @@ class ActivationGraphSageLayer(nn.Module):
         h = self.dropout(h)
         if norm is not None:
             h = h*norm
+
         g.ndata["h"] = h
         g.update_all(fn.copy_src(src="h", out="m"), self.reducer,
                      self.apply_mod)
         h = g.ndata["h"]
+
         if norm is not None:
             h = h*norm
 

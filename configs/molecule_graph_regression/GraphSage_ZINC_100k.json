@@ -31,7 +31,7 @@
         "in_feat_dropout": 0.0,
         "dropout": 0.0,
         "batch_norm": true,
-        "neighbor_pool": "max",
+        "neighbor_pool": "mean",
         "density": 0.1,
         "activation": "relu",
         "mlp_layers": 2,

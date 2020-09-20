@@ -41,28 +41,28 @@ class ActivationGraphSageNet(nn.Module):
                                         **linear_params)
 
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
-        self.batchnorm_h = nn.BatchNorm1d((n_layers+1)*hiddim)
+        self.batchnorm_h = nn.BatchNorm1d(hiddim)
 
         self.layers = nn.ModuleList()
         for i in range(n_layers):
             self.layers.append(
                 ActivationGraphSageLayer(hiddim, hiddim,
                                          aggr_type=self.neighbor_pool,
-                                         activation=activations(net_params["activation"], param=(i+2)*hiddim),
+                                         activation=activations(net_params["activation"], param=hiddim),
                                          dropout=dropout,
                                          batch_norm=self.batch_norm))
 
-        self.readout = nn.Sequential(LinearLayer((n_layers+1)*hiddim,
-                                                 (n_layers+1)*hiddim//2,
+        self.readout = nn.Sequential(LinearLayer(hiddim,
+                                                 hiddim//2,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer((n_layers+1)*hiddim//2,
-                                                 (n_layers+1)*hiddim//4,
+                                     LinearLayer(hiddim//2,
+                                                 hiddim//4,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer((n_layers+1)*hiddim//4,
+                                     LinearLayer(hiddim//4,
                                                  n_classes,
                                                  bias=True,
                                                  linear_type="regular"))
@@ -78,12 +78,12 @@ class ActivationGraphSageNet(nn.Module):
             norm = norm.to(h.device).unsqueeze(1)
 
             for conv in self.layers:
-                h, b = conv(g, h, norm)
+                h = conv(g, h, norm)
 
             # if self.batch_norm:
             #     b = self.batchnorm_h(b)
 
-            g.ndata["h"] = b
+            g.ndata["h"] = h
 
             if self.graph_pool == "sum":
                 hg = dgl.sum_nodes(g, "h")
