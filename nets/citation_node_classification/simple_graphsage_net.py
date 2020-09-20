@@ -38,13 +38,13 @@ class SimpleGraphSageNet(nn.Module):
         if self.linear_type == "expander":
             self.neighbor_pool = "mean"
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
-        apply_func = MultiLinearLayer(2*hiddim, hiddim,
+        apply_func = MultiLinearLayer(indim+hiddim, hiddim,
                                       activation=None,
                                       batch_norm=self.batch_norm,
                                       num_layers=self.n_mlp_layer,
@@ -53,7 +53,7 @@ class SimpleGraphSageNet(nn.Module):
                                       linear_type=self.linear_type,
                                       **linear_params)
         self.layers.append(
-            SimpleGraphSageLayer(hiddim, hiddim, apply_func,
+            SimpleGraphSageLayer(indim, hiddim, apply_func,
                                  aggr_type=self.neighbor_pool,
                                  dropout=dropout,
                                  batch_norm=self.batch_norm,
@@ -107,7 +107,7 @@ class SimpleGraphSageNet(nn.Module):
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
             degs = g.in_degrees().float().clamp(min=1)

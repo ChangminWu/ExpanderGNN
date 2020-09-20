@@ -12,8 +12,8 @@ class ActivationGraphSageNet(nn.Module):
     def __init__(self, net_params):
         super(ActivationGraphSageNet, self).__init__()
         indim = net_params["in_dim"]
-        hiddim = net_params["hidden_dim"]
-        # hiddim = indim
+        # hiddim = net_params["hidden_dim"]
+        hiddim = indim
         n_classes = net_params["n_classes"]
         in_feat_dropout = net_params["in_feat_dropout"]
         dropout = net_params["dropout"]
@@ -45,7 +45,7 @@ class ActivationGraphSageNet(nn.Module):
 
         self.layers = nn.ModuleList()
         self.layers.append(
-            ActivationGraphSageLayer(hiddim, hiddim,
+            ActivationGraphSageLayer(indim, hiddim,
                                      aggr_type=self.neighbor_pool,
                                      activation=self.activation,
                                      dropout=dropout,
@@ -74,7 +74,7 @@ class ActivationGraphSageNet(nn.Module):
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            h = self.node_encoder(h)
+            # h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
 
             degs = g.in_degrees().float().clamp(min=1)
