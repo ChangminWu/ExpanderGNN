@@ -47,9 +47,9 @@ class SimpleGatedGCNNet(nn.Module):
             if i == n_layers-1:
                 self.layers.append(
                     SimpleGatedGCNLayer(self.n_mlp_layer, hiddim,
-                                        outdim, hiddim,
+                                        n_classes, hiddim,
                                         dropout=dropout,
-                                        batch_norm=self.batch_norm,
+                                        batch_norm=False,
                                         bias=self.bias,
                                         residual=self.residual,
                                         linear_type=self.linear_type,
@@ -65,9 +65,9 @@ class SimpleGatedGCNNet(nn.Module):
                                         linear_type=self.linear_type,
                                         **linear_params))
 
-        self.readout = LinearLayer(outdim, n_classes, bias=True,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+        # self.readout = LinearLayer(outdim, n_classes, bias=True,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
@@ -83,9 +83,9 @@ class SimpleGatedGCNNet(nn.Module):
 
             for conv in self.layers:
                 h, e = conv(g, h, e, norm)
-            g.ndata["h"] = h
+            # g.ndata["h"] = h
 
-            return self.readout(h)
+            return h #self.readout(h)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()
