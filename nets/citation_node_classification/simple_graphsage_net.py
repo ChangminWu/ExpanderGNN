@@ -44,16 +44,16 @@ class SimpleGraphSageNet(nn.Module):
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
-        apply_func = MultiLinearLayer(2 * indim, hiddim,
+        apply_func = MultiLinearLayer(2*indim, hiddim,
                                       activation=None,
                                       batch_norm=self.batch_norm,
                                       num_layers=self.n_mlp_layer,
-                                      hiddim=hiddim,
+                                      hiddim=indim,
                                       bias=self.bias,
                                       linear_type=self.linear_type,
                                       **linear_params)
         self.layers.append(
-            SimpleGraphSageLayer(hiddim, hiddim, apply_func,
+            SimpleGraphSageLayer(indim, hiddim, apply_func,
                                  aggr_type=self.neighbor_pool,
                                  dropout=dropout,
                                  batch_norm=self.batch_norm,

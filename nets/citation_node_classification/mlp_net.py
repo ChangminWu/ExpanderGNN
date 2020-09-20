@@ -72,7 +72,7 @@ class MLPNet(nn.Module):
             h = self.in_feat_dropout(h)
             for i, conv in enumerate(self.layers):
                 h = conv(h)
-                if i == len(self.layer)-2 and self.gated:
+                if i == len(self.layers)-2 and self.gated:
                     h = torch.sigmoid(self.gates(h))*h
             g.ndata["h"] = h
 

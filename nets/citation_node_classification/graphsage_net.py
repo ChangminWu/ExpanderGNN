@@ -48,11 +48,11 @@ class GraphSageNet(nn.Module):
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()
-        apply_func = MultiLinearLayer(2 * indim, hiddim,
+        apply_func = MultiLinearLayer(2*indim, hiddim,
                                       activation=self.activation,
                                       batch_norm=self.batch_norm,
                                       num_layers=self.n_mlp_layer,
-                                      hiddim=hiddim,
+                                      hiddim=indim,
                                       bias=self.bias,
                                       linear_type=self.linear_type,
                                       **linear_params)
@@ -96,14 +96,14 @@ class GraphSageNet(nn.Module):
                                               linear_type=self.linear_type,
                                               **linear_params)
 
-            self.layers.append(GraphSageLayer(apply_func,
-                                              aggr_type=self.neighbor_pool,
-                                              activation=self.activation,
-                                              dropout=dropout,
-                                              batch_norm=self.batch_norm,
-                                              residual=self.residual,
-                                              dgl_builtin=self.dgl_builtin,
-                                              **linear_params))
+                self.layers.append(GraphSageLayer(apply_func,
+                                                  aggr_type=self.neighbor_pool,
+                                                  activation=self.activation,
+                                                  dropout=dropout,
+                                                  batch_norm=self.batch_norm,
+                                                  residual=self.residual,
+                                                  dgl_builtin=self.dgl_builtin,
+                                                  **linear_params))
 
         # self.readout = LinearLayer(outdim, n_classes, bias=True,
         #                            linear_type=self.linear_type,

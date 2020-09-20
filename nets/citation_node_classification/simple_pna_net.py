@@ -111,7 +111,7 @@ class SimplePNANet(nn.Module):
                                     batch_norm=False,
                                     aggregators=self.aggregators,
                                     scalers=self.scalers, avg_d=self.avg_d,
-                                    num_tower=self.num_tower,
+                                    num_tower=1,
                                     num_pretrans_layer=num_pretrans_layer,
                                     num_posttrans_layer=num_posttrans_layer,
                                     divide_input=False, residual=self.residual,

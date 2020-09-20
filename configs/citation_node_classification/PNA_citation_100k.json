@@ -40,7 +40,7 @@
       "bias": true,
       "aggregators": "mean max min std",
       "scalers": "identity amplification attenuation",
-      "num_tower": 5,
+      "num_tower": 4,
       "divide_input": true,
       "gru": false,
       "edge_dim": 0,
