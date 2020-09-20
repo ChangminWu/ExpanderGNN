@@ -2,7 +2,7 @@ use_gpu="True"
 script=main_citation_node_classification.py
 datasets=("CORA" "CITESEER" "PUBMED")
 actives=('relu' 'prelu' 'brelu' 'rrelu' 'linear' 'softshrink' 'tanh' 'softplus' 'selu' 'lelu')
-models=('GCN' 'GIN' 'MLP' 'GraphSage' 'PNA')
+models=('GCN' 'GIN' 'MLP' 'GraphSage' 'GatedGCN' 'PNA')
 densities=( 0.1 0.5 0.9 )
 savedir="results/citation-runs-new/"
 
