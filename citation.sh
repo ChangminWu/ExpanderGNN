@@ -10,12 +10,13 @@ for i in "${datasets[@]}"
 do
   for j in "${models[@]}"
   do
-    config_file=configs/citation_node_classification/${j}_citation_100k.json
+    config_file=configs/citation_node_classification/GraphSage_citation_100k.json
     for d in "${densities[@]}"
     do
       python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model "GraphSage" --density ${d} --linear_type "expander" --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
     done
 
+    config_file=configs/citation_node_classification/${j}_citation_100k.json
     for d in "${densities[@]}"
     do
       python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model ${j} --density ${d} --linear_type "expander" --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
