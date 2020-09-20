@@ -73,7 +73,14 @@ class GINNet(nn.Module):
                                         learn_eps=self.learn_eps))
 
 
+
         self.linear_predictions = nn.ModuleList()
+        self.linear_predictions.append(
+            LinearLayer(indim,
+                        n_classes, bias=self.bias,
+                        linear_type=self.linear_type,
+                        **linear_params))
+
         for layer in range(self.n_layers+1):
             self.linear_predictions.append(
                 LinearLayer(hiddim,
