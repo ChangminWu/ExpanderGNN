@@ -45,7 +45,7 @@ class SimpleGINNet(nn.Module):
                                           batch_norm=self.batch_norm,
                                           residual=self.residual,
                                           learn_eps=self.learn_eps))
-        self.linears.append(LinearLayer(hiddim, n_classes, bias=self.bias,
+        self.linears.append(LinearLayer(hiddim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params))
 
@@ -55,12 +55,16 @@ class SimpleGINNet(nn.Module):
                                               batch_norm=self.batch_norm,
                                               residual=self.residual,
                                               learn_eps=self.learn_eps))
-            self.linears.append(LinearLayer(hiddim, n_classes, bias=self.bias,
+            self.linears.append(LinearLayer(hiddim, hiddim, bias=self.bias,
                                             linear_type=self.linear_type,
                                             **linear_params))
 
         self.linear_predictions = nn.ModuleList()
-        for layer in range(self.n_layers+1):
+        self.linear_predictions.append(
+            LinearLayer(indim, n_classes, bias=True,
+                        linear_type=self.linear_type,
+                        **linear_params))
+        for layer in range(self.n_layers):
             self.linear_predictions.append(
                 LinearLayer(hiddim, n_classes, bias=True,
                             linear_type=self.linear_type,
@@ -86,7 +90,7 @@ class SimpleGINNet(nn.Module):
 
             score_over_layer = 0
             for i, h in enumerate(hidden_rep):
-                score_over_layer += h #self.linear_predictions[i](h)
+                score_over_layer += self.linear_predictions[i](h)
 
         return score_over_layer
 

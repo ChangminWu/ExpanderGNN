@@ -81,7 +81,7 @@ class GINNet(nn.Module):
                         linear_type=self.linear_type,
                         **linear_params))
 
-        for layer in range(self.n_layers+1):
+        for layer in range(self.n_layers):
             self.linear_predictions.append(
                 LinearLayer(hiddim,
                             n_classes, bias=self.bias,
