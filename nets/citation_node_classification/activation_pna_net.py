@@ -23,8 +23,8 @@ class ActivationPNANet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         indim = net_params["in_dim"]
-        # hiddim = net_params["hidden_dim"]
-        hiddim = indim
+        hiddim = net_params["hidden_dim"]
+        # hiddim = indim
         outdim = net_params["out_dim"]
 
         n_classes = net_params["n_classes"]
@@ -64,7 +64,7 @@ class ActivationPNANet(nn.Module):
         self.layers = nn.ModuleList()
         if self.simplified:
             new_layer = ActivationPNASimplifiedLayer(
-                indim=indim, outdim=hiddim, hiddim=hiddim,
+                indim=hiddim, outdim=hiddim, hiddim=hiddim,
                 activation=self.activation,
                 dropout=dropout,
                 batch_norm=self.batch_norm,
@@ -72,7 +72,7 @@ class ActivationPNANet(nn.Module):
                 scalers=self.scalers, avg_d=self.avg_d)
         else:
             new_layer = ActivationPNALayer(
-                indim=indim, outdim=hiddim, hiddim=hiddim,
+                indim=hiddim, outdim=hiddim, hiddim=hiddim,
                 activation=self.activation,
                 dropout=dropout,
                 batch_norm=self.batch_norm,
@@ -115,7 +115,7 @@ class ActivationPNANet(nn.Module):
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            # h = self.node_encoder(h)
+            h = self.node_encoder(h)
             if self.edge_feat:
                 e = self.edge_encoder(e)
 

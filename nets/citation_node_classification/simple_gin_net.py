@@ -40,12 +40,12 @@ class SimpleGINNet(nn.Module):
         self.layers = nn.ModuleList()
         self.linears = nn.ModuleList()
 
-        self.layers.append(SimpleGINLayer(indim, hiddim,
+        self.layers.append(SimpleGINLayer(indim, indim,
                                           aggr_type=self.neighbor_pool,
                                           batch_norm=self.batch_norm,
                                           residual=self.residual,
                                           learn_eps=self.learn_eps))
-        self.linears.append(LinearLayer(hiddim, hiddim, bias=self.bias,
+        self.linears.append(LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params))
 

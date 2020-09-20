@@ -64,7 +64,7 @@ class SimplePNANet(nn.Module):
         self.layers = nn.ModuleList()
         if self.simplified:
             new_layer = SimplePNASimplifiedLayer(
-                indim=indim, outdim=hiddim, hiddim=hiddim,
+                indim=hiddim, outdim=hiddim, hiddim=hiddim,
                 dropout=dropout,
                 batch_norm=self.batch_norm,
                 aggregators=self.aggregators,
@@ -75,7 +75,7 @@ class SimplePNANet(nn.Module):
                 **linear_params)
         else:
             new_layer = SimplePNALayer(
-                indim=indim, outdim=hiddim, hiddim=hiddim,
+                indim=hiddim, outdim=hiddim, hiddim=hiddim,
                 dropout=dropout,
                 batch_norm=self.batch_norm,
                 aggregators=self.aggregators,
@@ -157,7 +157,7 @@ class SimplePNANet(nn.Module):
     def forward(self, g, h, e):
         with g.local_scope():
             g = g.to(h.device)
-            # h = self.node_encoder(h)
+            h = self.node_encoder(h)
             if self.edge_feat:
                 e = self.edge_encoder(e)
 

@@ -113,7 +113,7 @@ class SimpleGraphSageLayer(nn.Module):
 
         if aggr_type == "max":
             self.reducer = MaxPoolAggregator(indim=indim,
-                                             outdim=indim,
+                                             outdim=outdim,
                                              activation=None,
                                              bias=self.bias,
                                              linear_type=self.linear_type,
@@ -122,7 +122,7 @@ class SimpleGraphSageLayer(nn.Module):
             self.reducer = MeanAggregator()
         elif aggr_type == "LSTM":
             self.reducer = LSTMAggregator(indim=indim,
-                                          hiddim=indim)
+                                          hiddim=outdim)
         else:
             raise KeyError("Aggregator type {} not recognized."
                            .format(aggr_type))
