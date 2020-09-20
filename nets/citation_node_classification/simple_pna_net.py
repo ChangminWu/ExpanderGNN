@@ -52,9 +52,9 @@ class SimplePNANet(nn.Module):
         num_posttrans_layer = net_params["num_posttrans_layer"]
         self.simplified = net_params["use_simplified_version"]
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
         if self.edge_feat:
             self.edge_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                             linear_type=self.linear_type,

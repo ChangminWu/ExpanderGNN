@@ -58,9 +58,9 @@ class PNANet(nn.Module):
 
         device = net_params["device"]
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
         if self.edge_feat:
             self.edge_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                             linear_type=self.linear_type,

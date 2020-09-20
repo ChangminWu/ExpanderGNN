@@ -17,7 +17,7 @@ class ExpanderLinearFunction(torch.autograd.Function):
         #     if bias is not None:
         #         output += bias
         if bias is not None:
-            output = torch.addmm(bias, _input, weight.t())
+            output = _input.matmul(weight.t()) + bias # torch.addmm(bias, _input, weight.t())
         else:
             output = _input.mm(weight.t())
         return output

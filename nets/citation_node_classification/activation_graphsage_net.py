@@ -36,9 +36,9 @@ class ActivationGraphSageNet(nn.Module):
         if self.linear_type == "expander":
             self.neighbor_pool = "mean"
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
 
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
         self.batchnorm_h = nn.BatchNorm1d(hiddim)
