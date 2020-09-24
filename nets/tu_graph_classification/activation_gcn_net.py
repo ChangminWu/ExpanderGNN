@@ -85,11 +85,11 @@ class ActivationGCNNet(nn.Module):
 
                 h = self.activation(h)
 
-            # if self.batch_norm:
-            #     h = self.batchnorm_h(h)
-
-            # g.ndata['h'] = h
             h = self.linear(h)
+            if self.batch_norm:
+                h = self.batchnorm_h(h)
+
+            g.ndata['h'] = h
 
             if self.graph_pool == "sum":
                 hg = dgl.sum_nodes(g, "h")
