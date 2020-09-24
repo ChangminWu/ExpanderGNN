@@ -41,7 +41,7 @@ class ActivationGCNNet(nn.Module):
             raise KeyError("Aggregator type {} not recognized."
                            .format(self.neighbor_pool))
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        self.node_encoder = LinearLayer(indim, outdim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
@@ -85,7 +85,7 @@ class ActivationGCNNet(nn.Module):
 
                 h = self.activation(h)
 
-            h = self.linear(h)
+            # h = self.linear(h)
             if self.batch_norm:
                 h = self.batchnorm_h(h)
 
