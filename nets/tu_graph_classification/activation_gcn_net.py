@@ -13,6 +13,7 @@ class ActivationGCNNet(nn.Module):
         super().__init__()
         indim = net_params["in_dim"]
         hiddim = net_params["hidden_dim"]
+        outdim = net_params["out_dim"]
 
         n_classes = net_params["n_classes"]
         in_feat_dropout = net_params["in_feat_dropout"]
@@ -47,15 +48,19 @@ class ActivationGCNNet(nn.Module):
 
         self.batchnorm_h = nn.BatchNorm1d(hiddim)
 
-        self.readout = nn.Sequential(LinearLayer(hiddim, hiddim//2,
+        self.linear = LinearLayer(hiddim, outdim, bias=self.bias,
+                                  linear_type=self.linear_type,
+                                  **linear_params)
+
+        self.readout = nn.Sequential(LinearLayer(outdim, outdim//2,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer(hiddim//2, hiddim//4,
+                                     LinearLayer(outdim//2, outdim//4,
                                                  bias=True,
                                                  linear_type="regular"),
                                      nn.ReLU(),
-                                     LinearLayer(hiddim//4, n_classes,
+                                     LinearLayer(outdim//4, n_classes,
                                                  bias=True,
                                                  linear_type="regular"))
 
@@ -83,7 +88,8 @@ class ActivationGCNNet(nn.Module):
             # if self.batch_norm:
             #     h = self.batchnorm_h(h)
 
-            g.ndata['h'] = h
+            # g.ndata['h'] = h
+            h = self.linear(h)
 
             if self.graph_pool == "sum":
                 hg = dgl.sum_nodes(g, "h")
