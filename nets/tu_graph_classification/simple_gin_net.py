@@ -52,19 +52,19 @@ class SimpleGINNet(nn.Module):
         self.linear_predictions = nn.ModuleList()
         for layer in range(self.n_layers+1):
             self.linear_predictions.append(
-                        LinearLayer(outdim, n_classes,
-                                    bias=True, linear_type="regular"))
-                        # nn.Sequential(LinearLayer(outdim, outdim//2,
-                        #                           bias=True,
-                        #                           linear_type="regular"),
-                        #               nn.ReLU(),
-                        #               LinearLayer(outdim//2, outdim//4,
-                        #                           bias=True,
-                        #                           linear_type="regular"),
-                        #               nn.ReLU(),
-                        #               LinearLayer(outdim//4, n_classes,
-                        #                           bias=True,
-                        #                           linear_type="regular")))
+                        # LinearLayer(outdim, n_classes,
+                        #             bias=True, linear_type="regular"))
+                        nn.Sequential(LinearLayer(outdim, outdim//2,
+                                                  bias=True,
+                                                  linear_type="regular"),
+                                      nn.ReLU(),
+                                      LinearLayer(outdim//2, outdim//4,
+                                                  bias=True,
+                                                  linear_type="regular"),
+                                      nn.ReLU(),
+                                      LinearLayer(outdim//4, n_classes,
+                                                  bias=True,
+                                                  linear_type="regular")))
 
         if self.graph_pool == "sum":
             self.pool = SumPooling()
@@ -89,15 +89,15 @@ class SimpleGINNet(nn.Module):
 
             for i in range(self.n_layers):
                 h = self.layers[i](g, h, norm)
-                # h = self.linears[i](h)
+                h = self.linears[i](h)
 
                 hidden_rep.append(h)
 
             score_over_layer = 0
             for i, h in enumerate(hidden_rep):
-                if i==len(hidden_rep)-1:
-                    hg = self.pool(g, h)
-                    score_over_layer += self.linear_predictions[i](hg)
+                # if i==len(hidden_rep)-1:
+                hg = self.pool(g, h)
+                score_over_layer += self.linear_predictions[i](hg)
 
         return score_over_layer
 
