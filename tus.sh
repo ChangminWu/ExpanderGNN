@@ -1,14 +1,14 @@
 use_gpu=True
 script=main_tu_graph_classification.py
 datasets=("ENZYMES" "DD" "PROTEINS_full" "IMDB-BINARY" "REDDIT-BINARY")
-actives=('relu' 'prelu' 'brelu' 'rrelu' 'linear' 'softshrink' 'tanh' 'softplus' 'selu' 'lelu')
-models=('GCN' 'GIN' 'MLP' 'GraphSage' 'GatedGCN' 'PNA')
+actives=('relu' 'prelu' 'linear' 'softshrink' 'tanh' 'selu' 'lelu') #'brelu' 'rrelu' 'softplus' 
+models=('GCN' 'GIN' 'MLP' 'PNA' 'GatedGCN' 'GraphSage')
 densities=( 0.1 0.5 0.9 )
-savedir="results/tu-runs-new/"
+savedir="results/tu-runs-latest/"
 
-for i in "${datasets[@]}"
+for j in "${models[@]}"
 do
-  for j in "${models[@]}"
+  for i in "${datasets[@]}"
   do
     if [[ "$i" == "REDDIT-BINARY" || "$i" == "IMDB-BINARY" ]]
     then
@@ -25,7 +25,7 @@ do
     then
       for a in "${actives[@]}"
       do
-        python $script --dataset ${i} --out_dir ${savedir} --experiment "activations-${a}" --model "Activation${j}" --activation ${a} --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --init_lr 0.01
+        python $script --dataset ${i} --out_dir ${savedir} --experiment "activations-${a}" --model "Activation${j}" --activation ${a} --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu
       done
 
       python $script --dataset ${i} --out_dir ${savedir} --experiment "simple" --model "Simple${j}" --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu
