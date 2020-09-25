@@ -4,10 +4,10 @@ import glob
 import argparse
 import itertools
 
-MODEL = ["GCN", "GIN", "GAT", "GraphSage", "GatedGCN", "PNA", "MLP"]
-ACTIV = ["ReLU", "PReLU", "RReLU", "SoftPlus", "Linear", "Sigmoid", "Tanh"]
+MODEL = ["GCN", "GIN", "GraphSage", "PNA", "MLP"]
+ACTIV = ["ReLU", "PReLU", "RReLU", "SoftPlus", "Tanh", "SoftShrink", "SeLU"]
 DENSITY = [0.1, 0.5, 0.9]
-RECORD = ["ACC", "Time per Epoch(s)", "Converge(#Epochs)"]
+RECORD = ["ACC", "Time per Epoch(s)", "#Parameters"]
 
 
 def collect_results(folder, dataset, output_file):
@@ -40,7 +40,7 @@ def collect_results(folder, dataset, output_file):
     records = RECORD * len(dataset)
     column_index = [datasets, records]
 
-    df = pd.DataFrame(index=row_index, columns=column_index, dtype='float')
+    df = pd.DataFrame(index=row_index, columns=column_index) #, dtype='float'
     df = df.sort_index()
     for file in glob.glob(folder+"*.txt"):
         components = file.replace(folder, "").split("_")
@@ -49,8 +49,12 @@ def collect_results(folder, dataset, output_file):
         for i in dataset:
             if components[3].lower() == i.lower():
                 col_ind = col_ind + (i,)
+        if len(col_ind) == 0:
+            continue
 
         row_ind = row_ind + (components[2].replace("Simple", "").replace("Activation", ""), )
+        if row_ind[0] not in MODEL:
+            continue
 
         type_param = components[1].split("-")
         
@@ -79,10 +83,14 @@ def collect_results(folder, dataset, output_file):
                     acc = line.split(":")[1].split("with s.d.")[0]
                     col_acc = col_ind + ("MAE", )
                     df.loc[row_ind][col_acc] = float(acc)
-                if line.split(":")[0] == "Average Convergence Time (Epochs)":
-                    epochs = line.split(":")[1].split(" ")[1]
-                    col_conv = col_ind + ("Converge(#Epochs)", )
-                    df.loc[row_ind][col_conv] = int(float(epochs))
+                # if line.split(":")[0] == "Average Convergence Time (Epochs)":
+                #     epochs = line.split(":")[1].split(" ")[1]
+                #     col_conv = col_ind + ("Converge(#Epochs)", )
+                #     df.loc[row_ind][col_conv] = int(float(epochs))
+                if line.split(":")[0] == "Total Parameters":
+                    n_params = line.split(":")[1].split(" ")[1]
+                    col_conv = col_ind + ("#Parameters", )
+                    df.loc[row_ind][col_conv] = int(float(n_params))
                 if line.split(":")[0] == "Average Time Per Epoch":
                     time = line.split(":")[1].split(" ")[1]
                     col_time = col_ind + ("Time per Epoch(s)", )

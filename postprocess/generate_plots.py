@@ -10,10 +10,10 @@ import argparse
 import itertools
 
 
-MODEL = ["GCN", "GIN", "GAT", "GraphSage", "PNA", "MLP"] #"GatedGCN"
-ACTIV = ["ReLU", "PReLU", "SoftPlus", "RReLU"]
+MODEL = ["GCN", "GIN", "GraphSage", "PNA", "MLP"]
+ACTIV = ["ReLU", "PReLU", "Tanh"]
 DENSITY = [0.1, 0.5, 0.9]
-RECORD = ["Accuracy", "Time per Epoch(s)", "Converge(#Epochs)"]
+RECORD = ["MAE", "Time per Epoch(s)", "#Parameters"]
 BARWIDTH = 0.3
 
 def bar_plot(folder, dataset, output_file):
@@ -41,7 +41,10 @@ def bar_plot(folder, dataset, output_file):
         types = components[1].split("-")
         for i in ["Regular", "Expander", "Activations", "Simple"]:
             if types[0].lower() == i.lower():
-                exp = i
+                if i != "Regular":
+                    exp = i
+                else:
+                    exp = "Vanilla"
         if len(types) == 1:
             single_row.append(exp)
         elif len(types) == 2:
@@ -58,7 +61,7 @@ def bar_plot(folder, dataset, output_file):
                 continue
 
         # add results, time, convergence
-        # rows = []
+        rows = []
         with open(file) as f:
             for line in f.readlines():
                 if line.split(":")[0] == "TEST ACCURACY averaged":
@@ -66,23 +69,36 @@ def bar_plot(folder, dataset, output_file):
                     # rows.append(single_row+[float(res), "Accuracy"]) 
                 if line.split(":")[0] == "TEST MAE averaged":
                     res = line.split(":")[1].split("with s.d.")[0]
-                    # rows.append(single_row+[float(res)], "MAE")              
-                if line.split(":")[0] == "Average Convergence Time (Epochs)":
-                    epochs = line.split(":")[1].split(" ")[1]
-                    # rows.append(single_row+[int(float(epochs)), "Converge(#Epochs)"])
+                    # rows.append(single_row+[float(res), "MAE"])              
+                # if line.split(":")[0] == "Average Convergence Time (Epochs)":
+                #     epochs = line.split(":")[1].split(" ")[1]
+                #     rows.append(single_row+[int(float(epochs)), "Converge(#Epochs)"])
+                if line.split(":")[0] == "Total Parameters":
+                    n_params = line.split(":")[1].split(" ")[1]
+                #     rows.append(single_row+[int(float(n_params)), "#Parameters)"])
                 if line.split(":")[0] == "Average Time Per Epoch":
                     time = line.split(":")[1].split(" ")[1]
-                    # rows.append(single_row+[float(time), "Time per Epoch(s)"])
-            single_row.extend([float(res), float(time), int(float(epochs))])
+                    rows.append(single_row+[float(time), "Time per Epoch(s)"])
+            single_row.extend([float(res), float(time), int(float(n_params))])
         f.close()
         data.append(single_row)
+        # data.extend(rows)
+    hue_order = ["Simple"]
+    for a in ACTIV:
+        hue_order.append("Activations-{}".format(a))
+    for e in DENSITY:
+        hue_order.append("Expander-{:.0%}".format(e))
+    hue_order.append("Vanilla")
 
-    df = pd.DataFrame(data=data, columns=["Dataset", "Model", "Type"]+RECORD)  # "Value", "ValueType"])
+
+    df = pd.DataFrame(data=data, columns=["Dataset", "Model", "Type"]+RECORD)  #, "Value", "ValueType"])
 
     sns.set_theme(style="whitegrid")
-    g = sns.catplot(x="Model", y="Accuracy", hue="Type", row="Dataset", data=df, kind="bar", height=4, aspect=2.0, sharex=True, sharey=True)
+    g = sns.catplot(x="Model", y="MAE", hue="Type", row="Dataset", data=df, kind="bar", height=4, aspect=1.0, sharex=True, sharey=False, hue_order=hue_order)
+    #g = sns.lineplot(x="Type", y="Time per Epoch(s)", hue="Model", data=df)
     g.set_xticklabels(rotation=45, horizontalalignment='right', fontweight='light')
     g.savefig(output_file, dpi=1600)
+
                     
 # def draw_errorplot(dataset, exp_name="varing-sparsity-sparse-readout", path="d:\\results\\results\\", add_head=True, add_tail=True):
 #     fig, ax = plt.subplots()
