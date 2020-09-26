@@ -9,11 +9,11 @@ import glob
 import argparse
 import itertools
 
-
+VALUE = "Accuracy"
 MODEL = ["GCN", "GIN", "GraphSage", "PNA", "MLP"]
 ACTIV = ["ReLU", "PReLU", "Tanh"]
 DENSITY = [0.1, 0.5, 0.9]
-RECORD = ["MAE", "Time per Epoch(s)", "#Parameters"]
+RECORD = [VALUE, "Time per Epoch(s)", "#Parameters"]
 BARWIDTH = 0.3
 
 def bar_plot(folder, dataset, output_file):
@@ -93,10 +93,16 @@ def bar_plot(folder, dataset, output_file):
 
     df = pd.DataFrame(data=data, columns=["Dataset", "Model", "Type"]+RECORD)  #, "Value", "ValueType"])
 
+    plt.figure(figsize=(20,60))
     sns.set_theme(style="whitegrid")
-    g = sns.catplot(x="Model", y="MAE", hue="Type", row="Dataset", data=df, kind="bar", height=4, aspect=1.0, sharex=True, sharey=False, hue_order=hue_order)
+    g = sns.catplot(x="Model", y=VALUE, hue="Type", col="Dataset", data=df, kind="bar", height=4, aspect=1.0, sharex=True, sharey=True, hue_order=hue_order, col_order=dataset)
     #g = sns.lineplot(x="Type", y="Time per Epoch(s)", hue="Model", data=df)
-    g.set_xticklabels(rotation=45, horizontalalignment='right', fontweight='light')
+    # g.set_xticklabels(rotation=45, horizontalalignment='right', fontweight='light')
+    g.set_xticklabels(fontsize=10, fontweight='light')
+    g.tight_layout()
+    plt.setp(g._legend.get_texts(), fontsize=10)
+    plt.setp(g._legend.get_title(), fontsize=10)
+    # plt.setp(g._legend.get_texts(), fontsize=5)
     g.savefig(output_file, dpi=1600)
 
                     
