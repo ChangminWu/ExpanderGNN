@@ -1,6 +1,6 @@
 use_gpu=True
 script=main_tu_graph_classification.py
-datasets=("PROTEINS_full" "DD" "IMDB-BINARY" "REDDIT-BINARY")
+datasets=("PROTEINS_full" "DD" "IMDB-BINARY")
 actives=('relu' 'prelu' 'linear' 'softshrink' 'tanh' 'selu' 'lelu') #'brelu' 'rrelu' 'softplus' 
 models=('GCN') #'GIN' 'MLP' 'PNA' 'GatedGCN' 'GraphSage'
 densities=(0.1)
