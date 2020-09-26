@@ -34,3 +34,6 @@ do
     # python $script --dataset ${i} --out_dir ${savedir} --experiment "regular" --model ${j} --linear_type "regular" --density 1.0 --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
   done
 done
+
+config_file=configs/citation_node_classification/GIN_citation_100k.json
+python $script --dataset CORA --out_dir ${savedir} --experiment "activations-softshrink" --model "ActivationGIN" --activation softshrink --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --init_lr 0.2
