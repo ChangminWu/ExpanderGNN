@@ -70,12 +70,14 @@ def loss_plot(folder, output_file=None):
 
     hue_order = [x+" {}".format(MODEL[0]) for x in hue_order]
     
-    # fig=plt.figure(figsize=(40,20))
+    fig=plt.figure(figsize=(20,20))
     sns.set_theme(style="whitegrid")
     palette = sns.color_palette("mako_r", 8)
     g = sns.lineplot(x="Step", y="Value", hue="Model", data=df, palette=palette, hue_order=hue_order)
-    g.set_xlabel("Epoch")
-    g.set_ylabel("Train Loss")
+    g.set_xlabel("#Epochs")
+    g.set_ylabel("Train Loss (Log-scale)")
+    g.set_yscale("log")
+
     g.figure.tight_layout()
     g.figure.savefig(output_file, dpi=1600)
 
