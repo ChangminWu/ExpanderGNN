@@ -102,9 +102,15 @@ def time_plot(folder, dataset, output_file):
     df2 = pd.DataFrame({'Time per Epoch(s)': times,
                         '#Parameters': nparam})
     fig, ax1 = plt.subplots(figsize=(20, 20))
-    df2['#Parameters'].plot(kind='bar', color='y')
-    df2['Time per Epoch(s)'].plot(kind='line', marker='d', secondary_y=True)
-    plt.savefig(output_file, dpi=200)
+    ax1 = df2['#Parameters'].plot(kind='bar', color='r', alpha=0.2)
+    ax2 = df2['Time per Epoch(s)'].plot(kind='line', marker='x', secondary_y=True, linewidth=5, markersize=20, color="g")
+    ax1.set_xticklabels([x+" GCN" for x in ticklabel], fontsize=50, rotation=45, horizontalalignment='right', fontweight='light')
+    plt.setp(ax1.get_yticklabels(), fontsize=50, color='r', alpha=0.4)
+    plt.setp(ax2.get_yticklabels(), fontsize=50, color='g')
+    ax1.set_ylabel("#Parameters", fontsize=70, color='r', alpha=0.4)
+    ax2.set_ylabel("Time per Epoch(s)", fontsize=70, color='g')
+    fig.tight_layout()
+    plt.savefig(output_file, dpi=800)
 
     #   #, "Value", "ValueType"])
     # print(df)

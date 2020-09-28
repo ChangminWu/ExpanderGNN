@@ -1,10 +1,10 @@
 use_gpu=True
 script=main_tu_graph_classification.py
-datasets=("ENZYMES" "DD" "PROTEINS_full" "IMDB-BINARY") # "REDDIT-BINARY"
+datasets=("REDDIT-BINARY") # "ENZYMES" "DD" "PROTEINS_full" "IMDB-BINARY"
 actives=('relu' 'prelu' 'linear' 'softshrink' 'tanh' 'selu' 'lelu') #'brelu' 'rrelu' 'softplus' 
-models=('GIN' 'MLP') # 'GCN' 'PNA' 'GatedGCN' 'GraphSage' 
+models=('GCN' 'GIN' 'MLP') # 'GCN' 'PNA' 'GatedGCN' 'GraphSage' 'GIN' 'MLP'
 densities=( 0.1 0.5 0.9 )
-savedir="results/tu-runs-latest/"
+savedir="results/tu-runs-reddit/"
 
 for j in "${models[@]}"
 do

@@ -10,7 +10,7 @@ import argparse
 import itertools
 
 VALUE = "Accuracy"
-MODEL = ["GCN", "GIN", "GraphSage", "PNA", "MLP"]
+MODEL = ["GCN", "GIN", "MLP"]
 ACTIV = ["ReLU", "PReLU", "Tanh"]
 DENSITY = [0.1, 0.5, 0.9]
 RECORD = [VALUE, "Time per Epoch(s)", "#Parameters"]
@@ -93,7 +93,7 @@ def bar_plot(folder, dataset, output_file):
 
     df = pd.DataFrame(data=data, columns=["Dataset", "Model", "Type"]+RECORD)  #, "Value", "ValueType"])
 
-    plt.figure(figsize=(20,60))
+    plt.figure(figsize=(20,20))
     sns.set_theme(style="whitegrid")
     g = sns.catplot(x="Model", y=VALUE, hue="Type", col="Dataset", data=df, kind="bar", height=4, aspect=1.0, sharex=True, sharey=True, hue_order=hue_order, col_order=dataset)
     #g = sns.lineplot(x="Type", y="Time per Epoch(s)", hue="Model", data=df)

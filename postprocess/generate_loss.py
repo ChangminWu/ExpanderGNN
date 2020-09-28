@@ -74,9 +74,14 @@ def loss_plot(folder, output_file=None):
     sns.set_theme(style="whitegrid")
     palette = sns.color_palette("mako_r", 8)
     g = sns.lineplot(x="Step", y="Value", hue="Model", data=df, palette=palette, hue_order=hue_order)
-    g.set_xlabel("#Epochs")
-    g.set_ylabel("Train Loss (Log-scale)")
+    g.set_xlabel("#Epochs", fontsize=70)
+    g.set_ylabel("Train Loss (Log-scale)", fontsize=70)
     g.set_yscale("log")
+    plt.setp(g.get_legend().get_texts(), fontsize='50') 
+    plt.setp(g.get_legend().get_title(), fontsize='70')
+    plt.setp(g.get_yticklabels(), fontsize=50)
+    plt.setp(g.get_xticklabels(), fontsize=50)
+    
 
     g.figure.tight_layout()
     g.figure.savefig(output_file, dpi=1600)
