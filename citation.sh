@@ -1,10 +1,10 @@
 use_gpu="True"
 script=main_citation_node_classification.py
-datasets=("CORA" "PUBMED" "CITESEER") #
-actives=('linear') #'relu' 'prelu' 'brelu' 'rrelu' 'linear' 'softshrink' 'tanh' 'softplus' 'selu' 'lelu'
-models=('GCN') #'GCN' 'GIN' 'MLP' 'GraphSage' 'PNA'
+datasets=("CORA" "PUBMED") #
+actives=('relu' 'prelu' 'linear' 'softshrink' 'tanh' 'selu' 'lelu') # 
+models=('GIN' 'GraphSage') #'GCN' 'GIN' 'MLP' 'GraphSage' 'PNA'
 densities=( 0.1 0.5 0.9 )
-savedir="results/citation-runs-linear/"
+savedir="results/citation-runs-activations/"
 
 for i in "${datasets[@]}"
 do
