@@ -4,8 +4,8 @@ import glob
 import argparse
 import itertools
 
-MODEL = ["GCN", "GIN", "MLP"] # "GraphSage", "PNA", 
-ACTIV = ["ReLU", "PReLU", "RReLU", "SoftPlus", "Tanh", "SoftShrink", "SeLU"]
+MODEL = ["GCN", "GIN", "GraphSage", "PNA", "MLP"] # , 
+ACTIV = ['relu', 'prelu', 'linear', 'softshrink', 'tanh', 'selu', 'lelu']
 DENSITY = [0.1, 0.5, 0.9]
 RECORD = ["ACC", "Time per Epoch(s)", "#Parameters"]
 
@@ -80,9 +80,15 @@ def collect_results(folder, dataset, output_file):
             for line in f.readlines():
                 if line.split(":")[0] == "TEST ACCURACY averaged":
                     acc = line.split(":")[1].split("with s.d.")[0]
-                    std = line.split(":")[1].split("with s.d.")[1].replace(" ", "")
                     col_acc = col_ind + ("ACC", )
-                    df.loc[row_ind][col_acc] = acc + " $\pm$ " + std
+                    acc = float(acc)
+                    
+                    if len(line.split(":")[1].split("with s.d.")) > 1:
+                        std = line.split(":")[1].split("with s.d.")[1].replace(" ", "")
+                        std = float(std)
+                        df.loc[row_ind][col_acc] = "{:.2f} $\pm$ {:.2f}".format(acc, std)
+                    else:
+                        df.loc[row_ind][col_acc] = "{:.2f}".format(acc)
                     
                 if line.split(":")[0] == "TEST MAE averaged":
                     acc = line.split(":")[1].split("with s.d.")[0]
