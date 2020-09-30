@@ -4,7 +4,7 @@ import glob
 import argparse
 import itertools
 
-MODEL = ["GCN", "GIN", "GraphSage", "PNA", "MLP"]
+MODEL = ["GCN", "GIN", "MLP"] # "GraphSage", "PNA", 
 ACTIV = ["ReLU", "PReLU", "RReLU", "SoftPlus", "Tanh", "SoftShrink", "SeLU"]
 DENSITY = [0.1, 0.5, 0.9]
 RECORD = ["ACC", "Time per Epoch(s)", "#Parameters"]
@@ -60,7 +60,10 @@ def collect_results(folder, dataset, output_file):
         
         for i in ["Regular", "Expander", "Activations", "Simple"]:
             if i.lower() == type_param[0].lower():
-                row_ind = (i, ) + row_ind
+                if i.lower() == "Simple" and row_ind[0] != "GCN":
+                    continue
+                else:
+                    row_ind = (i, ) + row_ind
         
         if len(type_param) == 1:
             row_ind = row_ind + ("---", )
@@ -77,8 +80,10 @@ def collect_results(folder, dataset, output_file):
             for line in f.readlines():
                 if line.split(":")[0] == "TEST ACCURACY averaged":
                     acc = line.split(":")[1].split("with s.d.")[0]
+                    std = line.split(":")[1].split("with s.d.")[1].replace(" ", "")
                     col_acc = col_ind + ("ACC", )
-                    df.loc[row_ind][col_acc] = float(acc)
+                    df.loc[row_ind][col_acc] = acc + " $\pm$ " + std
+                    
                 if line.split(":")[0] == "TEST MAE averaged":
                     acc = line.split(":")[1].split("with s.d.")[0]
                     col_acc = col_ind + ("MAE", )

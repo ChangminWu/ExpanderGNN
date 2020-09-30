@@ -36,7 +36,7 @@ class MLPNet(nn.Module):
         self.layers = nn.ModuleList()
         sizes = [indim]
         sizes.extend([hiddim]*(n_layers-1))
-        sizes.append(n_classes)
+        # sizes.append(n_classes)
 
         for i in range(len(sizes)-1):
             self.layers.append(MultiLinearLayer(indim=sizes[i],
@@ -56,6 +56,16 @@ class MLPNet(nn.Module):
                 self.layers.append(self.activation)
 
             self.layers.append(nn.Dropout(dropout))
+
+        self.layers.append(MultiLinearLayer(indim=sizes[i+1],
+                                            outdim=n_classes,
+                                            activation=self.activation,
+                                            batch_norm=self.batch_norm,
+                                            num_layers=self.n_mlp_layer,
+                                            hiddim=hiddim,
+                                            bias=self.bias,
+                                            linear_type="regular",
+                                            **linear_params))
 
         if self.gated:
             self.gates = LinearLayer(hiddim, hiddim, bias=self.bias,
