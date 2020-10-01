@@ -4,7 +4,7 @@ import glob
 import argparse
 import itertools
 
-MODEL = ["GCN", "GIN", "GraphSage", "PNA", "MLP"] # , 
+MODEL = ["GIN", "GraphSage"] # , "GCN", , "PNA", "MLP"
 ACTIV = ['relu', 'prelu', 'linear', 'softshrink', 'tanh', 'selu', 'lelu']
 DENSITY = [0.1, 0.5, 0.9]
 RECORD = ["ACC", "Time per Epoch(s)", "#Parameters"]
