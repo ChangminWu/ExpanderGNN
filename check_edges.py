@@ -20,7 +20,7 @@ def count_edges(dataset_name):
         num_graphs = 0
         for data in [dataset.train, dataset.val, dataset.test]:
             num_nodes += [data[i][0].number_of_nodes() for i in range(len(data))]
-            num_edges += [data[i][0].number_of_edges() for i in range(len(data))]
+            num_edges += [data[i][0].number_of_edges()/2 for i in range(len(data))]
             num_graphs += len(data)
         num_nodes = np.mean(num_nodes)
         num_edges = np.mean(num_edges)
