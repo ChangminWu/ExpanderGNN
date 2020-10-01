@@ -6,11 +6,11 @@ def count_edges(dataset_name):
     
     dataset = LoadData(dataset_name)
     
-    if dataset in ["ENZYMES", "DD", "PROTEINS_full", "IMDB-BINARY"]:
+    if dataset_name in ["ENZYMES", "DD", "PROTEINS_full", "IMDB-BINARY"]:
         num_nodes = np.mean([dataset.all[i][0].number_of_nodes() for i in range(len(dataset.all))])
         num_edges = np.mean([dataset.all[i][0].number_of_edges()/2 for i in range(len(dataset.all))])
         num_graphs = len(num_nodes)
-    elif dataset in ["CORA", "CITESEER", "PUBMED"]:
+    elif dataset_name in ["CORA", "CITESEER", "PUBMED"]:
         num_nodes = dataset.graph.number_of_nodes()
         num_edges = dataset.graph.number_of_edges()
         num_graphs = 1
