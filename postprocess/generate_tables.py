@@ -4,8 +4,8 @@ import glob
 import argparse
 import itertools
 
-MODEL = ["GCN", "GIN", "GraphSage", "PNA", "MLP"]
-ACTIV = ["ReLU", "PReLU", "RReLU", "SoftPlus", "Tanh", "SoftShrink", "SeLU"]
+MODEL = ["GIN", "GraphSage"] # , "GCN", , "PNA", "MLP"
+ACTIV = ['relu', 'prelu', 'linear', 'softshrink', 'tanh', 'selu', 'lelu']
 DENSITY = [0.1, 0.5, 0.9]
 RECORD = ["ACC", "Time per Epoch(s)", "#Parameters"]
 
@@ -60,7 +60,10 @@ def collect_results(folder, dataset, output_file):
         
         for i in ["Regular", "Expander", "Activations", "Simple"]:
             if i.lower() == type_param[0].lower():
-                row_ind = (i, ) + row_ind
+                if i.lower() == "Simple" and row_ind[0] != "GCN":
+                    continue
+                else:
+                    row_ind = (i, ) + row_ind
         
         if len(type_param) == 1:
             row_ind = row_ind + ("---", )
@@ -78,7 +81,15 @@ def collect_results(folder, dataset, output_file):
                 if line.split(":")[0] == "TEST ACCURACY averaged":
                     acc = line.split(":")[1].split("with s.d.")[0]
                     col_acc = col_ind + ("ACC", )
-                    df.loc[row_ind][col_acc] = float(acc)
+                    acc = float(acc)
+                    
+                    if len(line.split(":")[1].split("with s.d.")) > 1:
+                        std = line.split(":")[1].split("with s.d.")[1].replace(" ", "")
+                        std = float(std)
+                        df.loc[row_ind][col_acc] = "{:.2f} $\pm$ {:.2f}".format(acc, std)
+                    else:
+                        df.loc[row_ind][col_acc] = "{:.2f}".format(acc)
+                    
                 if line.split(":")[0] == "TEST MAE averaged":
                     acc = line.split(":")[1].split("with s.d.")[0]
                     col_acc = col_ind + ("MAE", )

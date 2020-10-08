@@ -68,7 +68,7 @@ class GCNNet(nn.Module):
                                                  num_layers=self.n_mlp_layer,
                                                  hiddim=hiddim,
                                                  bias=self.bias,
-                                                 linear_type=self.linear_type,
+                                                 linear_type="regular",
                                                  **linear_params)
                 self.layers.append(GCNLayer(linear_transform,
                                    aggr_type=self.neighbor_pool,

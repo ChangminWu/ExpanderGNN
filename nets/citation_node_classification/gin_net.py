@@ -78,14 +78,14 @@ class GINNet(nn.Module):
         self.linear_predictions.append(
             LinearLayer(indim,
                         n_classes, bias=self.bias,
-                        linear_type=self.linear_type,
+                        linear_type="regular",
                         **linear_params))
 
         for layer in range(self.n_layers):
             self.linear_predictions.append(
                 LinearLayer(hiddim,
                             n_classes, bias=self.bias,
-                            linear_type=self.linear_type,
+                            linear_type="regular",
                             **linear_params))
 
     def forward(self, g, h, e):

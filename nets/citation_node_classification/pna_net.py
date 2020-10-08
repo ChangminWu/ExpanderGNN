@@ -110,7 +110,7 @@ class PNANet(nn.Module):
                                     scalers=self.scalers, avg_d=self.avg_d,
                                     num_posttrans_layer=num_posttrans_layer,
                                     residual=self.residual, bias=self.bias,
-                                    linear_type=self.linear_type,
+                                    linear_type="regular",
                                     **linear_params)
                 else:
                     new_layer = PNALayer(
@@ -126,7 +126,7 @@ class PNANet(nn.Module):
                                     divide_input=False, residual=self.residual,
                                     edge_features=self.edge_feat,
                                     edge_dim=edge_dim, bias=self.bias,
-                                    linear_type=self.linear_type,
+                                    linear_type="regular",
                                     **linear_params)
 
             else:

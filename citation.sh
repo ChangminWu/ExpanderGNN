@@ -1,10 +1,10 @@
 use_gpu="True"
 script=main_citation_node_classification.py
-datasets=("CITESEER") #"CORA" "PUBMED"
-actives=('relu' 'prelu' 'brelu' 'rrelu' 'linear' 'softshrink' 'tanh' 'softplus' 'selu' 'lelu')
-models=('GIN' 'GraphSage') #'GCN' 'GIN' 'MLP' 'GraphSage'
+datasets=("CORA" "PUBMED") #
+actives=('relu' 'prelu' 'linear' 'softshrink' 'tanh' 'selu' 'lelu') # 
+models=('GIN' 'GraphSage') #'GCN' 'GIN' 'MLP' 'GraphSage' 'PNA'
 densities=( 0.1 0.5 0.9 )
-savedir="results/citation-runs-new-gin/"
+savedir="results/citation-runs-activations/"
 
 for i in "${datasets[@]}"
 do
@@ -13,7 +13,7 @@ do
     config_file=configs/citation_node_classification/${j}_citation_100k.json
     # for d in "${densities[@]}"
     # do
-    #   python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model "GraphSage" --density ${d} --linear_type "expander" --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
+    #   python $script --dataset ${i} --out_dir ${savedir} --experiment "expander-density-${d}" --model ${j} --density ${d} --linear_type "expander" --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
     # done
 
     # config_file=configs/citation_node_classification/${j}_citation_100k.json
@@ -35,5 +35,5 @@ do
   done
 done
 
-config_file=configs/citation_node_classification/GIN_citation_100k.json
-python $script --dataset CORA --out_dir ${savedir} --experiment "activations-softshrink" --model "ActivationGIN" --activation softshrink --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --init_lr 0.2
+# config_file=configs/citation_node_classification/GIN_citation_100k.json
+# python $script --dataset CORA --out_dir ${savedir} --experiment "activations-softshrink" --model "ActivationGIN" --activation softshrink --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --init_lr 0.2

@@ -74,7 +74,7 @@ class GraphSageNet(nn.Module):
                                               num_layers=self.n_mlp_layer,
                                               hiddim=hiddim,
                                               bias=self.bias,
-                                              linear_type=self.linear_type,
+                                              linear_type="regular",
                                               **linear_params)
 
                 self.layers.append(GraphSageLayer(apply_func,
