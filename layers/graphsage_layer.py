@@ -100,6 +100,19 @@ class GraphSageLayer(nn.Module):
     def __init__(self, apply_func,
                  aggr_type, activation, dropout,
                  batch_norm, residual=False, dgl_builtin=False, **kwargs):
+        """
+
+        Parameters
+        ----------
+        apply_func: callable, linear transform function to update node features
+        aggr_type: string, neighborhood aggregation types
+        activation: callable, activation function
+        dropout: bool, whether or not use dropout on input features
+        batch_norm: bool, whether or not add batch normalization before activation, after aggregation and linear transform
+        residual: bool, whether or not use residual connection
+        dgl_builtin: bool,
+        kwargs
+        """
         super(GraphSageLayer, self).__init__()
         self.dgl_builtin = dgl_builtin
 
