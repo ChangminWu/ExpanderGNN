@@ -6,8 +6,7 @@ from expander.expander_layer import LinearLayer, MultiLinearLayer
 
 class GATSingleHeadLayer(nn.Module):
     def __init__(self, n_mlp_layer, indim, outdim, hiddim, activation, dropout,
-                 batch_norm,
-                 bias=True, linear_type="expander", **kwargs):
+                 batch_norm, bias=True, linear_type="expander", **kwargs):
         super().__init__()
         self.activation = activation  # nn.ELU()
         self.attn_activation = activation  # nn.LeakyReLU()

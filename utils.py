@@ -6,11 +6,21 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from layers.activation_layer import LinearActiveLayer, BiasedRELULayer,\
-                                    ConvActivLayer
+from layers.activation_layer import LinearActiveLayer, BiasedRELULayer, ConvActivLayer
 
 
 def activations(activ_name, param=None):
+    """
+    activation function loader
+    Parameters
+    ----------
+    activ_name: string, name of activation function
+    param: *dict, possible inputs of activation functions
+
+    Returns
+    -------
+    callable function
+    """
     if activ_name == "sigmoid":
         activation = nn.Sigmoid()
     elif activ_name == "tanh":
@@ -53,6 +63,17 @@ def activations(activ_name, param=None):
 
 
 def expander_writer(saved_expander, curr_path="./"):
+    """
+    recorder for expander structures, recursively iterates over each layer
+    Parameters
+    ----------
+    saved_expander: dict,
+    curr_path: string, save path
+
+    Returns
+    -------
+
+    """
     for key in saved_expander:
         if type(saved_expander[key]) is torch.Tensor:
             bipart_matrix = saved_expander[key].cpu().detach().numpy()
@@ -68,25 +89,26 @@ def expander_writer(saved_expander, curr_path="./"):
                 else:
                     labels[i] = 1
             nx.set_node_attributes(graph, labels, "bipartite")
-            # graph = nx.DiGraph()
-            # graph.add_nodes_from(np.arange(num_input_nodes), bipartite=0)
-            # graph.add_nodes_from(
-            #       np.arange(num_input_nodes,
-            #                 num_input_nodes+num_output_nodes, 1),
-            #       bipartite=1)
-            # edges = map(lambda e: (int(e[0]), int(e[1])),
-            #             zip(*(np.asarray(adj).nonzero())))
-            # graph.add_edges_from(edges)
-            # with open(curr_path+key+".p") as f:
-            #     pickle.dump(graph, f)
             nx.write_gpickle(graph, curr_path+key+".gpickle")
         else:
             pathlib.Path(curr_path+key).mkdir(parents=True, exist_ok=True)
             expander_writer(saved_expander[key], curr_path=curr_path+key+"/")
 
 
-def expander_weights_writer(net, saved_expander, saved_layers=None,
-                            curr_path="./"):
+def expander_weights_writer(net, saved_expander, saved_layers=None, curr_path="./"):
+    """
+    recorder for expander structure with weights
+    Parameters
+    ----------
+    net: pytorch nn model, GNN network
+    saved_expander: dict, saved expander structure
+    saved_layers: dict, saved layer structure
+    curr_path: string, save path
+
+    Returns
+    -------
+    layer structure recorded
+    """
     num_children = len(list(net.children()))
     if saved_layers is None:
         saved_layers = dict()
@@ -107,8 +129,6 @@ def expander_weights_writer(net, saved_expander, saved_layers=None,
             mask = weight.copy()
             mask[mask != 0] = 1
             assert (mask == saved_expander[label].cpu().detach().numpy()).all()
-            # with open(curr_path + label + ".pickle") as f:
-            #     pickle.dump(weight, f)
             np.save(curr_path + label + ".npy", weight)
     else:
         pathlib.Path(curr_path + label).mkdir(parents=True, exist_ok=True)
@@ -122,11 +142,24 @@ def expander_weights_writer(net, saved_expander, saved_layers=None,
 
 
 def check_tensorboard(net, writer, step, step_size=30, saved_layers=None):
+    """
+    recursively record
+    Parameters
+    ----------
+    net: pytorch nn model, GNN network
+    writer: tensorboardx writer
+    step: int, current step index
+    step_size: int, interval size for the tensorboard writer
+    saved_layers: dict, saved layer structure
+
+    Returns
+    -------
+
+    """
     num_children = len(list(net.children()))
     if saved_layers is None:
         saved_layers = dict()
     layer_name = str(net.__class__).split(".")[-1].split("'")[0]
-    # str(net)[:str(net).find('(')]
     if layer_name in saved_layers:
         label = layer_name + "_" + str(len(saved_layers[layer_name]))
         saved_layers[layer_name].append(label)
@@ -166,9 +199,20 @@ def check_tensorboard(net, writer, step, step_size=30, saved_layers=None):
 
 
 def init_expander(net, saved_expander=None, saved_layers=None):
+    """
+    initialize expander structures for GNN model
+    Parameters
+    ----------
+    net: pytorch nn model, GNN network
+    saved_expander: dict, default expander structures
+    saved_layers: dict, default layers (name)
+
+    Returns
+    -------
+    generated expander structures, layers
+    """
     num_children = len(list(net.children()))
     layer_name = str(net.__class__).split(".")[-1].split("'")[0]
-    # str(net)[:str(net).find('(')]
     if layer_name in saved_layers:
         label = layer_name + "_" + str(len(saved_layers[layer_name]))
         saved_layers[layer_name].append(label)
@@ -195,11 +239,21 @@ def init_expander(net, saved_expander=None, saved_layers=None):
     return saved_expander, saved_layers
 
 
-def get_model_param(net, num):
+def get_model_param(net, num=0):
+    """
+    recursively count number of parameters (for expander linear or linear) layers
+    Parameters
+    ----------
+    net: pytorch nn model, GNN network
+    num: int, initial number of parameters
+
+    Returns
+    -------
+    totoal number of parameters of the model
+    """
     curr_total_num = num
     num_children = len(list(net.children()))
     layer_name = str(net.__class__).split(".")[-1].split("'")[0]
-    # str(net)[:str(net).find('(')]
     if num_children == 0:
         if "Expander" in layer_name and "Linear" in layer_name:
             curr_total_num += net.n_params
@@ -214,13 +268,18 @@ def get_model_param(net, num):
     return curr_total_num
 
 
-class DotDict(dict):
-    def __init__(self, **kwds):
-        self.update(kwds)
-        self.__dict__ = self
-
-
 def convert_to_float(frac_str):
+    """
+    convert string of fraction (1/3) to float (0.3333)
+    Parameters
+    ----------
+    frac_str: string, string to be transloated into
+
+    Returns
+    -------
+    float value corresponding to the string of fraction
+
+    """
     try:
         return float(frac_str)
     except ValueError:

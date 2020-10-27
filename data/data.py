@@ -14,7 +14,7 @@ def LoadData(DATASET_NAME):
     if DATASET_NAME == 'MNIST' or DATASET_NAME == 'CIFAR10':
         return SuperPixDataset(DATASET_NAME)
 
-    if DATASET_NAME == 'ZINC':
+    if DATASET_NAME == 'ZINC' or DATASET_NAME == 'ZINC-full':
         return MoleculeDataset(DATASET_NAME)
 
     CITATIONGRAPHS_DATASETS = ['CORA', 'CITESEER', 'PUBMED']

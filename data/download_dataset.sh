@@ -3,7 +3,7 @@
 
 
 # Command to download dataset:
-#   bash script_download_all_datasets.sh
+#   bash download_datasets.sh
 
 
 ############
@@ -18,7 +18,18 @@ if test -f "$FILE"; then
 	echo -e "$FILE already downloaded."
 else
 	echo -e "\ndownloading $FILE..."
-	curl https://www.dropbox.com/s/bhimk9p1xst6dvo/ZINC.pkl?dl=1 -o ZINC.pkl -J -L -k
+	curl https://data.dgl.ai/dataset/benchmarking-gnns/ZINC.pkl -o ZINC.pkl -J -L -k
+fi
+
+cd ..
+
+
+FILE=ZINC-full.pkl
+if test -f "$FILE"; then
+	echo -e "$FILE already downloaded."
+else
+	echo -e "\ndownloading $FILE..."
+	curl https://data.dgl.ai/dataset/benchmarking-gnns/ZINC-full.pkl -o ZINC.pkl -J -L -k
 fi
 
 cd ..
@@ -36,7 +47,7 @@ if test -f "$FILE"; then
 	echo -e "$FILE already downloaded."
 else
 	echo -e "\ndownloading $FILE..."
-	curl https://www.dropbox.com/s/wcfmo4yvnylceaz/MNIST.pkl?dl=1 -o MNIST.pkl -J -L -k
+	curl https://data.dgl.ai/dataset/benchmarking-gnns/MNIST.pkl -o MNIST.pkl -J -L -k
 fi
 
 FILE=CIFAR10.pkl
@@ -44,7 +55,7 @@ if test -f "$FILE"; then
 	echo -e "$FILE already downloaded."
 else
 	echo -e "\ndownloading $FILE..."
-	curl https://www.dropbox.com/s/agocm8pxg5u8yb5/CIFAR10.pkl?dl=1 -o CIFAR10.pkl -J -L -k
+	curl https://data.dgl.ai/dataset/benchmarking-gnns/CIFAR10.pkl -o CIFAR10.pkl -J -L -k
 fi
 
 cd ..

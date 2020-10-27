@@ -14,7 +14,7 @@ from scipy import sparse as sp
 
 
 class MoleculeDGL(torch.utils.data.Dataset):
-    def __init__(self, data_dir, split, num_graphs):
+    def __init__(self, data_dir, split, num_graphs=None):
         self.data_dir = data_dir
         self.split = split
         self.num_graphs = num_graphs
@@ -22,14 +22,15 @@ class MoleculeDGL(torch.utils.data.Dataset):
         with open(data_dir + "/%s.pickle" % self.split, "rb") as f:
             self.data = pickle.load(f)
 
-        # loading the sampled indices from file ./zinc_molecules/<split>.index
-        with open(data_dir + "/%s.index" % self.split, "r") as f:
-            data_idx = [list(map(int, idx)) for idx in csv.reader(f)]
-            self.data = [self.data[i] for i in data_idx[0]]
+        if self.num_graphs in [10000, 1000]:
+            # loading the sampled indices from file ./zinc_molecules/<split>.index
+            with open(data_dir + "/%s.index" % self.split, "r") as f:
+                data_idx = [list(map(int, idx)) for idx in csv.reader(f)]
+                self.data = [self.data[i] for i in data_idx[0]]
 
-        assert len(self.data) == num_graphs,\
-            "Sample num_graphs again; \
-                available idx: train/val/test => 10k/1k/1k"
+            assert len(self.data) == num_graphs,\
+                "Sample num_graphs again; \
+                    available idx: train/val/test => 10k/1k/1k"
 
         """
         data is a list of Molecule dict objects with following attributes
@@ -105,9 +106,15 @@ class MoleculeDatasetDGL(torch.utils.data.Dataset):
 
         data_dir = "./data/molecules"
 
-        self.train = MoleculeDGL(data_dir, 'train', num_graphs=10000)
-        self.val = MoleculeDGL(data_dir, 'val', num_graphs=1000)
-        self.test = MoleculeDGL(data_dir, 'test', num_graphs=1000)
+        if self.name == 'ZINC-full':
+            data_dir = './data/molecules/zinc_full'
+            self.train = MoleculeDGL(data_dir, 'train', num_graphs=220011)
+            self.val = MoleculeDGL(data_dir, 'val', num_graphs=24445)
+            self.test = MoleculeDGL(data_dir, 'test', num_graphs=5000)
+        else:
+            self.train = MoleculeDGL(data_dir, 'train', num_graphs=10000)
+            self.val = MoleculeDGL(data_dir, 'val', num_graphs=1000)
+            self.test = MoleculeDGL(data_dir, 'test', num_graphs=1000)
         print("Time taken: {:.4f}s".format(time.time()-t0))
 
 
@@ -146,8 +153,7 @@ def positional_encoding(g, pos_enc_dim):
 
     # Laplacian
     A = g.adjacency_matrix_scipy(return_edge_ids=False).astype(float)
-    N = sp.diags(dgl.backend.asnumpy(g.in_degrees()).clip(1) ** -0.5,
-                 dtype=float)
+    N = sp.diags(dgl.backend.asnumpy(g.in_degrees()).clip(1) ** -0.5, dtype=float)
     L = sp.eye(g.number_of_nodes()) - N * A * N
 
     # Eigenvectors with numpy
@@ -159,8 +165,7 @@ def positional_encoding(g, pos_enc_dim):
     # # Eigenvectors with scipy
     # EigVal, EigVec = sp.linalg.eigs(L, k=pos_enc_dim+1, which='SR')
     # EigVec = EigVec[:, EigVal.argsort()] # increasing order
-    # g.ndata['pos_enc'] = torch.from_numpy(np.abs(EigVec[:,1:pos_enc_dim+1]))\
-    # .float()
+    # g.ndata['pos_enc'] = torch.from_numpy(np.abs(EigVec[:,1:pos_enc_dim+1])).float()
     return g
 
 
@@ -180,8 +185,7 @@ class MoleculeDataset(torch.utils.data.Dataset):
             self.test = f[2]
             self.num_atom_type = f[3]
             self.num_bond_type = f[4]
-        print('train, test, val sizes :', len(self.train), len(self.test),
-              len(self.val))
+        print('train, test, val sizes :', len(self.train), len(self.test), len(self.val))
         print("[I] Finished loading.")
         print("[I] Data load time: {:.4f}s".format(time.time()-start))
 
@@ -217,9 +221,7 @@ class MoleculeDataset(torch.utils.data.Dataset):
 
         if edge_feat:
             # use edge feats also to prepare adj
-            adj_with_edge_feat = torch.stack([zero_adj for j
-                                              in range(self.num_atom_type +
-                                                       self.num_bond_type)])
+            adj_with_edge_feat = torch.stack([zero_adj for _ in range(self.num_atom_type + self.num_bond_type)])
             adj_with_edge_feat = torch.cat([adj.unsqueeze(0),
                                             adj_with_edge_feat], dim=0)
 
@@ -236,10 +238,8 @@ class MoleculeDataset(torch.utils.data.Dataset):
 
         else:
             # use only node feats to prepare adj
-            adj_no_edge_feat = torch.stack([zero_adj for j
-                                            in range(self.num_atom_type)])
-            adj_no_edge_feat = torch.cat([adj.unsqueeze(0), adj_no_edge_feat],
-                                         dim=0)
+            adj_no_edge_feat = torch.stack([zero_adj for _ in range(self.num_atom_type)])
+            adj_no_edge_feat = torch.cat([adj.unsqueeze(0), adj_no_edge_feat], dim=0)
 
             for node, node_label in enumerate(g.ndata['feat']):
                 adj_no_edge_feat[node_label.item()+1][node][node] = 1
