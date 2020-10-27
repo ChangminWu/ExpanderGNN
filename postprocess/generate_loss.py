@@ -70,21 +70,28 @@ def loss_plot(folder, output_file=None):
 
     hue_order = [x+" {}".format(MODEL[0]) for x in hue_order]
     
-    fig=plt.figure(figsize=(20,20))
+    fig=plt.figure(figsize=(40,20))
     sns.set_theme(style="whitegrid")
-    palette = sns.color_palette("mako_r", 8)
-    g = sns.lineplot(x="Step", y="Value", hue="Model", data=df, palette=palette, hue_order=hue_order)
+    palette = sns.color_palette("Set2")
+    g = sns.lineplot(x="Step", y="Value", hue="Model", data=df, palette=palette, hue_order=hue_order, lw=5.0)
     g.set_xlabel("#Epochs", fontsize=70)
     g.set_ylabel("Train Loss (Log-scale)", fontsize=70)
     g.set_yscale("log")
-    plt.setp(g.get_legend().get_texts(), fontsize='50') 
-    plt.setp(g.get_legend().get_title(), fontsize='70')
-    plt.setp(g.get_yticklabels(), fontsize=50)
-    plt.setp(g.get_xticklabels(), fontsize=50)
-    
+    g.get_legend().set_title("")
+    g.get_legend().get_frame().set_linewidth(0.0)
+    g.get_legend().get_frame().set_facecolor('none')
+    #plt.setp(g.get_legend().get_title(), fontsize='50')
+    plt.setp(g.get_legend().get_texts(), fontsize="50")
+    plt.setp(g.get_yticklabels(), fontsize=60)
+    plt.setp(g.get_xticklabels(), fontsize=60)
+    for line in g.get_legend().get_lines():
+        line.set_linewidth(8.0)
+    # for lh in g._legend.legendHandles: 
+    #     lh.set_alpha(1)
+    #     lh._sizes = [50] 
 
     g.figure.tight_layout()
-    g.figure.savefig(output_file, dpi=1600)
+    g.figure.savefig(output_file, dpi=200, bbox_inches='tight')
 
     # df = pd.DataFrame(data=data, columns=["Dataset", "Model", "Type"]+RECORD)  #, "Value", "ValueType"])
 
