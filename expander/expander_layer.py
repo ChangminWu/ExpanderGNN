@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 from expander.expander_module import ExpanderLinear
@@ -21,6 +22,10 @@ class LinearLayer(nn.Module):
         elif self.linear_type == "regular":
             self.layer = nn.Linear(indim, outdim, bias=self.bias)
             self.reset_parameters()
+        elif self.linear_type == "random":
+            self.layer = RandomWeight(indim, outdim, norm=False)
+        elif self.linear_type == "random-normalize":
+            self.layer = RandomWeight(indim, outdim, norm=True)
         else:
             raise ValueError("Invalid linear transform type.")
 
@@ -67,3 +72,16 @@ class MultiLinearLayer(nn.Module):
 
     def forward(self, _input):
         return self.layers(_input)
+
+
+class RandomWeight(nn.Module):
+    def __init__(self, indim, outdim, norm=True):
+        super(RandomWeight, self).__init__()
+        if norm:
+            self.register_buffer('weight', torch.randn(indim, outdim) /
+                                 torch.Tensor([max(indim, outdim)]).sqrt())
+        else:
+            self.register_buffer('weight', torch.randn(indim, outdim))
+
+    def forward(self, _input):
+        return torch.matmul(_input, self.weight.to(_input.device))

@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 
 from layers.activation_layer import LinearActiveLayer, BiasedRELULayer,\
-                                    ConvActivLayer
+                                    ConvActivLayer, PolynomialActivation
 
 
 def activations(activ_name, param=None):
@@ -45,6 +45,8 @@ def activations(activ_name, param=None):
         activation = BiasedRELULayer(intercept=True)
     elif activ_name == "conv":
         activation = ConvActivLayer()
+    elif activ_name == "param":
+        activation = PolynomialActivation(order=param)
     elif activ_name == "None":
         activation = None
     else:

@@ -413,6 +413,9 @@ def main():
                         help="number of posttrans layers.")
     parser.add_argument('--use_simplified_version',
                         help="whether to use simplified PNA.")
+
+    parser.add_argument('--order', type=int, help='order of polynomial activation')
+
     args = parser.parse_args()
 
     with open(args.config) as f:
@@ -569,6 +572,9 @@ def main():
     if args.use_simplified_version is not None:
         net_params['use_simplified_version'] = args.use_simplified_version\
             if args.use_simplified_version == 'True' else False
+
+    if args.order is not None:
+        net_params['order'] = int(args.order)
 
     # TU datasets
     net_params['in_dim'] = dataset.all.graph_lists[0].ndata['feat'][0].shape[0]

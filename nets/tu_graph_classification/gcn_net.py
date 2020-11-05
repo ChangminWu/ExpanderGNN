@@ -25,11 +25,12 @@ class GCNNet(nn.Module):
         self.residual = net_params["residual"]
         self.batch_norm = net_params["batch_norm"]
         self.n_mlp_layer = net_params["mlp_layers"]
-
-        self.activation = activations(net_params["activation"])
+        self.order = net_params['order']
+        self.activation = activations(net_params["activation"], param=self.order)
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
+        self.normalize = net_params["normalize"]
         self.bias = net_params["bias"]
         self.dgl_builtin = net_params["dgl_builtin"]
 

@@ -50,3 +50,30 @@ class ConvActivLayer(nn.Module):
         _input = self.conv(_input)
         return _input.squeeze(1)
 
+
+class PolynomialActivation(nn.Module):
+    def __init__(self, bias=True, order=2):
+        super().__init__()
+        self.order = order
+        self.zetas = nn.ParameterList([nn.Parameter(data=torch.Tensor(1)) for _ in range(order)])
+        if bias:
+            self.bias = nn.Parameter(data=torch.Tensor(1))
+        else:
+            self.register_parameter("bias", None)
+
+        self.reset_parameters()
+
+    def forward(self, _input):
+        output = 0
+        for i in range(self.order):
+            output += self.zetas[i]*_input**(i+1)
+        if self.bias is not None:
+            output += self.bias
+        return output
+
+    def reset_parameters(self):
+        for i in range(self.order):
+            nn.init.ones_(self.zetas[i])
+        if self.bias is not None:
+            nn.init.zeros_(self.bias)
+
