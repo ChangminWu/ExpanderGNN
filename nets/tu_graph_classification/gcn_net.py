@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 import dgl
@@ -88,8 +89,13 @@ class GCNNet(nn.Module):
             g = g.to(h.device)
             h = self.node_encoder(h)
             h = self.in_feat_dropout(h)
+            
+            degs = g.in_degrees().float().clamp(min=1)
+            norm = torch.pow(degs, -0.5)
+            norm = norm.to(h.device).unsqueeze(1)
+            
             for conv in self.layers:
-                h = conv(g, h)
+                h = conv(g, h, norm=norm)
             g.ndata["h"] = h
 
             if self.graph_pool == "sum":
