@@ -1,11 +1,15 @@
 import torch
 import torch.nn as nn
 
+import dgl
 import dgl.function as fn
 from dgl.nn.pytorch import GraphConv
 
 
 class UpdateModule(nn.Module):
+    """
+    update node features
+    """
     def __init__(self, apply_func):
         super().__init__()
         self.apply_func = apply_func
@@ -19,6 +23,18 @@ class GCNLayer(nn.Module):
     def __init__(self, apply_func,
                  aggr_type, activation, dropout,
                  batch_norm, residual=False, dgl_builtin=False):
+        """
+
+        Parameters
+        ----------
+        apply_func: callable, linear transform function to update node features
+        aggr_type: string, neighborhood aggregation types
+        activation: callable, activation function
+        dropout: bool, whether or not use dropout on input features
+        batch_norm: bool, whether or not add batch normalization before activation, after aggregation and linear transform
+        residual: bool, whether or not use residual connection
+        dgl_builtin: bool, whether or not use dgl builtin GCN convolution layer
+        """
         super().__init__()
         if aggr_type == "sum":
             self._reducer = fn.sum
@@ -41,12 +57,17 @@ class GCNLayer(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         if self.dgl_builtin:
-            self.conv = GraphConv(apply_func.indim,
-                                  apply_func.outdim)
+            if dgl.__version__ < "0.5":
+                self.conv = GraphConv(apply_func.indim,
+                                      apply_func.outdim)
+            else:
+                self.conv = GraphConv(apply_func.indim,
+                                      apply_func.outdim, allow_zero_in_degree=True)
         else:
             self.apply_mod = UpdateModule(apply_func)
 
     def forward(self, g, features, norm=None):
+        # norm is the square-root of degrees, used for symmetrically normalize the adjacency matrix
         h_in = features
 
         if self.dgl_builtin:

@@ -8,6 +8,19 @@ class GINLayer(nn.Module):
     def __init__(self, apply_func, aggr_type, activation, dropout,
                  batch_norm, residual=False,
                  init_eps=0, learn_eps=False):
+        """
+
+        Parameters
+        ----------
+        apply_func: callable, linear transform function to update node features
+        aggr_type: string, neighborhood aggregation types
+        activation: callable, activation function
+        dropout: bool, whether or not use dropout on input features
+        batch_norm: bool, whether or not add batch normalization before activation, after aggregation and linear transform
+        residual: bool, whether or not use residual connection
+        init_eps: float, initial coefficient for central node feature in update step
+        learn_eps: bool, whether or not the aforementioned coefficient is learnable
+        """
         super(GINLayer, self).__init__()
         self.apply_func = apply_func
 
