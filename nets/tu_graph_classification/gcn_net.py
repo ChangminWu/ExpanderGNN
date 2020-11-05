@@ -35,9 +35,10 @@ class GCNNet(nn.Module):
 
         linear_params = {"density": self.density, "sampler": self.sampler}
 
-        self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
-                                        linear_type=self.linear_type,
-                                        **linear_params)
+        # self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
+        #                                 linear_type=self.linear_type,
+        #                                 **linear_params)
+        self.node_encoder = LinearLayer(indim, outdim, bias=self.bias, linear_type='regular')
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.layers = nn.ModuleList()

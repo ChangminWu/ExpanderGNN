@@ -52,7 +52,7 @@ class ConvActivLayer(nn.Module):
 
 
 class PolynomialActivation(nn.Module):
-    def __init__(self, bias=True, order=2):
+    def __init__(self, order=2, bias=True):
         super().__init__()
         self.order = order
         self.zetas = nn.ParameterList([nn.Parameter(data=torch.Tensor(1)) for _ in range(order)])
