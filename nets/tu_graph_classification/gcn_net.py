@@ -30,7 +30,6 @@ class GCNNet(nn.Module):
         self.linear_type = net_params["linear_type"]
         self.density = net_params["density"]
         self.sampler = net_params["sampler"]
-        self.normalize = net_params["normalize"]
         self.bias = net_params["bias"]
         self.dgl_builtin = net_params["dgl_builtin"]
 
