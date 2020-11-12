@@ -17,8 +17,8 @@ do
   fi
   for j in "${actives[@]}"
   do
-  python $script --dataset "$i" --out_dir $savedir --experiment "${j}-random-normalize" --model GCN --linear_type "random-normalize" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2
-  python $script --dataset "$i" --out_dir $savedir --experiment "${j}-random" --model GCN --linear_type "random" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2
+  python $script --dataset "$i" --out_dir $savedir --experiment "${j}-random-normalize" --model GCN --linear_type "random-normalize" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2 --hidden_dim 1000
+  python $script --dataset "$i" --out_dir $savedir --experiment "${j}-random" --model GCN --linear_type "random" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2 --hidden_dim 1000
   python $script --dataset "$i" --out_dir $savedir --experiment "${j}-regular" --model GCN --linear_type "regular" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2
   python $script --dataset "$i" --out_dir $savedir --experiment "${j}-activation" --model ActivationGCN --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2
   done
