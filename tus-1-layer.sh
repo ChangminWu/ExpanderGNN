@@ -9,7 +9,7 @@ do
   config_file=configs/citation_node_classification/GCN_citation_100k.json
   for j in "${actives[@]}"
   do
-    python $script --dataset "$i" --out_dir $savedir --experiment "${j}-random-normalize" ---model GCN --linear_type "random-normalize" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2 --batch_norm False --init_lr 0.2
+    python $script --dataset "$i" --out_dir $savedir --experiment "${j}-random-normalize" --model GCN --linear_type "random-normalize" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2 --batch_norm False --init_lr 0.2
     python $script --dataset "$i" --out_dir $savedir --experiment "${j}-random" --model GCN --linear_type "random" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2 --batch_norm False --init_lr 0.2
     python $script --dataset "$i" --out_dir $savedir --experiment "${j}-regular" --model GCN --linear_type "regular" --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2 --batch_norm False
     python $script --dataset "$i" --out_dir $savedir --experiment "${j}-activation" --model ActivationGCN --config "$config_file" --use_gpu $use_gpu --mlp_layers 1 --activation "$j" --order 2 --init_lr 0.2 --batch_norm False
