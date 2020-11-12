@@ -59,48 +59,49 @@ class GCNNet(nn.Module):
                                     residual=self.residual,
                                     dgl_builtin=self.dgl_builtin))
 
-        for i in range(n_layers-1):
-            if i == n_layers-2:
-                linear_transform = \
-                                MultiLinearLayer(hiddim, n_classes,
-                                                 activation=self.activation,
-                                                 batch_norm=self.batch_norm,
-                                                 num_layers=self.n_mlp_layer,
-                                                 hiddim=hiddim,
-                                                 bias=self.bias,
-                                                 linear_type="regular",
-                                                 **linear_params)
-                self.layers.append(GCNLayer(linear_transform,
-                                   aggr_type=self.neighbor_pool,
-                                   activation=None,
-                                   dropout=dropout,
-                                   batch_norm=False,
-                                   residual=self.residual,
-                                   dgl_builtin=self.dgl_builtin))
+        # for i in range(n_layers-1):
+        #     if i == n_layers-2:
+        #         linear_transform = \
+        #                         MultiLinearLayer(hiddim, n_classes,
+        #                                          activation=self.activation,
+        #                                          batch_norm=self.batch_norm,
+        #                                          num_layers=self.n_mlp_layer,
+        #                                          hiddim=hiddim,
+        #                                          bias=self.bias,
+        #                                          linear_type="regular",
+        #                                          **linear_params)
+        #         self.layers.append(GCNLayer(linear_transform,
+        #                            aggr_type=self.neighbor_pool,
+        #                            activation=None,
+        #                            dropout=dropout,
+        #                            batch_norm=False,
+        #                            residual=self.residual,
+        #                            dgl_builtin=self.dgl_builtin))
 
-            else:
-                linear_transform = \
-                                MultiLinearLayer(hiddim, hiddim,
-                                                 activation=self.activation,
-                                                 batch_norm=self.batch_norm,
-                                                 num_layers=self.n_mlp_layer,
-                                                 hiddim=hiddim,
-                                                 bias=self.bias,
-                                                 linear_type=self.linear_type,
-                                                 **linear_params)
+        #     else:
+        #         linear_transform = \
+        #                         MultiLinearLayer(hiddim, hiddim,
+        #                                          activation=self.activation,
+        #                                          batch_norm=self.batch_norm,
+        #                                          num_layers=self.n_mlp_layer,
+        #                                          hiddim=hiddim,
+        #                                          bias=self.bias,
+        #                                          linear_type=self.linear_type,
+        #                                          **linear_params)
 
-                self.layers.append(GCNLayer(linear_transform,
-                                            aggr_type=self.neighbor_pool,
-                                            activation=self.activation,
-                                            dropout=dropout,
-                                            batch_norm=self.batch_norm,
-                                            residual=self.residual,
-                                            dgl_builtin=self.dgl_builtin))
+        #         self.layers.append(GCNLayer(linear_transform,
+        #                                     aggr_type=self.neighbor_pool,
+        #                                     activation=self.activation,
+        #                                     dropout=dropout,
+        #                                     batch_norm=self.batch_norm,
+        #                                     residual=self.residual,
+        #                                     dgl_builtin=self.dgl_builtin))
 
         # self.readout = LinearLayer(outdim,
         #                            n_classes, bias=self.bias,
         #                            linear_type=self.linear_type,
         #                            **linear_params)
+        self.readout = LinearLayer(hiddim, n_classes, bias=True, linear_type="regular")
 
     def forward(self, g, h, e):
         with g.local_scope():
@@ -116,7 +117,7 @@ class GCNNet(nn.Module):
                 h = conv(g, h, norm)
             # g.ndata["h"] = h
 
-            return h
+            return self.readout(h)
 
     def loss(self, pred, label):
         criterion = nn.CrossEntropyLoss()

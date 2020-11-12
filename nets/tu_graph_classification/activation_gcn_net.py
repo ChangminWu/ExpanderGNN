@@ -45,6 +45,7 @@ class ActivationGCNNet(nn.Module):
         self.node_encoder = LinearLayer(indim, hiddim, bias=self.bias,
                                         linear_type=self.linear_type,
                                         **linear_params)
+                                        
         self.in_feat_dropout = nn.Dropout(in_feat_dropout)
 
         self.batchnorm_h = nn.BatchNorm1d(hiddim)
@@ -53,17 +54,19 @@ class ActivationGCNNet(nn.Module):
                                   linear_type=self.linear_type,
                                   **linear_params)
 
-        self.readout = nn.Sequential(LinearLayer(outdim, outdim//2,
-                                                 bias=True,
-                                                 linear_type="regular"),
-                                     nn.ReLU(),
-                                     LinearLayer(outdim//2, outdim//4,
-                                                 bias=True,
-                                                 linear_type="regular"),
-                                     nn.ReLU(),
-                                     LinearLayer(outdim//4, n_classes,
-                                                 bias=True,
-                                                 linear_type="regular"))
+        # self.readout = nn.Sequential(LinearLayer(outdim, outdim//2,
+        #                                          bias=True,
+        #                                          linear_type="regular"),
+        #                              nn.ReLU(),
+        #                              LinearLayer(outdim//2, outdim//4,
+        #                                          bias=True,
+        #                                          linear_type="regular"),
+        #                              nn.ReLU(),
+        #                              LinearLayer(outdim//4, n_classes,
+        #                                          bias=True,
+        #                                          linear_type="regular"))
+
+        self.readout = LinearLayer(outdim, n_classes, bias=True, linear_type="regular")
 
     def forward(self, g, h, e):
         with g.local_scope():

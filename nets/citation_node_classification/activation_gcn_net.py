@@ -47,9 +47,10 @@ class ActivationGCNNet(nn.Module):
 
         self.batchnorm_h = nn.BatchNorm1d(hiddim)
 
-        self.readout = LinearLayer(indim, n_classes, bias=True,
-                                   linear_type=self.linear_type,
-                                   **linear_params)
+        # self.readout = LinearLayer(indim, n_classes, bias=True,
+        #                            linear_type=self.linear_type,
+        #                            **linear_params)
+        self.readout = LinearLayer(indim, n_classes, bias=True, linear_type="regular")
 
     def forward(self, g, h, e):
         with g.local_scope():
