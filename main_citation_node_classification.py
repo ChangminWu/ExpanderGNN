@@ -429,9 +429,6 @@ def main():
     if args.max_time is not None:
         params['max_time'] = float(args.max_time)
 
-    if args.order is not None:
-        net_params['order'] = int(args.order)
-
     # network parameters
     net_params = config["net_params"]
     net_params["device"] = device
@@ -519,6 +516,9 @@ def main():
     if args.use_simplified_version is not None:
         net_params['use_simplified_version'] = args.use_simplified_version\
             if args.use_simplified_version == 'True' else False
+
+    if args.order is not None:
+        net_params['order'] = int(args.order)
 
     # citation graph datasets
     net_params['in_dim'] = dataset.num_dims  # node_dim (feat is an integer)
