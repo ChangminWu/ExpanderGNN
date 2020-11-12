@@ -3,7 +3,7 @@ use_gpu=True
 script=main_citation_node_classification.py
 datasets=("CORA" "CITESEER" "PUBMED")
 actives=('relu' 'param')
-savedir="results/citation-weights/"
+savedir="results/citation-weights-one-layer/"
 for i in "${datasets[@]}"
 do
   config_file=configs/citation_node_classification/GCN_citation_100k.json
@@ -20,7 +20,7 @@ done
 datasets=("ENZYMES" "DD" "PROTEINS_full" "IMDB-BINARY" "REDDIT-BINARY")
 script=main_tu_graph_classification.py
 actives=('relu' 'param')
-savedir="results/tu-weights/"
+savedir="results/tu-weights-one-layer/"
 for i in "${datasets[@]}"
 do
   if [[ "$i" == "REDDIT-BINARY" || "$i" == "IMDB-BINARY" ]]
