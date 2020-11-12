@@ -358,6 +358,8 @@ def main():
                         help="number of posttrans layers.")
     parser.add_argument('--use_simplified_version',
                         help="whether to use simplified PNA.")
+    
+    parser.add_argument('--order', type=int, help='order of polynomial activation')
     args = parser.parse_args()
 
     with open(args.config) as f:
@@ -426,6 +428,9 @@ def main():
         params['print_epoch_interval'] = int(args.print_epoch_interval)
     if args.max_time is not None:
         params['max_time'] = float(args.max_time)
+
+    if args.order is not None:
+        net_params['order'] = int(args.order)
 
     # network parameters
     net_params = config["net_params"]
