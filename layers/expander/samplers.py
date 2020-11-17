@@ -27,7 +27,7 @@ def sampler(outdim, indim, density, method):
     elif method == "rotate":
         k = int(density * outdim)
         for i in range(indim):
-            mask[np.arange(i, i+k) % outdim][i] = 1
+            mask[np.arange(i, i+k) % outdim, i] = 1
         n_params = int(mask.sum().item())
 
     return mask, n_params
