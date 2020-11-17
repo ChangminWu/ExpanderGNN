@@ -158,14 +158,14 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                                                                                        epoch, writer)
 
                     if device.type == "cuda":
-                        per_epoch_memory.append(torch.cuda.max_memory_cached(device=device))
+                        per_epoch_memory.append(torch.cuda.max_memory_reserved(device=device))
                     elif device.type == "cpu":
                         per_epoch_memory.append(1.)
 
                     epoch_val_loss, epoch_val_acc =\
-                        evaluate_network(model, device, val_loader, epoch)
+                        evaluate_network(model, device, val_loader)
                     _, epoch_test_acc =\
-                        evaluate_network(model, device, test_loader, epoch)
+                        evaluate_network(model, device, test_loader)
 
                     epoch_train_losses.append(epoch_train_loss)
                     epoch_val_losses.append(epoch_val_loss)
