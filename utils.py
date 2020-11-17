@@ -145,7 +145,7 @@ def check_tensorboard(net, writer, step, step_size=30, saved_layers=None):
     if num_children == 0:
         if "Expander" in layer_name and "Linear" in layer_name:
             if not (net.mask == 1).all():
-                index = tuple((net.mask == 0).nonzero()[0])
+                index = tuple(torch.nonzero(net.mask == 0)[0])
                 writer.add_scalar(
                     "train/_weight_{}".format(label),
                     net.weight.data[index].cpu().detach().numpy(), step)
