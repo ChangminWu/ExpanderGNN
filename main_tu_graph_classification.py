@@ -214,11 +214,11 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                         break
 
             start_inference_test = time.time()
-            _, test_acc = evaluate_network(model, device, test_loader, epoch)
+            _, test_acc = evaluate_network(model, device, test_loader)
             per_split_test_inference_time.\
                 append(time.time() - start_inference_test)
             start_inference_train = time.time()
-            _, train_acc = evaluate_network(model, device, train_loader, epoch)
+            _, train_acc = evaluate_network(model, device, train_loader)
             per_split_train_inference_time.\
                 append(time.time() - start_inference_train)
             avg_test_acc.append(test_acc)
