@@ -21,7 +21,7 @@ def sampler(outdim, indim, density, method):
     elif method == "random":
         for i in range(indim):
             for j in range(outdim):
-                mask[j][i] = np.random.choice([0, 1], 1, p=[1-density, density])
+                mask[j][i] = np.random.choice([0, 1], 1, p=[1-density, density])[0]
         n_params = int(sum(mask))
 
     elif method == "rotate":
