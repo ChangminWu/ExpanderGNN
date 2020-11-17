@@ -22,7 +22,7 @@ def get_all_split_idx(dataset, num_split=10):
           in Graph NNs
         - As with KFold, each of the 10 fold have unique test set.
     """
-    root_idx_dir = './data/tu_graph_classification/'
+    root_idx_dir = './data/citation_node_classification/'
     if not os.path.exists(root_idx_dir):
         os.makedirs(root_idx_dir)
     all_idx = {}
@@ -41,7 +41,7 @@ def get_all_split_idx(dataset, num_split=10):
             setattr(dataset[i][0].a, 'index', i)
 
         for indexes in cross_val_fold.split(dataset.graph_lists,
-                                            dataset.graph_labels):
+                                            dataset.labels):
             remain_index, test_index = indexes[0], indexes[1]
 
             remain_set = format_dataset([dataset[index]

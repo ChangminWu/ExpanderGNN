@@ -1,9 +1,9 @@
 use_gpu=True
 script=main_tu_graph_classification.py
-datasets=("ENZYMES" "DD" "PROTEINS_full" "IMDB-BINARY" "REDDIT-BINARY")
+datasets=("PROTEINS_full") # "IMDB-BINARY" "REDDIT-BINARY"
 models=('GCN' 'GIN' 'MLP')
-savedir="results/tu-samplers/"
-densities=(0.1 0.5 0.9)
+savedir="results/tu-samplers-sparse/"
+densities=(0.01 0.02 0.05 0.08 0.1 0.5 0.9)
 
 for j in "${models[@]}"
 do
@@ -18,8 +18,9 @@ do
 
     for d in "${densities[@]}"
     do
-      python $script --dataset "$i" --out_dir $savedir --experiment "random-expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --sampler "random"
-      python $script --dataset "$i" --out_dir $savedir --experiment "rotate-expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --sampler "rotate"
+      python $script --dataset "$i" --out_dir $savedir --experiment "random-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --sampler "random"
+      python $script --dataset "$i" --out_dir $savedir --experiment "rotate-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --sampler "rotate"
+      python $script --dataset "$i" --out_dir $savedir --experiment "expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --sampler "regular"
     done
   done
 done
