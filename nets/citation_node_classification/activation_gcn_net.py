@@ -17,7 +17,6 @@ class ActivationGCNNet(nn.Module):
         n_classes = net_params["n_classes"]
         in_feat_dropout = net_params["in_feat_dropout"]
         self.n_layers = net_params["L"]
-        self.n_mlp_layer = net_params[""]
 
         self.graph_pool = net_params["graph_pool"]
         self.neighbor_pool = net_params["neighbor_pool"]
