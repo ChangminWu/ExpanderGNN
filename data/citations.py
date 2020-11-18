@@ -4,7 +4,8 @@ import time
 import numpy as np
 
 import dgl
-from dgl.data import CoraDataset
+from dgl.data import CoraGraphDataset, CiteseerGraphDataset, PubmedGraphDataset, CoraFullDataset, MUTAGDataset, \
+    CoauthorCSDataset, CoauthorPhysicsDataset, RedditDataset, AmazonCoBuyPhotoDataset, AmazonCoBuyComputerDataset
 from dgl.data import CitationGraphDataset
 import networkx as nx
 
@@ -45,30 +46,46 @@ class CitationsDataset(torch.utils.data.Dataset):
         self.name = name.lower()
 
         if self.name == 'cora':
-            dataset = CoraDataset()
-        else:
-            dataset = CitationGraphDataset(self.name)
+            dataset = CoraGraphDataset()
+        elif self.name == 'citeseer':
+            dataset = CiteseerGraphDataset()
+        elif self.name == 'pubmed':
+            dataset = PubmedGraphDataset()
+        elif self.name == 'cora-full':
+            dataset = CoraFullDataset()
+        elif self.name == 'mutag':
+            dataset = MUTAGDataset()
+        elif self.name == 'coauthor-cs':
+            dataset = CoauthorCSDataset()
+        elif self.name == 'coauthor-physics':
+            dataset = CoauthorPhysicsDataset()
+        elif self.name == 'reddit':
+            dataset = RedditDataset()
+        elif self.name == 'amazon-photo':
+            dataset = AmazonCoBuyPhotoDataset()
+        elif self.name == 'amazon-computer':
+            dataset = AmazonCoBuyComputerDataset()
 
         print("[!] Dataset: ", self.name)
 
-        g = dataset.graph
+        g = dataset[0]
         g.remove_edges_from(nx.selfloop_edges(g))
         g.add_edges_from(zip(g.nodes(), g.nodes()))
         graph = dgl.DGLGraph(g)
 
         E = graph.number_of_edges()
         N = graph.number_of_nodes()
-        D = dataset.features.shape[1]
-        graph.ndata['feat'] = torch.FloatTensor(dataset.features)
+        D = graph.ndata['feat'].shape[1]
+        graph.ndata['feat'] = torch.FloatTensor(graph.ndata['feat'])
         graph.edata['feat'] = torch.zeros((E, D))
         graph.batch_num_nodes = [N]
 
         self.graph = graph
-        self.train_mask = torch.BoolTensor(dataset.train_mask)
-        self.val_mask = torch.BoolTensor(dataset.val_mask)
-        self.test_mask = torch.BoolTensor(dataset.test_mask)
-        self.labels = torch.LongTensor(dataset.labels)
-        self.num_classes = dataset.num_labels
+        self.train_mask = torch.BoolTensor(graph.ndata['train_mask'])
+        self.val_mask = torch.BoolTensor(graph.ndata['val_mask'])
+        self.test_mask = torch.BoolTensor(graph.ndata['test_mask'])
+        self.labels = torch.LongTensor(graph.ndata['label'])
+        self.num_classes = dataset.num_classes
         self.num_dims = D
 
         print("[!] Dataset: ", self.name)
