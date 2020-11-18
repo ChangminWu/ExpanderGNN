@@ -34,5 +34,5 @@ savedir="results/citation-test/"
 #done
 
 config_file=configs/citation_node_classification/GCN_citation_100k.json
-python $script --dataset CORA-FULL --out_dir $savedir --experiment "regular" --model "GCN" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
-python $script --dataset CORA-FULL --out_dir $savedir --experiment "activations-relu" --model "ActivationGCN" --activation relu --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --init_lr 0.2 --batch_norm False
+python $script --dataset REDDIT --out_dir $savedir --experiment "regular" --model "GCN" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
+python $script --dataset REDDIT --out_dir $savedir --experiment "activations-relu" --model "ActivationGCN" --activation relu --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --init_lr 0.2 --batch_norm False
