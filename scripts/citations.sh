@@ -4,7 +4,7 @@ datasets=("CORA" "CITESEER" "PUBMED") #
 actives=('relu' 'prelu' 'tanh') #
 models=('GCN' 'GIN' 'MLP' 'GraphSage' 'PNA') #'GCN' 'GIN' 'MLP' 'GraphSage' 'PNA'
 densities=( 0.1 0.5 0.9 )
-savedir="results/citation-runs-activations/"
+savedir="results/citation-test/"
 
 #for i in "${datasets[@]}"
 #do
