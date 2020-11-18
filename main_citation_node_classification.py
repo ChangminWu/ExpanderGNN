@@ -119,7 +119,10 @@ def train_val_pipeline(MODEL_NAME, dataset, params, net_params, dirs):
 
             graph = dataset.graph
             nfeat = graph.ndata['feat'].to(device)
-            efeat = graph.edata['feat'].to(device)
+            if 'feat' in graph.edata:
+                efeat = graph.edata['feat'].to(device)
+            else:
+                efeat = None
 
             ckpt_dir = os.path.join(root_ckpt_dir, "RUN_" + str(split_number))
             if not os.path.exists(ckpt_dir):
