@@ -76,7 +76,7 @@ class CitationsDataset(torch.utils.data.Dataset):
         N = graph.number_of_nodes()
         D = graph.ndata['feat'].shape[1]
         # graph.ndata['feat'] = torch.FloatTensor(graph.ndata['feat'])
-        graph.edata['feat'] = torch.zeros((E, D))
+        graph.edata['feat'] = None
         graph.batch_num_nodes = [N]
 
         self.graph = graph
