@@ -11,6 +11,7 @@
     
     "params": {
       "seed": 41,
+      "num_split": 10,
       "epochs": 200,
       "batch_size": 128,
       "init_lr": 0.01,
