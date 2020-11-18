@@ -4,7 +4,7 @@ import torch.nn as nn
 import dgl
 import dgl.function as fn
 
-from layers.expander.expander_layer import LinearLayer
+from layers.expander.expander_layer import LinearLayer, MultiLinearLayer
 from utils import activations
 
 
