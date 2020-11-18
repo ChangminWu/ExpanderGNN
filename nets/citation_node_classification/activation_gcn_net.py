@@ -17,6 +17,7 @@ class ActivationGCNNet(nn.Module):
         n_classes = net_params["n_classes"]
         in_feat_dropout = net_params["in_feat_dropout"]
         self.n_layers = net_params["L"]
+        self.n_mlp_layer = net_params[""]
 
         self.graph_pool = net_params["graph_pool"]
         self.neighbor_pool = net_params["neighbor_pool"]
@@ -44,14 +45,17 @@ class ActivationGCNNet(nn.Module):
 
         self.batchnorm_h = nn.BatchNorm1d(hiddim)
 
-        self.linear = MultiLinearLayer(indim, n_classes,
-                                       activation=None,
-                                       batch_norm=self.batch_norm,
-                                       num_layers=self.n_mlp_layer,
-                                       hiddim=hiddim,
-                                       bias=self.bias,
-                                       linear_type=self.linear_type,
-                                       **linear_params)
+        # self.linear = MultiLinearLayer(indim, n_classes,
+        #                                activation=None,
+        #                                batch_norm=self.batch_norm,
+        #                                num_layers=self.n_mlp_layer,
+        #                                hiddim=hiddim,
+        #                                bias=self.bias,
+        #                                linear_type=self.linear_type,
+        #                                **linear_params)
+        self.readout = LinearLayer(indim, n_classes, bias=True,
+                                   linear_type=self.linear_type,
+                                   **linear_params)
 
     def forward(self, g, h, e):
         with g.local_scope():
