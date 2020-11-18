@@ -1,5 +1,5 @@
 from data.TUs import TUsDataset
-
+from data.citations import CitationsDataset
 
 def LoadData(DATASET_NAME):
     TU_DATASETS = ["COLLAB", "ENZYMES", "DD", "PROTEINS_full", "IMDB-BINARY",
@@ -7,3 +7,7 @@ def LoadData(DATASET_NAME):
                    "REDDIT-MULTI-12K", "PTC-MR"]
     if DATASET_NAME in TU_DATASETS:
         return TUsDataset(DATASET_NAME)
+
+    CITATIONGRAPHS_DATASETS = ['CORA', 'CITESEER', 'PUBMED']
+    if DATASET_NAME in CITATIONGRAPHS_DATASETS:
+        return CitationsDataset(DATASET_NAME)
