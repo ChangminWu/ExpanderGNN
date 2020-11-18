@@ -78,15 +78,15 @@ class CitationsDataset(torch.utils.data.Dataset):
         E = graph.number_of_edges()
         N = graph.number_of_nodes()
         D = graph.ndata['feat'].shape[1]
-        # graph.ndata['feat'] = torch.FloatTensor(graph.ndata['feat'])
+        graph.ndata['feat'] = torch.FloatTensor(graph.ndata['feat'])
         graph.edata['feat'] = torch.zeros((E, D))
         graph.batch_num_nodes = [N]
 
         self.graph = graph
-        self.train_mask = graph.ndata['train_mask'] #torch.BoolTensor(graph.ndata['train_mask'])
-        self.val_mask = graph.ndata['val_mask'] #torch.BoolTensor(graph.ndata['val_mask'])
-        self.test_mask = graph.ndata['test_mask'] #torch.BoolTensor(graph.ndata['test_mask'])
-        self.labels = graph.ndata['label'] #torch.LongTensor(graph.ndata['label'])
+        self.train_mask = torch.BoolTensor(graph.ndata['train_mask'])
+        self.val_mask = torch.BoolTensor(graph.ndata['val_mask'])
+        self.test_mask = torch.BoolTensor(graph.ndata['test_mask'])
+        self.labels = torch.LongTensor(graph.ndata['label'])
         self.num_classes = dataset.num_classes
         self.num_dims = D
 
