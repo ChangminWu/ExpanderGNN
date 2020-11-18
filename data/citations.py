@@ -69,6 +69,8 @@ class CitationsDataset(torch.utils.data.Dataset):
         print("[!] Dataset: ", self.name)
 
         graph = dataset[0]
+        graph = dgl.remove_self_loop(graph)
+        graph = dgl.add_self_loop(graph)
         # g.remove_edges_from(nx.selfloop_edges(g))
         # g.add_edges_from(zip(g.nodes(), g.nodes()))
         # graph = dgl.DGLGraph(g)
