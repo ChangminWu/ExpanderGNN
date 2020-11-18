@@ -96,7 +96,7 @@ class GCNNet(nn.Module):
 
     def forward(self, g, h, e):
         with g.local_scope():
-            g = g.to(h.device)
+            g = g.int().to(h.device)
             h = self.in_feat_dropout(h)
 
             degs = g.in_degrees().float().clamp(min=1)
