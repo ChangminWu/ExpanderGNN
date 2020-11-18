@@ -71,6 +71,7 @@ class CitationsDataset(torch.utils.data.Dataset):
         graph = dataset[0]
         graph = dgl.remove_self_loop(graph)
         graph = dgl.add_self_loop(graph)
+        graph = dgl.to_homogeneous(graph)
         # g.remove_edges_from(nx.selfloop_edges(g))
         # g.add_edges_from(zip(g.nodes(), g.nodes()))
         # graph = dgl.DGLGraph(g)
