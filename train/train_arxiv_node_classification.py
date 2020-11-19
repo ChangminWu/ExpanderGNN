@@ -17,7 +17,7 @@ def train_epoch(model, optimizer, device, evaluator, graph, epoch,
 
     preds = logits.argmax(dim=-1, keepdim=True)
     epoch_train_acc = evaluator.eval({
-            'y_true': labels[train_idx].squeeze(),
+            'y_true': labels[train_idx],
             'y_pred': preds[train_idx],
         })['acc']
 
@@ -35,7 +35,7 @@ def evaluate_network(model, device, evaluator, graph, nfeat, efeat, mask, labels
 
         preds = logits.argmax(dim=-1, keepdim=True)
         epoch_test_acc = evaluator.eval({
-            'y_true': labels[mask].squeeze(),
+            'y_true': labels[mask],
             'y_pred': preds[mask],
         })['acc']
 
