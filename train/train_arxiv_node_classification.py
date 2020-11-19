@@ -9,7 +9,8 @@ def train_epoch(model, optimizer, device, graph, epoch,
     model.train()
 
     logits = model(graph, nfeat, efeat)
-    print(labels[train_idx])
+    print(logits[train_idx], logits[train_idx].size())
+    print(labels[train_idx], labels[train_idx].size())
     loss = model.loss(logits[train_idx], labels[train_idx])
     optimizer.zero_grad()
     loss.backward()
