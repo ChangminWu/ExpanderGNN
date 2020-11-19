@@ -500,7 +500,7 @@ def main():
     g, labels = dataset[0]
     net_params['in_dim'] = g.ndata['feat'].size(1)  # node_dim (feat is an integer)
     net_params["in_dim_edge"] = net_params['in_dim']
-    net_params['n_classes'] = dataset.num_classes
+    net_params['n_classes'] = (labels.max() + 1).item() #dataset.num_classes
 
     def name_folder_path(x):
         return "{}{}{}_{}_{}_density_{}".format(out_dir, x, EXP_NAME, MODEL_NAME, DATASET_NAME, net_params["density"])
