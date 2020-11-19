@@ -4,19 +4,22 @@ from train.metrics import accuracy_node as accuracy
 from utils import check_tensorboard
 
 
-def train_epoch(model, optimizer, device, graph, epoch,
+def train_epoch(model, optimizer, device, evaluator, graph, epoch,
                 nfeat, efeat, train_idx, labels, writer=None):
     model.train()
 
     logits = model(graph, nfeat, efeat)
     print(logits[train_idx], logits[train_idx].size())
     print(labels[train_idx], labels[train_idx].size())
-    loss = model.loss(logits[train_idx], labels[train_idx])
+    loss = model.loss(logits[train_idx], labels[train_idx].squeeze())
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
     epoch_loss = loss.detach().item()
-    epoch_train_acc = accuracy(logits[train_idx], labels[train_idx])
+    epoch_train_acc = evaluator.eval({
+            'y_true': labels[train_idx].squeeze(),
+            'y_pred': logits[train_idx],
+        })['acc']
 
     if writer is not None:
         writer, _ = check_tensorboard(model, writer, step=epoch)
@@ -27,11 +30,11 @@ def evaluate_network(model, device, evaluator, graph, nfeat, efeat, mask, labels
     model.eval()
     with torch.no_grad():
         logits = model.forward(graph, nfeat, efeat)
-        loss = model.loss(logits[mask], labels[mask])
+        loss = model.loss(logits[mask], labels[mask].squeeze())
         epoch_test_loss = loss.detach().item()
 
         epoch_test_acc = evaluator.eval({
-            'y_true': labels[mask],
+            'y_true': labels[mask].squeeze(),
             'y_pred': logits[mask],
         })['acc']
 

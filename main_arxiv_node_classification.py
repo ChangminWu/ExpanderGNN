@@ -133,9 +133,9 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                     t.set_description('Epoch %d' % epoch)
 
                     start = time.time()
-                    epoch_train_loss, epoch_train_acc, optimizer, writer = train_epoch(model, optimizer, device, graph,
-                                                                                       epoch, nfeat, efeat, train_idx,
-                                                                                       labels, writer)
+                    epoch_train_loss, epoch_train_acc, optimizer, writer = train_epoch(model, optimizer, device,
+                                                                                       evaluator, graph, epoch, nfeat,
+                                                                                       efeat, train_idx, labels, writer)
 
                     if device.type == "cuda":
                         per_epoch_memory.append(torch.cuda.max_memory_reserved(device=device))
