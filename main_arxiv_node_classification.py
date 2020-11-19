@@ -143,9 +143,9 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                         per_epoch_memory.append(1.)
 
                     epoch_val_loss, epoch_val_acc = evaluate_network(model, device, evaluator, graph,
-                                                                     nfeat, efeat, val_mask, labels)
+                                                                     nfeat, efeat, valid_idx, labels)
                     _, epoch_test_acc = evaluate_network(model, device, evaluator, graph,
-                                                         nfeat, efeat, test_mask, labels)
+                                                         nfeat, efeat, test_idx, labels)
 
                     epoch_train_losses.append(epoch_train_loss)
                     epoch_val_losses.append(epoch_val_loss)
@@ -194,11 +194,11 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                         break
 
             start_inference_test = time.time()
-            _, test_acc = evaluate_network(model, device, evaluator, graph, nfeat, efeat, test_mask, labels)
+            _, test_acc = evaluate_network(model, device, evaluator, graph, nfeat, efeat, test_idx, labels)
             per_split_test_inference_time.append(time.time() - start_inference_test)
 
             start_inference_train = time.time()
-            _, train_acc = evaluate_network(model, device, evaluator, graph, nfeat, efeat, train_mask, labels)
+            _, train_acc = evaluate_network(model, device, evaluator, graph, nfeat, efeat, train_idx, labels)
             per_split_train_inference_time.append(time.time() - start_inference_train)
 
             avg_test_acc.append(test_acc)
