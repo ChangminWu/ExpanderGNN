@@ -16,7 +16,7 @@ def parse_index_file(filename):
         index.append(int(line.strip()))
     return index
 
-def load_corpus(dataset_str):
+def load_corpus(dataset_str, folder):
     """
     Loads input corpus from gcn/data directory
 
@@ -47,10 +47,10 @@ def load_corpus(dataset_str):
                 return pkl.load(f)
 
     for p in phases:
-        index_dict[p] = load_pkl("data/ind.{}.{}.x".format(dataset_str, p))
-        label_dict[p] = load_pkl("data/ind.{}.{}.y".format(dataset_str, p))
+        index_dict[p] = load_pkl(folder + "/ind.{}.{}.x".format(dataset_str, p))
+        label_dict[p] = load_pkl(folder + "/ind.{}.{}.y".format(dataset_str, p))
 
-    adj = load_pkl("data/ind.{}.BCD.adj".format(dataset_str))
+    adj = load_pkl(folder + "/ind.{}.BCD.adj".format(dataset_str))
     adj = adj.astype(np.float32)
     adj = preprocess_adj(adj)
 
