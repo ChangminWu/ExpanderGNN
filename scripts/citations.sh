@@ -21,7 +21,7 @@ do
 #    done
 #  fi
 
-  if [ "$j" = "GCN"]
+  if [ "$j" = "GCN" ]
   then
     python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "simple" --model "Simple${j}" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.1 --batch_norm False --L 2
   fi
@@ -62,7 +62,7 @@ do
       done
     fi
 
-    if [ "$j" = "GCN"]
+    if [ "$j" = "GCN" ]
     then
       if [ "$i" = "REDDIT" ]
       then
