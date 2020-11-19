@@ -32,7 +32,11 @@ savedir="results/citation-test/"
 #    python $script --dataset "$i" --out_dir $savedir --experiment "regular" --model "$j" --linear_type "regular" --density 1.0 --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
 #  done
 #done
+#
+#config_file=configs/citation_node_classification/GCN_citation_100k.json
+#python $script --dataset REDDIT --out_dir $savedir --experiment "regular" --model "GCN" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
+#python $script --dataset REDDIT --out_dir $savedir --experiment "activations-relu" --model "ActivationGCN" --activation relu --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --init_lr 0.2 --batch_norm False
 
+script=main_citation_node_classification.py
 config_file=configs/citation_node_classification/GCN_citation_100k.json
-python $script --dataset REDDIT --out_dir $savedir --experiment "regular" --model "GCN" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
-python $script --dataset REDDIT --out_dir $savedir --experiment "activations-relu" --model "ActivationGCN" --activation relu --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --init_lr 0.2 --batch_norm False
+python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "regular" --model "GCN" --epochs 500 --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm True
