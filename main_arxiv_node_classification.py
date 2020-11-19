@@ -54,6 +54,15 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                                      split_idx["test"].to(device)
     graph, labels = dataset[0]
 
+    # add reverse edges
+    srcs, dsts = graph.all_edges()
+    graph.add_edges(dsts, srcs)
+
+    # add self-loop
+    print(f"Total edges before adding self-loop {graph.number_of_edges()}")
+    graph = graph.remove_self_loop().add_self_loop()
+    print(f"Total edges after adding self-loop {graph.number_of_edges()}")
+
     labels = labels.to(device)
     graph = graph.to(device)
 
