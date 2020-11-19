@@ -12,7 +12,7 @@ class ActivationGCNNet(nn.Module):
     def __init__(self, net_params):
         super().__init__()
         indim = net_params["in_dim"]
-        hiddim = net_params["hidden_dim"]
+        hiddim = indim #net_params["hidden_dim"]
 
         n_classes = net_params["n_classes"]
         in_feat_dropout = net_params["in_feat_dropout"]
