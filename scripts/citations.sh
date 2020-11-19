@@ -39,4 +39,4 @@ savedir="results/citation-test/"
 
 script=main_arxiv_node_classification.py
 config_file=configs/citation_node_classification/GCN_citation_100k.json
-python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "regular" --model "GCN" --epochs 500 --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu False --batch_norm False --in_feat_dropout 0.5 --dropout 0.5
+python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "regular" --model "GCN" --epochs 500 --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm True --in_feat_dropout 0.5 --dropout 0.5

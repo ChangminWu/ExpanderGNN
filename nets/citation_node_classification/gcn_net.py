@@ -107,9 +107,10 @@ class GCNNet(nn.Module):
                 h = conv(g, h, norm)
             g.ndata["h"] = h
 
-            return h
+            return h.log_softmax(dim=-1)
 
     def loss(self, pred, label):
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.NLLLoss()
+        #criterion = nn.CrossEntropyLoss()
         loss = criterion(pred, label)
         return loss
