@@ -50,7 +50,7 @@ def load_corpus(dataset_str):
         index_dict[p] = load_pkl("data/ind.{}.{}.x".format(dataset_str, p))
         label_dict[p] = load_pkl("data/ind.{}.{}.y".format(dataset_str, p))
 
-    adj = load_pkl("data/ind.{}.BCD.adj".format(dataset_str))
+    adj = load_pkl("data/data/ind.{}.BCD.adj".format(dataset_str))
     adj = adj.astype(np.float32)
     adj = preprocess_adj(adj)
 
