@@ -7,7 +7,7 @@ savedir="results/node-classification-arxiv/"
 script=main_arxiv_node_classification.py
 for j in "${models[@]}"
 do
-#  config_file=configs/citation_node_classification/${j}_citation_100k.json
+  config_file=configs/citation_node_classification/${j}_citation_100k.json
 #  for d in "${densities[@]}"
 #  do
 #    python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005
