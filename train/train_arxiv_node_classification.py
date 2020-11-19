@@ -15,7 +15,7 @@ def train_epoch(model, optimizer, device, evaluator, graph, epoch,
     optimizer.step()
     epoch_loss = loss.detach().item()
 
-    epoch_train_acc = accuracy(logits[train_mask], labels[train_mask])
+    epoch_train_acc = accuracy(logits[train_idx], labels[train_idx])
     # preds = logits.argmax(dim=-1, keepdim=True)
     # epoch_train_acc = evaluator.eval({
     #         'y_true': labels[train_idx],
