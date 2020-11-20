@@ -23,7 +23,6 @@ class ActivationGCNNet(nn.Module):
         self.neighbor_pool = net_params["neighbor_pool"]
 
         self.batch_norm = net_params["batch_norm"]
-        self.order = net_params['order']
         self.activation = activations(net_params["activation"])
 
         self.linear_type = net_params["linear_type"]
