@@ -144,17 +144,17 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                                       batch_size=params['batch_size'],
                                       shuffle=True,
                                       drop_last=drop_last,
-                                      collate_fn=dataset.collate)
+                                      collate_fn=_collate_fn)
             val_loader = DataLoader(valset,
                                     batch_size=params['batch_size'],
                                     shuffle=False,
                                     drop_last=drop_last,
-                                    collate_fn=dataset.collate)
+                                    collate_fn=_collate_fn)
             test_loader = DataLoader(testset,
                                      batch_size=params['batch_size'],
                                      shuffle=False,
                                      drop_last=drop_last,
-                                     collate_fn=dataset.collate)
+                                     collate_fn=_collate_fn)
 
             ckpt_dir = os.path.join(root_ckpt_dir, "RUN_" + str(split_number))
             if not os.path.exists(ckpt_dir):
@@ -524,8 +524,7 @@ def main():
             if args.use_simplified_version == 'True' else False
 
     net_params['in_dim'] = int(dataset[0][0].ndata['feat'].size(1))
-    print(net_params['in_dim'])
-    num_classes = dataset.num_classes
+    num_classes = int(dataset.num_classes)
     net_params['n_classes'] = num_classes
 
     def name_folder_path(x):
