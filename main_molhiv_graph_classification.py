@@ -525,7 +525,7 @@ def main():
             if args.use_simplified_version == 'True' else False
 
     net_params['in_dim'] = int(dataset[0][0].ndata['feat'].size(1))
-    num_classes = int(dataset.num_classes)
+    num_classes = dataset.num_tasks
     net_params['n_classes'] = num_classes
 
     def name_folder_path(x):
