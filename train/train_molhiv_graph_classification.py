@@ -18,7 +18,7 @@ def train_epoch(model, optimizer, device, evaluator, data_loader, epoch, writer=
         optimizer.zero_grad()
 
         batch_scores = model.forward(batch_graphs, batch_x.to(torch.float32), batch_e.to(torch.float32))
-        is_labeled = batch_labels == batch_labels
+        is_labeled = (batch_labels == batch_labels).squeeze()
         loss = cls_criterion(batch_scores.to(torch.float32)[is_labeled],
                              batch_labels.to(torch.float32)[is_labeled].squeeze())
         loss.backward()
