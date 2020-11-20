@@ -52,9 +52,9 @@ def evaluate_network(model, device, evaluator, data_loader):
             batch_labels = batch_labels.to(device)
             batch_scores = model.forward(batch_graphs, batch_x.to(torch.float32), batch_e.to(torch.float32))
 
-            is_labeled = (batch_labels == batch_labels).squeeze()
-            loss = cls_criterion(batch_scores.to(torch.float32)[is_labeled],
-                                 batch_labels.to(torch.float32)[is_labeled].squeeze())
+            is_labeled = batch_labels == batch_labels
+            loss = cls_criterion(batch_scores.to(torch.float32)[is_labeled.squeeze()],
+                                 batch_labels.to(torch.float32)[is_labeled.squeeze()].squeeze())
             epoch_test_loss += loss.detach().item()
 
             y_true.append(batch_labels.view(batch_scores.shape).detach().cpu())
