@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
+import dgl
 from utils import expander_writer, expander_weights_writer, get_model_param, init_expander
 from nets.tu_graph_classification.load_net import gnn_model
 from train.train_molhiv_graph_classification import train_epoch, evaluate_network
