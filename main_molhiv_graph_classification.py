@@ -523,7 +523,8 @@ def main():
         net_params['use_simplified_version'] = args.use_simplified_version \
             if args.use_simplified_version == 'True' else False
 
-    net_params['in_dim'] = dataset[0][0].ndata['feat'].size(1)
+    net_params['in_dim'] = int(dataset[0][0].ndata['feat'].size(1))
+    print(net_params['in_dim'])
     num_classes = dataset.num_classes
     net_params['n_classes'] = num_classes
 
