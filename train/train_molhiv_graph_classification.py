@@ -17,7 +17,7 @@ def train_epoch(model, optimizer, device, evaluator, data_loader, epoch, writer=
         batch_labels = batch_labels.to(device)
         optimizer.zero_grad()
 
-        batch_scores = model.forward(batch_graphs, batch_x, batch_e)
+        batch_scores = model.forward(batch_graphs, batch_x.to(torch.float32), batch_e.to(torch.float32))
         is_labeled = batch_labels == batch_labels
         loss = cls_criterion(batch_scores.to(torch.float32)[is_labeled], batch_labels.to(torch.float32)[is_labeled])
         loss.backward()
@@ -49,7 +49,7 @@ def evaluate_network(model, device, evaluator, data_loader):
             batch_x = batch_graphs.ndata['feat'].to(device)
             batch_e = batch_graphs.edata['feat'].to(device)
             batch_labels = batch_labels.to(device)
-            batch_scores = model.forward(batch_graphs, batch_x, batch_e)
+            batch_scores = model.forward(batch_graphs, batch_x.to(torch.float32), batch_e.to(torch.float32))
 
             is_labeled = batch_labels == batch_labels
             loss = cls_criterion(batch_scores.to(torch.float32)[is_labeled], batch_labels.to(torch.float32)[is_labeled])
