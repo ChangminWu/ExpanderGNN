@@ -19,6 +19,7 @@ class LinearLayer(nn.Module):
             self.layer = ExpanderLinear(indim, outdim, bias=self.bias,
                                         **kwargs)
         elif self.linear_type == "regular":
+            print(indim, outdim)
             self.layer = nn.Linear(indim, outdim, bias=self.bias)
             self.reset_parameters()
         else:
