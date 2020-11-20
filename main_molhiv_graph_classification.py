@@ -55,7 +55,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     dataset = DglGraphPropPredDataset(name=DATASET_NAME)
     split_idx = dataset.get_idx_split()
 
-    trainset, valset, testset = dataset[split_idx["train"]], dataset[split_idx["val"]], \
+    trainset, valset, testset = dataset[split_idx["train"]], dataset[split_idx["valid"]], \
                                 dataset[split_idx["test"]]
 
     print("Training Graphs: ", len(trainset))
