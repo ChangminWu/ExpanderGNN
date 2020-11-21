@@ -50,7 +50,7 @@ datasets=("REDDIT-BINARY") # "ENZYMES" "DD" "PROTEINS_full" "IMDB-BINARY" "MUTAG
 actives=('relu' 'prelu' 'tanh') #'brelu' 'rrelu' 'softplus'
 models=('GCN' 'GIN' 'MLP') # 'GCN' 'PNA' 'GatedGCN' 'GraphSage' 'GIN' 'MLP'
 densities=( 0.1 0.5 0.9 )
-savedir="results/tu-newdata/"
+savedir="results/tu-reddit-binary/"
 
 for j in "${models[@]}"
 do
