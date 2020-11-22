@@ -1,4 +1,4 @@
-use_gpu=True
+use_gpu=False
 models=('GCN' 'GIN' 'MLP') #'GCN' 'GIN' 'MLP' 'GraphSage' 'PNA'
 densities=( 0.1 0.5 0.9 )
 actives=('tanh' 'relu' 'prelu')
@@ -54,29 +54,29 @@ do
   done
 done
 
-savedir="results/node-classification-arxiv/"
-script=main_arxiv_node_classification.py
-for j in "${models[@]}"
-do
-  config_file=configs/citation_node_classification/${j}_citation_100k.json
-  for d in "${densities[@]}"
-  do
-    python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005 --L 2
-  done
-
-  if [ "$j" != "MLP" ]
-  then
-    for a in "${actives[@]}"
-    do
-      python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "activations-${a}" --model "Activation${j}" --activation "$a" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.1 --batch_norm False --L 2
-    done
-  fi
-
-  if [ "$j" = "GCN" ]
-  then
-    python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "simple" --model "Simple${j}" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.1 --batch_norm False --L 2
-  fi
-
-  python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "regular" --model "$j" --linear_type "regular" --density 1.0 --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005 --L 2
-done
+#savedir="results/node-classification-arxiv/"
+#script=main_arxiv_node_classification.py
+#for j in "${models[@]}"
+#do
+#  config_file=configs/citation_node_classification/${j}_citation_100k.json
+#  for d in "${densities[@]}"
+#  do
+#    python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005 --L 2
+#  done
+#
+#  if [ "$j" != "MLP" ]
+#  then
+#    for a in "${actives[@]}"
+#    do
+#      python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "activations-${a}" --model "Activation${j}" --activation "$a" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.1 --batch_norm False --L 2
+#    done
+#  fi
+#
+#  if [ "$j" = "GCN" ]
+#  then
+#    python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "simple" --model "Simple${j}" --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.1 --batch_norm False --L 2
+#  fi
+#
+#  python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "regular" --model "$j" --linear_type "regular" --density 1.0 --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005 --L 2
+#done
 
