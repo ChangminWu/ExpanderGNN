@@ -5,22 +5,22 @@ actives=('tanh' 'relu' 'prelu')
 
 savedir="results/node-classification-citations/"
 script=main_citation_node_classification.py
-datasets=("CORA" "CITESEER" "PUBMED")
+datasets=("REDDIT")
 
 for i in "${datasets[@]}"
 do
   for j in "${models[@]}"
   do
     config_file=configs/citation_node_classification/${j}_citation_100k.json
-    for d in "${densities[@]}"
-    do
-      if [ "$i" = "REDDIT" ]
-      then
-        python $script --dataset REDDIT --out_dir $savedir --experiment "expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu False --dropout 0.5 --epochs 50 --L 2
-      else
-        python $script --dataset "$i" --out_dir $savedir --experiment "expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --L 2
-      fi
-   done
+#    for d in "${densities[@]}"
+#    do
+#      if [ "$i" = "REDDIT" ]
+#      then
+#        python $script --dataset REDDIT --out_dir $savedir --experiment "expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu False --dropout 0.5 --epochs 50 --L 2
+#      else
+#        python $script --dataset "$i" --out_dir $savedir --experiment "expander-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --L 2
+#      fi
+#   done
 
     if [ "$j" != "MLP" ]
     then
@@ -45,12 +45,12 @@ do
       fi
     fi
 
-    if [ "$i" = "REDDIT" ]
-    then
-      python $script --dataset REDDIT --out_dir $savedir --experiment "regular" --model "$j" --linear_type "regular" --density 1.0 --config "$config_file" --mlp_layers 1 --use_gpu False --dropout 0.5 --epochs 50 --L 2
-    else
-      python $script --dataset "$i" --out_dir $savedir --experiment "regular" --model "$j" --linear_type "regular" --density 1.0 --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --L 2
-    fi
+#    if [ "$i" = "REDDIT" ]
+#    then
+#      python $script --dataset REDDIT --out_dir $savedir --experiment "regular" --model "$j" --linear_type "regular" --density 1.0 --config "$config_file" --mlp_layers 1 --use_gpu False --dropout 0.5 --epochs 50 --L 2
+#    else
+#      python $script --dataset "$i" --out_dir $savedir --experiment "regular" --model "$j" --linear_type "regular" --density 1.0 --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --L 2
+#    fi
   done
 done
 
