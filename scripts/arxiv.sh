@@ -64,7 +64,7 @@ do
     config_file=configs/citation_node_classification/${j}_citation_100k.json
     for h in "${hiddims[@]}"
     do
-      python $script --dataset "$i" --out_dir $savedir --experiment "regular-dim-${h}" --model "$j" --density 1.0 --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --L 2
+      python $script --dataset "$i" --out_dir $savedir --experiment "regular-dim-${h}" --model "$j" --density 1.0 --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --L 2 --hidden_dim "$h" --out_dim "$h"
     done
   done
 done
@@ -82,7 +82,7 @@ do
     config_file=configs/citation_node_classification/${j}_citation_100k.json
     for d in "${densities[@]}"
     do
-      python $script --dataset "$i" --out_dir $savedir --experiment "small-model-density-${h}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --L 2
+      python $script --dataset "$i" --out_dir $savedir --experiment "small-model-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False --L 2 --hidden_dim 32 --out_dim 32
     done
   done
 done
@@ -97,7 +97,7 @@ do
     config_file=configs/citation_node_classification/${j}_citation_100k.json
     for d in "${densities[@]}"
     do
-      python $script --dataset "$i" --out_dir $savedir --experiment "small-model-density-${h}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005
+      python $script --dataset "$i" --out_dir $savedir --experiment "small-model-density-${d}" --model "$j" --density "$d" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005 --hidden_dim 32 --out_dim 32
     done
   done
 done
