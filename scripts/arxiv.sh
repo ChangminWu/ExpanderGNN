@@ -37,7 +37,7 @@ models=('GCN')
 #  done
 #done
 
-hiddims=(4 8 16 32 64 128 256 384)
+hiddims=(8 16 32 64 128 256 512 768)
 
 #script=main_arxiv_node_classification.py
 #savedir="results/arxiv-hiddims/"
