@@ -64,7 +64,7 @@ do
     config_file=configs/citation_node_classification/${j}_citation_100k.json
     for h in "${hiddims[@]}"
     do
-      python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "regular-dim-${h}" --model "$j" --density 1.0 --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
+      python $script --dataset "$i" --out_dir $savedir --experiment "regular-dim-${h}" --model "$j" --density 1.0 --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --batch_norm False
     done
   done
 done
