@@ -19,10 +19,16 @@ def sampler(outdim, indim, density, method):
         n_params = int(density * max(outdim, indim)) * min(outdim, indim)
 
     elif method == "random":
-        for i in range(indim):
-            for j in range(outdim):
-                mask[j][i] = np.random.choice([0, 1], 1, p=[1-density, density])[0]
-        n_params = int(mask.sum().item())
+        n_params = int(density*outdim*indim)
+        edges = [(j, i) for j in range(outdim) for i in range(indim)]
+        inds = torch.randperm(len(edges))
+        for i, ind in enumerate(inds):
+            m, n = ind
+            mask[m][n] = 1
+        # for i in range(indim):
+        #     for j in range(outdim):
+        #         mask[j][i] = np.random.choice([0, 1], 1, p=[1-density, density])[0]
+        # n_params = int(mask.sum().item())
 
     elif method == "rotate":
         k = int(density * outdim)
