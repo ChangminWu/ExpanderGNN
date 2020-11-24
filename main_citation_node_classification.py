@@ -493,7 +493,7 @@ def main():
     net_params["in_dim_edge"] = dataset.num_dims
     net_params['n_classes'] = dataset.num_classes
 
-    net_params['density'] = float((net_params['in_dim']-net_params['n_classes']-1) / (2*net_params['in_dim']))
+    # net_params['density'] = float((net_params['in_dim']-net_params['n_classes']-1) / (2*net_params['in_dim']))
 
     def name_folder_path(x):
         return "{}{}{}_{}_{}_density_{}".format(out_dir, x, EXP_NAME, MODEL_NAME, DATASET_NAME, net_params["density"])
