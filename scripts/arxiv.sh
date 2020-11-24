@@ -36,6 +36,22 @@ models=('GCN')
 #    done
 #  done
 #done
+hiddims=(4 8 16 32 64 128 256 384)
+
+script=main_arxiv_node_classification.py
+savedir="results/arxiv-match-hiddims/"
+datasets=('ogbn-arxiv')
+for j in "${models[@]}"
+do
+  for i in "${datasets[@]}"
+  do
+    config_file=configs/citation_node_classification/${j}_citation_100k.json
+    for h in "${hiddims[@]}"
+    do
+      python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "expander-dim-${h}" --model "$j" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005
+    done
+  done
+done
 
 hiddims=(2 4 8 16 32 64 128 192)
 
@@ -50,23 +66,6 @@ do
     for h in "${hiddims[@]}"
     do
       python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "regular-dim-${h}" --model "$j" --density 1.0 --linear_type "regular" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005
-    done
-  done
-done
-
-hiddims=(4 8 16 32 64 128 256 384)
-
-script=main_arxiv_node_classification.py
-savedir="results/arxiv-match-hiddims/"
-datasets=('ogbn-arxiv')
-for j in "${models[@]}"
-do
-  for i in "${datasets[@]}"
-  do
-    config_file=configs/citation_node_classification/${j}_citation_100k.json
-    for h in "${hiddims[@]}"
-    do
-      python $script --dataset ogbn-arxiv --out_dir $savedir --experiment "expander-dim-${h}" --model "$j" --linear_type "expander" --config "$config_file" --mlp_layers 1 --use_gpu $use_gpu --dropout 0.5 --epochs 1000 --init_lr 0.005
     done
   done
 done
