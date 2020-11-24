@@ -23,7 +23,7 @@ def sampler(outdim, indim, density, method):
         edges = [(j, i) for j in range(outdim) for i in range(indim)]
         inds = torch.randperm(len(edges))
         for i, ind in enumerate(inds):
-            m, n = ind
+            m, n = edges[ind]
             mask[m][n] = 1
         # for i in range(indim):
         #     for j in range(outdim):
