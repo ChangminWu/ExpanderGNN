@@ -4,8 +4,7 @@ from train.metrics import accuracy
 from utils import check_tensorboard
 
 
-def train_epoch_sparse(model, optimizer, device, data_loader, epoch,
-                       writer=None):
+def train_epoch(model, optimizer, device, data_loader, epoch, writer=None):
     model.train()
     epoch_loss = 0
     epoch_train_acc = 0
@@ -33,7 +32,7 @@ def train_epoch_sparse(model, optimizer, device, data_loader, epoch,
     return epoch_loss, epoch_train_acc, optimizer, writer
 
 
-def evaluate_network_sparse(model, device, data_loader):
+def evaluate_network(model, device, data_loader):
     model.eval()
     epoch_test_loss = 0
     epoch_test_acc = 0
