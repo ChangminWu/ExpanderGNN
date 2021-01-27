@@ -204,7 +204,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
                         break
 
                     # Stop training after params["max_time"] hours
-                    if time.time()-t0 > params['max_time']*3600/params["num_split"]:
+                    if time.time()-t0_split > params['max_time']*3600/params["num_split"]:
                         print("-" * 89)
                         print("Max_time for one train-val-test split experiment elapsed {:.3f} hours, so stopping"
                               .format(params['max_time']/params["num_split"]))
