@@ -88,8 +88,8 @@ class SimpleGCNNet(nn.Module):
                 h = g.ndata.pop('h')
                 h = h * norm
 
-            if self.batch_norm:
-                h = self.batchnorm_h(h)
+            # if self.batch_norm:
+            #     h = self.batchnorm_h(h)
 
             h = self.linear(h)
 
