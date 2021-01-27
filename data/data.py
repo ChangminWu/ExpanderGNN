@@ -1,5 +1,6 @@
 from data.TUs import TUsDataset
 from data.citations import CitationsDataset
+from data.superpixels import SuperPixDataset
 
 def LoadData(DATASET_NAME):
     TU_DATASETS = ["COLLAB", "ENZYMES", "DD", "PROTEINS_full", "IMDB-BINARY",
@@ -12,3 +13,7 @@ def LoadData(DATASET_NAME):
                                'REDDIT', 'AMAZON-PHOTO', 'AMAZON-COMPUTER']
     if DATASET_NAME in CITATIONGRAPHS_DATASETS:
         return CitationsDataset(DATASET_NAME)
+
+    SUPERPIXELS_DATASETS = ["MNIST", "CIFAR10"]
+    if DATASET_NAME in SUPERPIXELS_DATASETS:
+        return SuperPixDataset(DATASET_NAME)
