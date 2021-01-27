@@ -22,6 +22,7 @@ do
       do
         python $script --dataset ${i} --out_dir ${savedir} --experiment "activations-${a}" --model "Activation${j}" --activation ${a} --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --sampler "regular"
       done
+    fi
 
     if [ "$j" = "GCN" ]
     then
@@ -53,6 +54,7 @@ do
       do
         python $script --dataset ${i} --out_dir ${savedir} --experiment "activations-${a}" --model "Activation${j}" --activation ${a} --config ${config_file} --mlp_layers 1 --use_gpu $use_gpu --sampler "regular"
       done
+    fi
 
     if [ "$j" = "GCN" ]
     then
