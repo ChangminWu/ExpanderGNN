@@ -44,7 +44,7 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
     per_split_train_inference_time = []
     per_split_test_inference_time = []
 
-    data = LoadData(DATASET_NAME)
+    dataset = LoadData(DATASET_NAME)
 
     if "GCN" in MODEL_NAME:
         if net_params['self_loop']:
@@ -88,9 +88,13 @@ def train_val_pipeline(MODEL_NAME, DATASET_NAME, params, net_params, dirs):
             print("Number of Classes: ", net_params['n_classes'])
 
             if 'PNA' in MODEL_NAME:
-                D = torch.cat([torch.sparse.sum(g.adjacency_matrix(transpose=True), dim=-1).to_dense()
-                for g in dataset.train[split_number].graph_lists])
-                    net_params['avg_d'] = dict(lin=torch.mean(D), exp=torch.mean(torch.exp(torch.div(1, D)) - 1), log=torch.mean(torch.log(D + 1)))
+                D = torch.cat([torch.sparse.sum(g.adjacency_matrix(transpose=True),
+                                                dim=-1).to_dense() for g in
+                               dataset.train.graph_lists])
+                net_params['avg_d'] = dict(lin=torch.mean(D),
+                                           exp=torch.mean(torch.exp(torch.
+                                                                    div(1, D)) - 1),
+                                           log=torch.mean(torch.log(D + 1)))
 
             model = gnn_model(MODEL_NAME, net_params)
             saved_expander, _ = init_expander(model, saved_expander, saved_layers)
