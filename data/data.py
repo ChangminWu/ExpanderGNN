@@ -1,5 +1,5 @@
 from data.TUs import TUsDataset
-from data.citations import CitationsDataset
+# from data.citations import CitationsDataset
 from data.superpixels import SuperPixDataset
 
 def LoadData(DATASET_NAME):
@@ -9,10 +9,10 @@ def LoadData(DATASET_NAME):
     if DATASET_NAME in TU_DATASETS:
         return TUsDataset(DATASET_NAME)
 
-    CITATIONGRAPHS_DATASETS = ['CORA', 'CITESEER', 'PUBMED', 'CORA-FULL', 'MUTAG', 'COAUTHOR-CS', 'COAUTHOR-PHYSICS',
-                               'REDDIT', 'AMAZON-PHOTO', 'AMAZON-COMPUTER']
-    if DATASET_NAME in CITATIONGRAPHS_DATASETS:
-        return CitationsDataset(DATASET_NAME)
+    # CITATIONGRAPHS_DATASETS = ['CORA', 'CITESEER', 'PUBMED', 'CORA-FULL', 'MUTAG', 'COAUTHOR-CS', 'COAUTHOR-PHYSICS',
+    #                            'REDDIT', 'AMAZON-PHOTO', 'AMAZON-COMPUTER']
+    # if DATASET_NAME in CITATIONGRAPHS_DATASETS:
+    #     return CitationsDataset(DATASET_NAME)
 
     SUPERPIXELS_DATASETS = ["MNIST", "CIFAR10"]
     if DATASET_NAME in SUPERPIXELS_DATASETS:

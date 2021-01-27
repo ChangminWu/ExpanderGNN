@@ -271,8 +271,6 @@ class SuperPixDataset(torch.utils.data.Dataset):
             self.val = f[1]
             self.test = f[2]
 
-
-
         print('train, test, val sizes :', len(self.train), len(self.test), len(self.val))
         print("[I] Finished loading.")
         print("[I] Data load time: {:.4f}s".format(time.time() - start))
