@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 from dgl.nn.pytorch.glob import SumPooling, AvgPooling, MaxPooling
