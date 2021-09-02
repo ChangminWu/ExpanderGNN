@@ -422,15 +422,6 @@ def main():
     net_params["gpu_id"] = config["gpu"]["id"]
     net_params["batch_size"] = params["batch_size"]
 
-    # citation graph datasets
-    dataset = DglNodePropPredDataset(name=DATASET_NAME)
-    g, labels = dataset[0]
-    net_params['in_dim'] = g.ndata['feat'].size(1)  # node_dim (feat is an integer)
-    net_params["in_dim_edge"] = net_params['in_dim']
-    net_params['n_classes'] = (labels.max() + 1).item() #dataset.num_classes
-
-    net_params['density'] = float((net_params['in_dim'] - net_params['n_classes'] - 1) / (2 * net_params['in_dim']))
-
     """
     Model parameters
     """
@@ -503,6 +494,13 @@ def main():
     if args.use_simplified_version is not None:
         net_params['use_simplified_version'] = args.use_simplified_version \
             if args.use_simplified_version == 'True' else False
+
+    # citation graph datasets
+    dataset = DglNodePropPredDataset(name=DATASET_NAME)
+    g, labels = dataset[0]
+    net_params['in_dim'] = g.ndata['feat'].size(1)  # node_dim (feat is an integer)
+    net_params["in_dim_edge"] = net_params['in_dim']
+    net_params['n_classes'] = (labels.max() + 1).item() #dataset.num_classes
 
     def name_folder_path(x):
         return "{}{}{}_{}_{}_density_{}".format(out_dir, x, EXP_NAME, MODEL_NAME, DATASET_NAME, net_params["density"])

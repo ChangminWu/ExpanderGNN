@@ -1,0 +1,19 @@
+name: KDD
+channels:
+- pytorch
+- conda-forge
+- anaconda
+- defaults
+dependencies:
+- cudatoolkit=10.1
+- cudnn=7.6.5
+- pytorch=1.5.1
+- python=3.7.4
+- pip=19.2.3
+- pillow=6.1
+- tensorboardX=2.1
+- numpy=1.18.1
+- scikit-learn=0.21.2
+- networkx=2.5
+- tqdm=4.46.1
+- ogb=1.2.3

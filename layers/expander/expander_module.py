@@ -2,8 +2,8 @@ import math
 import torch
 import torch.nn as nn
 
-from torch_scatter import scatter_add
-from torch_sparse import spmm
+# from torch_scatter import scatter_add
+# from torch_sparse import spmm
 
 from layers.expander.samplers import sampler
 
