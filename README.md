@@ -1,6 +1,6 @@
 #  Sparsifying the Update Step in Graph Neural Networks
 This repository is the official implementation of *Sparsifying the Update Step in Graph Neural Networks*.
-
+![image](https://github.com/ChangminWu/ExpanderGNN/blob/public/img/illustration.jpg)
 
 ### Folder Structure
 ```
