@@ -1,4 +1,4 @@
-name: KDD
+name: ExpanderGNN
 channels:
 - pytorch
 - conda-forge
