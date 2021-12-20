@@ -17,7 +17,7 @@ class ExpanderLinear(nn.Module):
     def __init__(self, indim: int, outdim: int, bias: bool=True, edge_index: Optional[Tensor]=None, weight_initializer: Optional[str]=None) -> None:
         super().__init__()
 
-        self.indim, self.outdim, self.edge_index = indim, outdim, self.edge_index
+        self.indim, self.outdim, self.edge_index = indim, outdim, edge_index
         row, col = self.edge_index
 
         if bias:
