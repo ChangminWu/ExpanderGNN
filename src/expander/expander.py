@@ -18,6 +18,7 @@ class ExpanderLinear(nn.Module):
         super().__init__()
 
         self.indim, self.outdim, self.edge_index = indim, outdim, edge_index
+        self.weight_initializer = weight_initializer
         row, col = self.edge_index
 
         if bias:
@@ -28,7 +29,7 @@ class ExpanderLinear(nn.Module):
         self.nnz_weight = Parameter(torch.Tensor(len(row)))
         self.weight = SparseTensor(row=row, col=col, sparse_sizes=(outdim, indim), value=self.nnz_weight)
         
-        self.reset_parameters()
+        # self.reset_parameters()
 
     def reset_parameters(self) -> None:
         if self.bias is not None:
@@ -43,6 +44,8 @@ class ExpanderLinear(nn.Module):
         elif self.weight_initializer == "uniform":
             bound = 1.0 / math.sqrt(self.indim)
             self.nnz_weight.data.uniform(-bound, bound)
+        elif self.weight_initializer == "ones":
+            nn.init.ones_(self.nnz_weight.data)
         elif self.weight_initializer == None:
             bound = 1.0 / math.sqrt(self.weight.nnz())
             self.nnz_weight.data.uniform(-bound, bound)

@@ -34,7 +34,12 @@ def sampler(indim: int, outdim: int, density: float, sample_method: str="prabhu"
                 row_idx = row_idx[:num_connections]
                 col_idx = col_idx[:num_connections]
                 break
-        
+    
+    elif sample_method.lower() == "identity":
+        assert indim==outdim, "activation-only needs same input and output dimension"
+        row_idx = [i for i in range(indim)]
+        col_idx = [i for i in range(outdim)]
+
     row = torch.LongTensor(row_idx)
     col = torch.LongTensor(col_idx)
     edge_index = torch.stack([row, col], dim=0).long()
