@@ -1,16 +1,13 @@
-out/
-backup/
+output/
 
 *.ipynb
 .ipynb_checkpoints/
 */.ipynb_checkpoints/
 */*/.ipynb_checkpoints/
 data/__pycache__/
-expander/__pycache__/
-models/__pycache__/
 
+postprocess/
 postprocess/data
-postprocess/*.png
 postprocess/output
 
 .idea/
