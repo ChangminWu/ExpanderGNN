@@ -50,6 +50,7 @@ def test(model, data, split_idx, evaluator):
 def main():
     parser = argparse.ArgumentParser(description='Node-Classification')
     parser.add_argument('--dataset', type=str, default="arxiv")
+    parser.add_argument('--outdir', type=str, default="./output/")
     parser.add_argument('--device', type=int, default=0)
     parser.add_argument('--log-steps', type=int, default=1)
 
@@ -99,9 +100,7 @@ def main():
 
     density = float(len(model.edge_index_list[1]) / (args.hiddim*args.hiddim))
 
-
-    args.experiment = "{}-{}-{}-{}".format(args.exp_type, args.noise_type, args.merged, args.add_kernel)
-
+    file_name = osp.join(args.outdir, "{}-{}-{}".format(args.dataset, args))
     def name_folder_path():
         path = osp.join(args.out_dir, args.experiment, "{}-{}-{}".format(args.dataset, args.num_layers, args.readout))
         file = ("{}_"*15).format(args.hiddim, args.noise_ratio, args.epsilon,
