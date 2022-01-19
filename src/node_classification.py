@@ -11,6 +11,9 @@ from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from logger import Logger
 from models import ExpanderSAGE, ExpanderGCN, SAGE, GCN
 
+import datetime
+from time import time
+
 
 def train(model, data, train_idx, optimizer):
     model.train()
