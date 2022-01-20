@@ -136,7 +136,7 @@ def main():
         model.reset_parameters()
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
         for epoch in range(1, 1 + args.epochs):
-            start_time = time.time()
+            start_time = time()
             loss = train(model, data, train_idx, optimizer)
             result = test(model, data, split_idx, evaluator)
             logger.add_result(run, result)
@@ -145,12 +145,12 @@ def main():
                 train_acc, valid_acc, test_acc = result
                 log.info(f'Run: {run + 1:02d}, '
                          f'Epoch: {epoch:02d}, '
-                         f'Time: {time.time()-start_time:.6f},'
+                         f'Time: {time()-start_time:.6f},'
                          f'Loss: {loss:.4f}, '
                          f'Train: {100 * train_acc:.2f}%, '
                          f'Valid: {100 * valid_acc:.2f}% '
                          f'Test: {100 * test_acc:.2f}%')
-                start_time = time.time()
+                start_time = time()
 
         logger.print_statistics(run)
     logger.print_statistics()
