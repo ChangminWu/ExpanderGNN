@@ -11,7 +11,7 @@ from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from logger import Logger
 from models import ExpanderSAGE, ExpanderGCN, SAGE, GCN
 
-import datetime
+from datetime import datetime
 from time import time
 
 
