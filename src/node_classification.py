@@ -145,7 +145,7 @@ def main():
                 train_acc, valid_acc, test_acc = result
                 log.info(f'Run: {run + 1:02d}, '
                          f'Epoch: {epoch:02d}, '
-                         f'Time: {time()-start_time:.6f},'
+                         f'Time: {time()-start_time:.6f}, '
                          f'Loss: {loss:.4f}, '
                          f'Train: {100 * train_acc:.2f}%, '
                          f'Valid: {100 * valid_acc:.2f}% '
