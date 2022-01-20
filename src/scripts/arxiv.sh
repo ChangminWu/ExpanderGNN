@@ -7,10 +7,10 @@ for i in "${methods[@]}"
 do
   for d in "${densities[@]}"
   do
-    python $script --dataset arxiv --out-dir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --dense-output --use-expander 
+    python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --dense-output --use-expander 
   done
   
-  python $script --dataset arxiv --out-dir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --dense-output
+  python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --dense-output
 done
 
 savedir="results/arxiv-gcn-sparse/"
@@ -18,10 +18,10 @@ for i in "${methods[@]}"
 do
   for d in "${densities[@]}"
   do
-    python $script --dataset arxiv --out-dir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
+    python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
   done
   
-  python $script --dataset arxiv --out-dir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot
+  python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot
 done
 
 savedir="results/arxiv-sage-sparse/"
@@ -29,8 +29,8 @@ for i in "${methods[@]}"
 do
   for d in "${densities[@]}"
   do
-    python $script --dataset arxiv --out-dir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander --use-sage 
+    python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander --use-sage 
   done
   
-  python $script --dataset arxiv --out-dir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --use-sage
+  python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --use-sage
 done
