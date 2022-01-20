@@ -103,27 +103,14 @@ def main():
 
     density = float(len(model.edge_index_list[1]) / (args.hiddim*args.hiddim))
 
-    file_name = osp.join(args.outdir, "{}-{}-{}".format(args.dataset, args))
-    def name_folder_path():
-        path = osp.join(args.out_dir, args.experiment, "{}-{}-{}".format(args.dataset, args.num_layers, args.readout))
-        file = ("{}_"*15).format(args.hiddim, args.noise_ratio, args.epsilon,
-                                 args.add_feat_noise, args.feat_noise_ratio, args.nystrom,
-                                 args.random_noise_type, args.kernel_type,
-                                 args.add_identity, args.normalize, args.spectral_norm, args.rf_norm,
-                                 args.standarize, args.centerize, args.split_type)
-        return path, file
+    outdir = osp.join(osp.dirname(osp.realpath(__file__)), args.outdir, "{}-{}-{}".format(args.dataset, args.num_layers, args.dense_output))
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
 
-    path, file = name_folder_path()
-    path = osp.join(osp.dirname(osp.realpath(__file__)), path)
+    file = "{}-{}-{}-{}-{}-{}".format(density, args.use_sage, args.use_expander, args.sample_method, args.weight_initializer, datetime.now().strftime("%m%d_%H%M%S"))
+    logname = osp.join(outdir, "%s.log" % (file))
 
-    log_dir = osp.join(path, "logs")
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-
-    task_name = file + datetime.now().strftime("%m%d_%H%M%S")
-    logname = osp.join(log_dir, "%s.log" % (task_name))
-
-    log = logging.getLogger(task_name)
+    log = logging.getLogger(file)
     log.setLevel(logging.INFO)
     fmt = "%(asctime)s - %(levelname)s - %(message)s"
     datefmt = "%Y-%m-%d %H:%M:%S"
@@ -138,11 +125,8 @@ def main():
     chler.setLevel(logging.INFO)
     log.addHandler(chler)
 
-    log.info("Experiment of model: %s" % (task_name))
-    log.info(args)
-
-
-    
+    log.info("Experiment of model: %s" % (file))
+    log.info(args)   
 
     if args.dataset == 'arxiv':
         evaluator = Evaluator(name='ogbn-arxiv')
