@@ -101,7 +101,7 @@ def main():
         else:
             model = GCN(data.num_features, args.hiddim, dataset.num_classes, args.num_layers, args.dropout).to(device)
 
-    density = float(len(model.edge_index_list[1]) / (args.hiddim*args.hiddim))
+    density = float(len(model.edge_index_list[1][0]) / (args.hiddim*args.hiddim))
 
     outdir = osp.join(osp.dirname(osp.realpath(__file__)), args.outdir, "{}-{}-{}".format(args.dataset, args.num_layers, args.dense_output))
     if not os.path.exists(outdir):
@@ -136,18 +136,21 @@ def main():
         model.reset_parameters()
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
         for epoch in range(1, 1 + args.epochs):
+            start_time = time.time()
             loss = train(model, data, train_idx, optimizer)
             result = test(model, data, split_idx, evaluator)
             logger.add_result(run, result)
 
             if epoch % args.log_steps == 0:
                 train_acc, valid_acc, test_acc = result
-                print(f'Run: {run + 1:02d}, '
-                      f'Epoch: {epoch:02d}, '
-                      f'Loss: {loss:.4f}, '
-                      f'Train: {100 * train_acc:.2f}%, '
-                      f'Valid: {100 * valid_acc:.2f}% '
-                      f'Test: {100 * test_acc:.2f}%')
+                log.info(f'Run: {run + 1:02d}, '
+                         f'Epoch: {epoch:02d}, '
+                         f'Time: {time.time()-start_time:.6f},'
+                         f'Loss: {loss:.4f}, '
+                         f'Train: {100 * train_acc:.2f}%, '
+                         f'Valid: {100 * valid_acc:.2f}% '
+                         f'Test: {100 * test_acc:.2f}%')
+                start_time = time.time()
 
         logger.print_statistics(run)
     logger.print_statistics()
