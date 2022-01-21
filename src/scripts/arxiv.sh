@@ -5,12 +5,13 @@ methods=("prabhu" "random")
 savedir="results/arxiv-gcn-sparse/"
 for i in "${methods[@]}"
 do
+  python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot
+  
   for d in "${densities[@]}"
   do
     python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
   done
-  
-  python $script --dataset arxiv --outdir $savedir --num-layers 3 --hiddim 256 --density "$d" --sample-method "$i" --weight-initializer glorot
+
 done
 
 savedir="results/arxiv-gcn-dense/"
