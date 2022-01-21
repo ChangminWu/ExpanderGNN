@@ -1,4 +1,5 @@
 from typing import Optional, Union, Tuple
+import torch
 from torch import Tensor
 
 from torch_geometric.nn.conv import GCNConv, SAGEConv
@@ -11,6 +12,17 @@ class ExpanderGCNConv(GCNConv):
         super().__init__(indim, outdim, improved, cached, add_self_loops, normalize, bias, **kwargs)
         self.lin = ExpanderLinear(indim, outdim, False, edge_index, weight_initializer)
         self.reset_parameters()
+
+
+class ActivationGCNConv(GCNConv):
+    def __init__(self, indim: int, outdim: int, improved: bool = False, cached: bool = False, add_self_loops: bool = True, normalize: bool = True,
+                 bias: bool = False, **kwargs):
+        super().__init__(indim, outdim, improved, cached, add_self_loops, normalize, False, **kwargs)
+        self.lin = torch.nn.Identity()
+
+    def reset_parameters(self):
+        self._cached_edge_index = None
+        self._cached_adj_t = None
 
 
 class ExpanderSAGEConv(SAGEConv):

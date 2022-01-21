@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import torch_geometric.transforms as T
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from logger import Logger
-from models import ExpanderSAGE, ExpanderGCN, SAGE, GCN
+from models import ActivationGCN, ExpanderSAGE, ExpanderGCN, SAGE, GCN, ActivationGCN
 
 from datetime import datetime
 from time import time
@@ -59,6 +59,7 @@ def main():
 
     parser.add_argument('--use-expander', action='store_true')
     parser.add_argument('--use-sage', action='store_true')
+    parser.add_argument('--use-activation', action='store_true')
     parser.add_argument('--num-layers', type=int, default=3)
     parser.add_argument('--hiddim', type=int, default=256)
 
@@ -100,6 +101,9 @@ def main():
             model = SAGE(data.num_features, args.hiddim, dataset.num_classes, args.num_layers, args.dropout).to(device)
         else:
             model = GCN(data.num_features, args.hiddim, dataset.num_classes, args.num_layers, args.dropout).to(device)
+    
+    if args.use_activation:
+        model = ActivationGCN(data.num_features, args.hiddim, dataset.num_classes, args.num_layers, args.dropout)
 
     if args.use_expander:
         density = float(len(model.edge_index_list[1][0]) / (args.hiddim*args.hiddim))
