@@ -101,8 +101,11 @@ def main():
         else:
             model = GCN(data.num_features, args.hiddim, dataset.num_classes, args.num_layers, args.dropout).to(device)
 
-    density = float(len(model.edge_index_list[1][0]) / (args.hiddim*args.hiddim))
-
+    if args.use_expander:
+        density = float(len(model.edge_index_list[1][0]) / (args.hiddim*args.hiddim))
+    else:
+        density = 1.0
+        
     outdir = osp.join(osp.dirname(osp.realpath(__file__)), args.outdir, "{}-{}-{}".format(args.dataset, args.num_layers, args.dense_output))
     if not os.path.exists(outdir):
         os.makedirs(outdir)
