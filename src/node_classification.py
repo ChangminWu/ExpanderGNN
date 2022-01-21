@@ -105,6 +105,7 @@ def main():
     if args.use_activation:
         model = ActivationGCN(data.num_features, args.hiddim, dataset.num_classes, args.num_layers, args.dropout)
 
+    model = model.to(device)
     if args.use_expander:
         density = float(len(model.edge_index_list[1][0]) / (args.hiddim*args.hiddim))
     else:
