@@ -74,7 +74,7 @@ class ActivationGCN(torch.nn.Module):
         print("initial: ", x)
         for i, conv in enumerate(self.convs[:-1]):
             x = conv(x, adj_t)
-            print("after prop: ", x)
+            #print("after prop: ", x)
             #x = self.bns[i](x)
             if i == 0:
                 x = F.relu(x)
