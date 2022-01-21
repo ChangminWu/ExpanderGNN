@@ -71,11 +71,14 @@ class ActivationGCN(torch.nn.Module):
             bn.reset_parameters()
 
     def forward(self, x, adj_t):
+        print("initial: ", x)
         for i, conv in enumerate(self.convs[:-1]):
             x = conv(x, adj_t)
+            print("after prop: ", x)
             #x = self.bns[i](x)
             if i == 0:
                 x = F.relu(x)
+                print("after activ: ", x)
             x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.convs[-1](x, adj_t)
         return x.log_softmax(dim=-1)
