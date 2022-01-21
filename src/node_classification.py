@@ -130,7 +130,7 @@ def main():
 
     if args.dataset == 'arxiv':
         evaluator = Evaluator(name='ogbn-arxiv')
-    logger = Logger(args.runs, args)
+    logger = Logger(args.runs, args, log)
 
     for run in range(args.runs):
         model.reset_parameters()
