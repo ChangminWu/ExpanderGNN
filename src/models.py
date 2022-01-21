@@ -53,7 +53,6 @@ class ActivationGCN(torch.nn.Module):
         self.edge_index_list = []
         self.convs = torch.nn.ModuleList()
         self.bns = torch.nn.ModuleList()
-        self.convs.append()
         self.convs.append(ActivationGCNConv(indim, indim, cached=True))
         self.bns.append(torch.nn.BatchNorm1d(indim))
 
