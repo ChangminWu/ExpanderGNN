@@ -7,6 +7,7 @@ import torch
 import torch.nn.functional as F
 
 import torch_geometric.transforms as T
+from torch_geometric.dataset import 
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from logger import Logger
 from models import ActivationGCN, ExpanderSAGE, ExpanderGCN, SAGE, GCN, ActivationGCN
@@ -83,6 +84,8 @@ def main():
 
     if args.dataset == 'arxiv':
         dataset = PygNodePropPredDataset(name='ogbn-arxiv', transform=T.ToSparseTensor())
+    else:
+        dataset =Planetoid(name=args.dataset, transform=T.ToSparseTensor())
 
     data = dataset[0]
     data.adj_t = data.adj_t.to_symmetric()
@@ -161,7 +164,7 @@ def main():
                          f'Train: {100 * train_acc:.2f}%, '
                          f'Valid: {100 * valid_acc:.2f}% '
                          f'Test: {100 * test_acc:.2f}%')
-                         
+
         logger.print_statistics(run)
     logger.print_statistics()
 
