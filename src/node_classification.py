@@ -146,20 +146,22 @@ def main():
         for epoch in range(1, 1 + args.epochs):
             start_time = time()
             loss = train(model, data, train_idx, optimizer)
+            train_time = time()
             result = test(model, data, split_idx, evaluator)
+            infer_time = time()
             logger.add_result(run, result)
 
             if epoch % args.log_steps == 0:
                 train_acc, valid_acc, test_acc = result
                 log.info(f'Run: {run + 1:02d}, '
                          f'Epoch: {epoch:02d}, '
-                         f'Time: {time()-start_time:.6f}, '
+                         f'Train Time: {train_time-start_time:.6f}, '
+                         f'Infer Time: {infer_time-train_time:.6f}, '
                          f'Loss: {loss:.4f}, '
                          f'Train: {100 * train_acc:.2f}%, '
                          f'Valid: {100 * valid_acc:.2f}% '
                          f'Test: {100 * test_acc:.2f}%')
-                start_time = time()
-
+                         
         logger.print_statistics(run)
     logger.print_statistics()
 
