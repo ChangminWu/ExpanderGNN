@@ -8,12 +8,14 @@ import torch.nn.functional as F
 
 import torch_geometric.transforms as T
 from torch_geometric.dataset import 
-from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
+from ogb.nodeproppred import PygNodePropPredDataset
 from logger import Logger
 from models import ActivationGCN, ExpanderSAGE, ExpanderGCN, SAGE, GCN, ActivationGCN
 
 from datetime import datetime
 from time import time
+
+from utils import Evaluator
 
 
 def train(model, data, train_idx, optimizer):
@@ -140,7 +142,7 @@ def main():
     log.info(args)   
 
     if args.dataset == 'arxiv':
-        evaluator = Evaluator(name='ogbn-arxiv')
+        evaluator = Evaluator(metric='ogbn-arxiv')
     logger = Logger(args.runs, args, log)
 
     for run in range(args.runs):
