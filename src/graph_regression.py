@@ -95,11 +95,11 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if args.use_expander:
-        model = ExpanderPNA(deg, args.num_readout_layers, args.density, args.sample_method, args.weight_initializer, args.dense_output)
+        model = ExpanderPNA(deg, args.num_readout_layers, args.density, args.sample_method, args.weight_initializer, args.dense_output).to(device)
     else:
-        model = PNA(deg, args.num_readout_layers)
+        model = PNA(deg, args.num_readout_layers).to(device)
     
-    model = model.to(device)
+    # model = model.to(device)
 
     if args.use_expander:
         density = float(len(model.edge_index_list[0][0][0]) / (50*75))
