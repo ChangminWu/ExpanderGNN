@@ -145,7 +145,7 @@ def main():
             test_mae = test(model, test_loader, device)
             infer_time = time()
             scheduler.step(val_mae)
-            logger.add_result(run, (loss, val_mae, test_mae))
+            logger.add_result(run, (-loss, -val_mae, -test_mae))
 
             if epoch % args.log_steps == 0:
                 log.info(f'Run: {run + 1:02d}, '
