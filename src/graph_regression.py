@@ -139,10 +139,10 @@ def main():
         scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=20, min_lr=0.00001)
         for epoch in range(1, 1 + args.epochs):
             start_time = time()
-            loss = train(epoch)
-            val_mae = test(val_loader)
+            loss = train(model, train_loader, optimizer, device)
+            val_mae = test(model, val_loader, device)
             train_time = time()
-            test_mae = test(test_loader)
+            test_mae = test(model, test_loader, device)
             infer_time = time()
             scheduler.step(val_mae)
             logger.add_result(run, (loss, val_mae, test_mae))
