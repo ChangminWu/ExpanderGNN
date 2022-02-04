@@ -92,8 +92,8 @@ def main():
         d = degree(data.edge_index[1], num_nodes=data.num_nodes, dtype=torch.long)
         deg += torch.bincount(d, minlength=deg.numel())
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+    #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')
     if args.use_expander:
         model = ExpanderPNA(deg, args.num_readout_layers, args.density, args.sample_method, args.weight_initializer, args.dense_output).to(device)
     else:
