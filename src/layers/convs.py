@@ -34,9 +34,6 @@ class ExpanderPNAConv(PNAConv):
             self.pre_nns.append(Sequential(*modules))
 
             in_channels = (len(aggregators) * len(scalers) + 1) * self.F_in
-            print(in_channels, self.F_in)
-            row, col = edge_index[pre_layers+(pre_layers+post_layers)*i]
-            print(len(row))
             modules = [ExpanderLinear(in_channels, self.F_out, bias, edge_index[pre_layers+(pre_layers+post_layers)*i], weight_initializer)]
             for k in range(post_layers - 1):
                 modules += [ReLU()]

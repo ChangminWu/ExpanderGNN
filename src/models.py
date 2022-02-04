@@ -253,7 +253,7 @@ class ExpanderPNA(torch.nn.Module):
             edge_index_list.append(sampler(50, 75, density, sample_method))
             for _ in range(5):
                 edge_index_list.append(sampler(225, 75, density, sample_method))
-                edge_index_list.append(sampler(975, 75, density, sample_method))
+                edge_index_list.append(sampler(975, 15, density, sample_method))
             edge_index_list.append(sampler(75, 75, density, sample_method))
             self.edge_index_list.append(edge_index_list)
             
