@@ -102,7 +102,7 @@ def main():
     model = model.to(device)
 
     if args.use_expander:
-        density = float(len(model.edge_index_list[0][0]) / (75*75))
+        density = float(len(model.edge_index_list[0][0][0]) / (50*75))
     else:
         density = 1.0
         

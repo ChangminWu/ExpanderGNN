@@ -18,28 +18,29 @@ from torch_geometric.utils.num_nodes import maybe_num_nodes
 
 class ExpanderPNAConv(PNAConv):
     def __init__(self, indim: int, outdim: int, aggregators: List[str], scalers: List[str], deg: Tensor, edge_dim: Optional[int] = None, towers: int = 1,
-                 pre_layers: int = 1, post_layers: int = 1, divide_input: bool = False, bias: bool = True, edge_index: Optional[Tensor] = None, weight_initializer: Optional[str] = None, **kwargs):
+                 pre_layers: int = 1, post_layers: int = 1, divide_input: bool = False, bias: bool = True, edge_index: Optional[List[Tensor]] = None, weight_initializer: Optional[str] = None, **kwargs):
         super().__init__(indim, outdim, aggregators, scalers, deg, edge_dim, towers, pre_layers, post_layers, divide_input, **kwargs)
         if self.edge_dim is not None:
-            self.edge_encoder = ExpanderLinear(edge_dim, self.F_in, bias, edge_index, weight_initializer)
+            self.edge_encoder = ExpanderLinear(edge_dim, self.F_in, bias, edge_index[0], weight_initializer)
+            edge_index.pop(0)
         
         self.pre_nns = ModuleList()
         self.post_nns = ModuleList()
-        for _ in range(towers):
-            modules = [ExpanderLinear((3 if edge_dim else 2) * self.F_in, self.F_in, bias, edge_index, weight_initializer)]
-            for _ in range(pre_layers - 1):
+        for i in range(towers):
+            modules = [ExpanderLinear((3 if edge_dim else 2) * self.F_in, self.F_in, bias, edge_index[(pre_layers+post_layers)*i], weight_initializer)]
+            for j in range(pre_layers - 1):
                 modules += [ReLU()]
-                modules += [ExpanderLinear(self.F_in, self.F_in, bias, edge_index, weight_initializer)]
+                modules += [ExpanderLinear(self.F_in, self.F_in, bias, edge_index[j+1+(pre_layers+post_layers)*i], weight_initializer)]
             self.pre_nns.append(Sequential(*modules))
 
             in_channels = (len(aggregators) * len(scalers) + 1) * self.F_in
-            modules = [ExpanderLinear(in_channels, self.F_out, bias, edge_index, weight_initializer)]
-            for _ in range(post_layers - 1):
+            modules = [ExpanderLinear(in_channels, self.F_out, bias, edge_index[pre_layers+(pre_layers+post_layers)*i], weight_initializer)]
+            for k in range(post_layers - 1):
                 modules += [ReLU()]
-                modules += [ExpanderLinear(self.F_out, self.F_out, bias, edge_index, weight_initializer)]
+                modules += [ExpanderLinear(self.F_out, self.F_out, bias, edge_index[pre_layers+k+1+(pre_layers+post_layers)*i], weight_initializer)]
             self.post_nns.append(Sequential(*modules))
 
-        self.lin = ExpanderLinear(outdim, outdim, False, edge_index, weight_initializer)
+        self.lin = ExpanderLinear(outdim, outdim, False, edge_index[-1], weight_initializer)
         self.reset_parameters()
 
 

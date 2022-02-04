@@ -249,9 +249,16 @@ class ExpanderPNA(torch.nn.Module):
         self.batch_norms = torch.nn.ModuleList()
         
         for _ in range(4):
-            self.edge_index_list.append(sampler(75, 75, density, sample_method))
+            edge_index_list = []
+            edge_index_list.append(sampler(50, 75, density, sample_method))
+            for _ in range(5):
+                edge_index_list.append(sampler(225, 75, density, sample_method))
+                edge_index_list.append(sampler(975, 75, density, sample_method))
+            edge_index_list.append(sampler(75, 75, density, sample_method))
+            self.edge_index_list.append(edge_index_list)
+            
             conv = ExpanderPNAConv(indim=75, outdim=75, aggregators=aggregators, scalers=scalers, deg=deg, 
-                                   edge_dim=50, towers=5, pre_layers=1, post_layers=1, divide_input=False, edge_index=self.edge_index_list[-1], weight_initializer=weight_initializer)
+                                   edge_dim=50, towers=5, pre_layers=1, post_layers=1, divide_input=False, edge_index=edge_index_list, weight_initializer=weight_initializer)
             self.convs.append(conv)
             self.batch_norms.append(BatchNorm(75))
 
