@@ -27,7 +27,7 @@ class ExpanderLinear(nn.Module):
             self.register_parameter("bias", None)
 
         self.nnz_weight = Parameter(torch.cuda.FloatTensor(len(row)))
-        self.weight = SparseTensor(row=row, col=col, sparse_sizes=(outdim, indim), value=self.nnz_weight)
+        self.weight = SparseTensor(row=row.to(torch.device('gpu')), col=col.to(torch.device('gpu')), sparse_sizes=(outdim, indim), value=self.nnz_weight)
         
         # self.reset_parameters()
 
