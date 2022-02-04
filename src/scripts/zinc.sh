@@ -5,24 +5,23 @@ methods=("prabhu" "random")
 savedir="results/zinc-sparse-1/"
 for i in "${methods[@]}"
 do
-  python $script --dataset arxiv --outdir $savedir --num-readout-layers 1 --density 1.0 --sample-method "$i" --weight-initializer glorot
-  
   for d in "${densities[@]}"
   do
     python $script --dataset arxiv --outdir $savedir --num-readout-layers 1 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
   done
 
+  python $script --dataset arxiv --outdir $savedir --num-readout-layers 1 --density 1.0 --sample-method "$i" --weight-initializer glorot
 done
 
 savedir="results/zinc-sparse-3/"
 for i in "${methods[@]}"
-do
-  python $script --dataset arxiv --outdir $savedir --num-readout-layers 3 --density 1.0 --sample-method "$i" --weight-initializer glorot
-  
+do  
   for d in "${densities[@]}"
   do
     python $script --dataset arxiv --outdir $savedir --num-readout-layers 3 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
   done
+
+  python $script --dataset arxiv --outdir $savedir --num-readout-layers 3 --density 1.0 --sample-method "$i" --weight-initializer glorot
 
 done
 
