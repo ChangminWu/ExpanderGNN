@@ -1,9 +1,10 @@
 import torch
 import torch.nn.functional as F
 
-from torch_geometric.nn import GCNConv, SAGEConv
-from layers.convs import ExpanderGCNConv, ExpanderSAGEConv, ActivationGCNConv
+from torch_geometric.nn import GCNConv, SAGEConv, PNAConv, global_add_pool, BatchNorm, inits
+from layers.convs import ExpanderGCNConv, ExpanderSAGEConv, ActivationGCNConv, ExpanderPNAConv
 from expander.samplers import sampler
+from expander.expander import ExpanderLinear
 
 
 class ExpanderGCN(torch.nn.Module):
@@ -186,5 +187,110 @@ class SAGE(torch.nn.Module):
             x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.convs[-1](x, adj_t)
         return x.log_softmax(dim=-1)
+
+
+class PNA(torch.nn.Module):
+    def __init__(self, deg, readout_layer=3):
+        super().__init__()
+
+        self.node_emb = torch.nn.Embedding(21, 75)
+        self.edge_emb = torch.nn.Embedding(4, 50)
+
+        aggregators = ['mean', 'min', 'max', 'std']
+        scalers = ['identity', 'amplification', 'attenuation']
+
+        self.convs = torch.nn.ModuleList()
+        self.batch_norms = torch.nn.ModuleList()
+        for _ in range(4):
+            conv = PNAConv(in_channels=75, out_channels=75,
+                           aggregators=aggregators, scalers=scalers, deg=deg,
+                           edge_dim=50, towers=5, pre_layers=1, post_layers=1,
+                           divide_input=False)
+            self.convs.append(conv)
+            self.batch_norms.append(BatchNorm(75))
+
+        if readout_layer == 3:
+            self.mlp = torch.nn.Sequential(torch.nn.Linear(75, 50), torch.nn.ReLU(), torch.nn.Linear(50, 25), torch.nn.ReLU(), torch.nn.Linear(25, 1))
+        else:
+            self.mlp = torch.nn.Sequential(torch.nn.Linear(75, 1))
+
+    def reset_parameters(self):
+        self.node_emb.reset_parameters()
+        self.edge_emb.reset_parameters()
+        for conv in self.convs:
+            conv.reset_parameters()
+        for bn in self.batch_norms:
+            bn.reset_parameters()
+        inits.reset(self.mlp)
+
+    def forward(self, x, edge_index, edge_attr, batch):
+        x = self.node_emb(x.squeeze())
+        edge_attr = self.edge_emb(edge_attr)
+
+        for conv, batch_norm in zip(self.convs, self.batch_norms):
+            x = F.relu(batch_norm(conv(x, edge_index, edge_attr)))
+
+        x = global_add_pool(x, batch)
+        return self.mlp(x)
+
+
+class ExpanderPNA(torch.nn.Module):
+    def __init__(self, deg, readout_layer, density, sample_method, weight_initializer, dense_output=False):
+        super().__init__()
+
+        self.node_emb = torch.nn.Embedding(21, 75)
+        self.edge_emb = torch.nn.Embedding(4, 50)
+
+        aggregators = ['mean', 'min', 'max', 'std']
+        scalers = ['identity', 'amplification', 'attenuation']
+
+        self.edge_index_list = []
+        self.convs = torch.nn.ModuleList()
+        self.batch_norms = torch.nn.ModuleList()
+        
+        for _ in range(4):
+            self.edge_index_list.append(sampler(75, 75, density, sample_method))
+            conv = ExpanderPNAConv(indim=75, outdim=75, aggregators=aggregators, scalers=scalers, deg=deg, 
+                                   edge_dim=50, towers=5, pre_layers=1, post_layers=1, divide_input=False, edge_index=self.edge_index_list[-1], weight_initializer=weight_initializer)
+            self.convs.append(conv)
+            self.batch_norms.append(BatchNorm(75))
+
+        if not dense_output:
+            if readout_layer == 3:
+                self.edge_index_list.append(sampler(75, 50, density, sample_method))
+                self.edge_index_list.append(sampler(50, 25, density, sample_method))
+                self.edge_index_list.append(sampler(25, 1, density, sample_method))
+                self.mlp = torch.nn.Sequential(ExpanderLinear(75, 50, edge_index=self.edge_index_list[-3], weight_initializer=weight_initializer), 
+                                               torch.nn.ReLU(), 
+                                               ExpanderLinear(50, 25, edge_index=self.edge_index_list[-2], weight_initializer=weight_initializer), 
+                                               torch.nn.ReLU(), 
+                                               ExpanderLinear(25, 1, edge_index=self.edge_index_list[-1], weight_initializer=weight_initializer))
+            else:
+                self.edge_index_list.append(sampler(75, 1, density, sample_method))
+                self.mlp = torch.nn.Sequential(ExpanderLinear(75, 1, edge_index=self.edge_index_list[-1], weight_initializer=weight_initializer))
+        else:
+            if readout_layer == 3:
+                self.mlp = torch.nn.Sequential(torch.nn.Linear(75, 50), torch.nn.ReLU(), torch.nn.Linear(50, 25), torch.nn.ReLU(), torch.nn.Linear(25, 1))
+            else:
+                self.mlp = torch.nn.Sequential(torch.nn.Linear(75, 1))
+
+    def reset_parameters(self):
+        self.node_emb.reset_parameters()
+        self.edge_emb.reset_parameters()
+        for conv in self.convs:
+            conv.reset_parameters()
+        for bn in self.batch_norms:
+            bn.reset_parameters()
+        inits.reset(self.mlp)
+    
+    def forward(self, x, edge_index, edge_attr, batch):
+        x = self.node_emb(x.squeeze())
+        edge_attr = self.edge_emb(edge_attr)
+
+        for conv, batch_norm in zip(self.convs, self.batch_norms):
+            x = F.relu(batch_norm(conv(x, edge_index, edge_attr)))
+
+        x = global_add_pool(x, batch)
+        return self.mlp(x)
 
 
