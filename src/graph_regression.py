@@ -153,8 +153,8 @@ def main():
                          f'Train Time: {train_time-start_time:.6f}, '
                          f'Infer Time: {infer_time-train_time:.6f}, '
                          f'Loss: {loss:.4f}, '
-                         f'Val MAE: {val_mae:.4f}% '
-                         f'Test MAE: {test_mae:.4f}%')
+                         f'Val MAE: {val_mae:.4f} '
+                         f'Test MAE: {test_mae:.4f}')
 
         logger.print_statistics(run)
     logger.print_statistics()
