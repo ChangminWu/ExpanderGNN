@@ -26,7 +26,7 @@ class ExpanderLinear(nn.Module):
         else:
             self.register_parameter("bias", None)
 
-        self.nnz_weight = Parameter(torch.Tensor(len(row)))
+        self.nnz_weight = Parameter(torch.cuda.FloatTensor(len(row)))
         self.weight = SparseTensor(row=row.to(torch.device('cuda')), col=col.to(torch.device('cuda')), sparse_sizes=(outdim, indim), value=self.nnz_weight)
         
         # self.reset_parameters()
