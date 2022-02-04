@@ -7,10 +7,10 @@ for i in "${methods[@]}"
 do
   for d in "${densities[@]}"
   do
-    python $script --dataset arxiv --outdir $savedir --num-readout-layers 1 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
+    python $script --dataset zinc --outdir $savedir --num-readout-layers 1 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
   done
 
-  python $script --dataset arxiv --outdir $savedir --num-readout-layers 1 --density 1.0 --sample-method "$i" --weight-initializer glorot
+  python $script --dataset zinc --outdir $savedir --num-readout-layers 1 --density 1.0 --sample-method "$i" --weight-initializer glorot
 done
 
 savedir="results/zinc-sparse-3/"
@@ -18,21 +18,21 @@ for i in "${methods[@]}"
 do  
   for d in "${densities[@]}"
   do
-    python $script --dataset arxiv --outdir $savedir --num-readout-layers 3 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
+    python $script --dataset zinc --outdir $savedir --num-readout-layers 3 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander 
   done
 
-  python $script --dataset arxiv --outdir $savedir --num-readout-layers 3 --density 1.0 --sample-method "$i" --weight-initializer glorot
+  python $script --dataset zinc --outdir $savedir --num-readout-layers 3 --density 1.0 --sample-method "$i" --weight-initializer glorot
 
 done
 
 savedir="results/zinc-dense-1/"
 for i in "${methods[@]}"
 do
-  python $script --dataset arxiv --outdir $savedir --num-readout-layers 1 --density 1.0 --sample-method "$i" --weight-initializer glorot --dense-output
+  python $script --dataset zinc --outdir $savedir --num-readout-layers 1 --density 1.0 --sample-method "$i" --weight-initializer glorot --dense-output
   
   for d in "${densities[@]}"
   do
-    python $script --dataset arxiv --outdir $savedir --num-readout-layers 1 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander --dense-output
+    python $script --dataset zinc --outdir $savedir --num-readout-layers 1 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander --dense-output
   done
 
 done
@@ -40,11 +40,11 @@ done
 savedir="results/zinc-dense-3/"
 for i in "${methods[@]}"
 do
-  python $script --dataset arxiv --outdir $savedir --num-readout-layers 3 --density 1.0 --sample-method "$i" --weight-initializer glorot --dense-output
+  python $script --dataset zinc --outdir $savedir --num-readout-layers 3 --density 1.0 --sample-method "$i" --weight-initializer glorot --dense-output
   
   for d in "${densities[@]}"
   do
-    python $script --dataset arxiv --outdir $savedir --num-readout-layers 3 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander --dense-output
+    python $script --dataset zinc --outdir $savedir --num-readout-layers 3 --density "$d" --sample-method "$i" --weight-initializer glorot --use-expander --dense-output
   done
 
 done
