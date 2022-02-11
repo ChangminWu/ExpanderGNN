@@ -22,7 +22,7 @@ class ExpanderPNAConv(PNAConv):
         super().__init__(indim, outdim, aggregators, scalers, deg, edge_dim, towers, pre_layers, post_layers, divide_input, **kwargs)
         if self.edge_dim is not None:
             self.edge_encoder = ExpanderLinear(edge_dim, self.F_in, bias, edge_index[0], weight_initializer)
-            edge_index.pop(0)
+            edge_index = edge_index[1:]
         
         self.pre_nns = ModuleList()
         self.post_nns = ModuleList()
