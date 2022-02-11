@@ -1,6 +1,6 @@
 script=graph_regression.py
-densities=(0.01 0.1 0.5 0.95 1.0 0.05 0.2 0.3 0.4 0.6 0.7 0.8 0.9)
-methods=("prabhu" "random")
+densities=(0.95 1.0 0.05 0.2 0.3 0.4 0.6 0.7 0.8 0.9) #0.01 0.1 0.5 "prabhu" 
+methods=("random")
 
 savedir="results/zinc-sparse-1/"
 for i in "${methods[@]}"
