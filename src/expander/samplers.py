@@ -1,6 +1,7 @@
 import torch
 from torch import Tensor
 import numpy as np
+import itertools
 
 
 def sampler(indim: int, outdim: int, density: float, sample_method: str="prabhu") -> Tensor:
@@ -23,17 +24,20 @@ def sampler(indim: int, outdim: int, density: float, sample_method: str="prabhu"
     
     elif sample_method.lower() == "random":
         num_connections = int(indim*outdim*density)
-        while True:
-            rind = torch.randint(outdim, size=(int(num_connections*1.5),)).reshape(-1, 1)
-            cind = torch.randint(indim, size=(int(num_connections*1.5),)).reshape(-1, 1)
-            t_ = torch.cat([rind, cind], dim=1)
-            t_ = set([(int(x[0]), int(x[1])) for x in t_])
-            if len(t_) >= num_connections:
-                row_idx = [x[0] for x in t_]
-                col_idx = [x[1] for x in t_]
-                row_idx = row_idx[:num_connections]
-                col_idx = col_idx[:num_connections]
-                break
+        t_ = np.random.permutation(list(itertools.product(range(outdim), range(indim))))
+        row_idx = [x[0] for x in t_[:num_connections]]
+        col_idx = [x[1] for x in t_[:num_connections]]
+        # while True:
+        #     rind = torch.randint(outdim, size=(int(num_connections*1.5),)).reshape(-1, 1)
+        #     cind = torch.randint(indim, size=(int(num_connections*1.5),)).reshape(-1, 1)
+        #     t_ = torch.cat([rind, cind], dim=1)
+        #     t_ = set([(int(x[0]), int(x[1])) for x in t_])
+        #     if len(t_) >= num_connections:
+        #         row_idx = [x[0] for x in t_]
+        #         col_idx = [x[1] for x in t_]
+        #         row_idx = row_idx[:num_connections]
+        #         col_idx = col_idx[:num_connections]
+        #         break
     
     elif sample_method.lower() == "identity":
         assert indim==outdim, "activation-only needs same input and output dimension"
