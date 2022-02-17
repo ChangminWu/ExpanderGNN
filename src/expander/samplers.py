@@ -38,12 +38,7 @@ def sampler(indim: int, outdim: int, density: float, sample_method: str="prabhu"
         for i in range(outdim):
             row_idx.extend([i]*num_connections)
             col_idx.extend(range((i%indim, i+num_connections%indim)))
-
-    elif sample_method.lower() == "fibonnaci-rotate":
         
-
-
-
     row = torch.LongTensor(row_idx)
     col = torch.LongTensor(col_idx)
     edge_index = torch.stack([row, col], dim=0).long()
