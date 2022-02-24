@@ -226,7 +226,9 @@ def run(args, graph, labels, train_idx, val_idx, test_idx, evaluator, n_running)
         model = gen_model(args, init=True, run_num=1).to(device)
     else:
         model = gen_model(args, init=False).to(device)
-        save_edge_list(model.edge_index_list, n_running)
+        
+        if args.use_expander:
+            save_edge_list(model.edge_index_list, n_running)
     
     optimizer = optim.RMSprop(model.parameters(), lr=args.lr, weight_decay=args.wd)
 
