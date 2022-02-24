@@ -214,7 +214,7 @@ def save_checkpoint(pred, run_num):
 def save_edge_list(edge_index, run_num):
     fname = './checkpoint/edge_index_{}.pt'.format(run_num)
     print("Saving edge index lists......")
-    torch.save(edge_index.cpu(), fname)
+    torch.save(edge_index, fname)
 
 def run(args, graph, labels, train_idx, val_idx, test_idx, evaluator, n_running):
     evaluator_wrapper = lambda pred, labels: evaluator.eval(
