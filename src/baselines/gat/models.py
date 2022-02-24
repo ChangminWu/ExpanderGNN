@@ -7,6 +7,9 @@ from dgl.nn.pytorch.utils import Identity
 from dgl.ops import edge_softmax
 from dgl.utils import expand_as_pair
 
+from expander.expander import ExpanderLinear
+from expander.samplers import sampler
+
 
 class ElementWiseLinear(nn.Module):
     def __init__(self, size, weight=True, bias=True, inplace=False):
@@ -236,6 +239,52 @@ class GATConv(nn.Module):
             return rst
 
 
+class ExpanderGATConv(GATConv):
+    def __init__(
+        self,
+        in_feats,
+        out_feats,
+        num_heads=1,
+        feat_drop=0.0,
+        attn_drop=0.0,
+        edge_drop=0.0,
+        negative_slope=0.2,
+        use_attn_dst=True,
+        residual=False,
+        activation=None,
+        allow_zero_in_degree=False,
+        use_symmetric_norm=False,
+        edge_index = None,
+        weight_initializer = "xavier-normal",
+    ):
+        super().__init__(in_feats, out_feats, num_heads, feat_drop, attn_drop, edge_drop, negative_slope, use_attn_dst, residual, activation, allow_zero_in_degree, use_symmetric_norm)
+        
+        if isinstance(in_feats, tuple):
+            self.fc_src = ExpanderLinear(self._in_src_feats, out_feats * num_heads, False, edge_index[0], weight_initializer)
+            self.fc_dst = ExpanderLinear(self._in_dst_feats, out_feats * num_heads, False, edge_index[1], weight_initializer)        
+        else:
+            self.fc = ExpanderLinear(self._in_src_feats, out_feats * num_heads, False, edge_index[0], weight_initializer)
+
+        if residual:
+            self.res_fc = ExpanderLinear(self._in_dst_feats, num_heads * out_feats, False, edge_index[-1], weight_initializer)
+
+        self.reset_parameters()
+        self._activation = activation
+
+    def reset_parameters(self):
+        gain = nn.init.calculate_gain("relu")
+        if hasattr(self, "fc"):
+            self.fc.reset_parameters()
+        else:
+            self.fc_src.reset_parameters()
+            self.fc_dst.reset_parameters()
+        nn.init.xavier_normal_(self.attn_l, gain=gain)
+        if isinstance(self.attn_r, nn.Parameter):
+            nn.init.xavier_normal_(self.attn_r, gain=gain)
+        if isinstance(self.res_fc, ExpanderLinear):
+            self.res_fc.reset_parameters()
+
+
 # class GATConv(nn.Module):
 #     def __init__(
 #         self,
@@ -439,6 +488,104 @@ class GAT(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.activation = activation
 
+    def forward(self, graph, feat):
+        h = feat
+        h = self.input_drop(h)
+
+        for i in range(self.n_layers):
+            conv = self.convs[i](graph, h)
+
+            h = conv
+
+            if i < self.n_layers - 1:
+                h = h.flatten(1)
+                h = self.norms[i](h)
+                h = self.activation(h, inplace=True)
+                h = self.dropout(h)
+
+        h = h.mean(1)
+        h = self.bias_last(h)
+
+        return h
+
+
+class ExpanderGAT(nn.Module):
+    def __init__(
+        self,
+        in_feats,
+        n_classes,
+        n_hidden,
+        n_layers,
+        n_heads,
+        activation,
+        dropout=0.0,
+        input_drop=0.0,
+        attn_drop=0.0,
+        edge_drop=0.0,
+        use_attn_dst=True,
+        use_symmetric_norm=False,
+        density=0.5,
+        sample_method="prabhu",
+        weight_initializer="xavier-normal",
+        edge_index_list=None, 
+    ):
+        super().__init__()
+        self.in_feats = in_feats
+        self.n_hidden = n_hidden
+        self.n_classes = n_classes
+        self.n_layers = n_layers
+        self.num_heads = n_heads
+
+        self.convs = nn.ModuleList()
+        self.norms = nn.ModuleList()
+
+        self.edge_index_list = []
+        for i in range(n_layers):
+            in_hidden = n_heads * n_hidden if i > 0 else in_feats
+            out_hidden = n_hidden if i < n_layers - 1 else n_classes
+            num_heads = n_heads if i < n_layers - 1 else 1
+            out_channels = n_heads
+
+            if edge_index_list is None:
+                edge_index = []
+                if isinstance(in_hidden, tuple):
+                    edge_index.append(sampler(in_hidden[0], out_hidden*num_heads, density, sample_method))
+                    edge_index.append(sampler(in_hidden[1], out_hidden*num_heads, density, sample_method))
+                else:
+                    edge_index.append(sampler(in_hidden, out_hidden*num_heads, density, sample_method))
+                edge_index.append(sampler(in_hidden, out_hidden*num_heads, density, sample_method))
+                
+                self.edge_index_list.append(edge_index)
+            
+            else:
+                edge_index = edge_index_list[i]
+                if len(self.edge_index_list) == 0:
+                    self.edge_index_list = edge_index_list 
+            
+            self.convs.append(
+                ExpanderGATConv(
+                    in_hidden,
+                    out_hidden,
+                    num_heads=num_heads,
+                    attn_drop=attn_drop,
+                    edge_drop=edge_drop,
+                    use_attn_dst=use_attn_dst,
+                    use_symmetric_norm=use_symmetric_norm,
+                    residual=True,
+                    edge_index=edge_index,
+                    weight_initializer=weight_initializer
+                )
+            )
+
+            if i < n_layers - 1:
+                self.norms.append(nn.BatchNorm1d(out_channels * out_hidden))
+
+        self.bias_last = ElementWiseLinear(n_classes, weight=False, bias=True, inplace=True)
+
+        self.input_drop = nn.Dropout(input_drop)
+        self.dropout = nn.Dropout(dropout)
+        self.activation = activation
+    
     def forward(self, graph, feat):
         h = feat
         h = self.input_drop(h)

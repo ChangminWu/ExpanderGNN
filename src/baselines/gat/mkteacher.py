@@ -16,7 +16,7 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 from ogb.nodeproppred import DglNodePropPredDataset, Evaluator
 
-from models import GAT
+from models import ExpanderGAT, GAT
 
 epsilon = 1 - math.log(2)
 
@@ -71,26 +71,53 @@ def preprocess(graph):
     return graph
 
 
-def gen_model(args):
+def gen_model(args, init=True, run_num=1):
     if args.use_labels:
         n_node_feats_ = n_node_feats + n_classes
     else:
         n_node_feats_ = n_node_feats
 
-    model = GAT(
-        n_node_feats_,
-        n_classes,
-        n_hidden=args.n_hidden,
-        n_layers=args.n_layers,
-        n_heads=args.n_heads,
-        activation=F.relu,
-        dropout=args.dropout,
-        input_drop=args.input_drop,
-        attn_drop=args.attn_drop,
-        edge_drop=args.edge_drop,
-        use_attn_dst=not args.no_attn_dst,
-        use_symmetric_norm=args.use_norm,
-    )
+    if init:
+        edge_index_list = torch.load("./checkpoint/edge_index_{}.pt".format(run_num))
+    else:
+        edge_index_list = None
+    
+    if not args.use_expander:
+        model = ExpanderGAT(
+            n_node_feats_,
+            n_classes,
+            n_hidden=args.n_hidden,
+            n_layers=args.n_layers,
+            n_heads=args.n_heads,
+            activation=F.relu,
+            dropout=args.dropout,
+            input_drop=args.input_drop,
+            attn_drop=args.attn_drop,
+            edge_drop=args.edge_drop,
+            use_attn_dst=not args.no_attn_dst,
+            use_symmetric_norm=args.use_norm,
+            density=args.density,
+            sample_method=args.sample_method,
+            weight_initializer=args.weight_initializer,
+            edge_index_list=edge_index_list,
+        )
+
+    else:
+        model = GAT(
+            n_node_feats_,
+            n_classes,
+            n_hidden=args.n_hidden,
+            n_layers=args.n_layers,
+            n_heads=args.n_heads,
+            activation=F.relu,
+            dropout=args.dropout,
+            input_drop=args.input_drop,
+            attn_drop=args.attn_drop,
+            edge_drop=args.edge_drop,
+            use_attn_dst=not args.no_attn_dst,
+            use_symmetric_norm=args.use_norm,
+        )
+
 
     return model
 
@@ -184,6 +211,10 @@ def save_checkpoint(pred, run_num):
     print('Saving prediction.......')
     torch.save(pred.cpu(),fname)
 
+def save_edge_list(edge_index, run_num):
+    fname = './checkpoint/edge_index_{}.pt'.format(run_num)
+    print("Saving edge index lists......")
+    torch.save(edge_index.cpu(), fname)
 
 def run(args, graph, labels, train_idx, val_idx, test_idx, evaluator, n_running):
     evaluator_wrapper = lambda pred, labels: evaluator.eval(
@@ -191,7 +222,12 @@ def run(args, graph, labels, train_idx, val_idx, test_idx, evaluator, n_running)
     )["acc"]
 
     # define model and optimizer
-    model = gen_model(args).to(device)
+    if n_running > 1:
+        model = gen_model(args, init=True, run_num=1).to(device)
+    else:
+        model = gen_model(args, init=False).to(device)
+        save_edge_list(model.edge_index_list, n_running)
+    
     optimizer = optim.RMSprop(model.parameters(), lr=args.lr, weight_decay=args.wd)
 
     # training loop
@@ -291,7 +327,7 @@ def run(args, graph, labels, train_idx, val_idx, test_idx, evaluator, n_running)
 
 
 def count_parameters(args):
-    model = gen_model(args)
+    model = gen_model(args, init=True, run_num=1)
     return sum([p.numel() for p in model.parameters() if p.requires_grad])
 
 
@@ -325,6 +361,12 @@ def main():
     argparser.add_argument("--log-every", type=int, default=20, help="log every LOG_EVERY epochs")
     argparser.add_argument("--plot-curves", action="store_true", help="plot learning curves")
     argparser.add_argument("--save-pred", action="store_true", help="save final predictions")
+    
+    argparser.add_argument("--use-expander", action="store_true", help="whether use sparsified networks")
+    argparser.add_argument("--density", type=float, default=0.001, help="sparsification rate")
+    argparser.add_argument('--sample-method', type=str, default='prabhu')
+    argparser.add_argument('--weight-initializer', type=str, default='glorot')
+    
     args = argparser.parse_args()
 
     if not args.use_labels and args.n_label_iters > 0:

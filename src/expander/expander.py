@@ -41,7 +41,13 @@ class ExpanderLinear(nn.Module):
             self.nnz_weight.data.uniform_(-stdv, stdv)
         elif self.weight_initializer == "uniform":
             bound = 1.0 / math.sqrt(self.indim)
-            self.nnz_weight.data.uniform(-bound, bound)
+            self.nnz_weight.data.uniform_(-bound, bound)
+        elif self.weight_initializer == "xavier-normal":
+            stdv = math.sqrt(6.0 / (self.indim + self.outdim))
+            self.nnz_weight.data.normal_(0, stdv)
+        elif self.weight_initializer == "xavier-normal-full":
+            stdv = math.sqrt(6.0 / self.weight.nnz())
+            self.nnz_weight.data.normal_(0, stdv)
         elif self.weight_initializer == "ones":
             nn.init.ones_(self.nnz_weight.data)
         elif self.weight_initializer == None:
