@@ -82,7 +82,7 @@ def gen_model(args, init=True, run_num=1):
     else:
         edge_index_list = None
     
-    if not args.use_expander:
+    if args.use_expander:
         model = ExpanderGAT(
             n_node_feats_,
             n_classes,
