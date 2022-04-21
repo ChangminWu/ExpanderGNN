@@ -58,7 +58,7 @@ Hyperparameters for model training of each dataset are stored in the `configs` f
 
 *: Equal Contribution
 
-If you find our repo useful, please cite
+The paper is accepted at ICLR 2022 workshop on *Geometrical and Topological Representation Learning.* If you find our repo useful, please cite
 ```
 @misc{lutzeyer2021sparsifying,
       title={Sparsifying the Update Step in Graph Neural Networks}, 
